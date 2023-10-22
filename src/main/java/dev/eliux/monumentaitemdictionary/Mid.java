@@ -25,15 +25,12 @@ public class Mid implements ModInitializer {
 				controller.tick();
 
 			if (openMenuKey.wasPressed()) {
-				LOGGER.info("Pressed H");
 				if (client.player == null) return;
 
 				// open the item dictionary menu
-				if (controller == null) {
-					LOGGER.info("New controller");
+				if (controller == null) 
 					controller = new DictionaryController();
-				}
-				LOGGER.info("Opening");
+			
 				controller.open();
 			}
 		});
