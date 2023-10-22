@@ -10,7 +10,7 @@
   ],
 
   "license": "GPL-3",
-  "icon": "assets/monumentaitemdictionary/icon.png",
+  "icon": "assets/modid/icon.png",
 
   "environment": "*",
   "entrypoints": {
@@ -23,9 +23,9 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.14.6",
+    "fabricloader": ">=0.14.21",
     "fabric": "*",
-    "minecraft": "~1.19.4",
+    "minecraft": "~1.20.1",
     "java": ">=17"
   },
   "suggests": {

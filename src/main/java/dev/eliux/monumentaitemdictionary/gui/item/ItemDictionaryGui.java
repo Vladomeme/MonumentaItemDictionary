@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.TreeMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -115,21 +115,21 @@ public class ItemDictionaryGui extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context);
 
         // draw the scroll bar
         int totalRows = itemButtons.size();
         int totalPixelHeight = totalRows * itemSize + (totalRows + 1) * itemPadding;
         double bottomPercent = (double)scrollPixels / totalPixelHeight;
         double screenPercent = (double)(height - labelMenuHeight) / totalPixelHeight;
-        drawVerticalLine(matrices, width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
-        drawVerticalLine(matrices, width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
-        drawVerticalLine(matrices, width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
-        drawVerticalLine(matrices, width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
+        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
+        context.drawVerticalLine(width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+        context.drawVerticalLine(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
 
         // draw the sort menu
-        drawVerticalLine(matrices, width - sideMenuWidth, labelMenuHeight, height, 0xFFFFFFFF);
+        context.drawVerticalLine(width - sideMenuWidth, labelMenuHeight, height, 0xFFFFFFFF);
 
         // draw item buttons
         if (!controller.isRequesting) {
@@ -137,46 +137,46 @@ public class ItemDictionaryGui extends Screen {
                     .subMap(labelMenuHeight + scrollPixels - itemSize, true,
                             height + scrollPixels, true)
                     .values()) {
-                row.forEach(b -> b.renderButton(matrices, mouseX, mouseY, delta));
+                row.forEach(b -> b.renderButton(context, mouseX, mouseY, delta));
             }
 
             if (itemButtons.isEmpty()) {
-                drawCenteredTextWithShadow(matrices, textRenderer, "Found No Items", width / 2, labelMenuHeight + 10, 0xFF2222);
+                context.drawCenteredTextWithShadow(textRenderer, "Found No Items", width / 2, labelMenuHeight + 10, 0xFF2222);
 
                 if (controller.anyItems()) {
-                    drawCenteredTextWithShadow(matrices, textRenderer, "It seems like there were no items to begin with...", width / 2, labelMenuHeight + 30, 0xFF2222);
-                    drawCenteredTextWithShadow(matrices, textRenderer, "Try clicking the Reload All Data button in the top left", width / 2, labelMenuHeight + 45, 0xFF2222);
+                    context.drawCenteredTextWithShadow(textRenderer, "It seems like there were no items to begin with...", width / 2, labelMenuHeight + 30, 0xFF2222);
+                    context.drawCenteredTextWithShadow(textRenderer, "Try clicking the Reload All Data button in the top left", width / 2, labelMenuHeight + 45, 0xFF2222);
                 }
             }
         }
 
         if (controller.isRequesting) {
-            drawCenteredTextWithShadow(matrices, textRenderer, "Requesting item data...", width / 2, labelMenuHeight + 10, 0xFF2222);
+            context.drawCenteredTextWithShadow(textRenderer, "Requesting item data...", width / 2, labelMenuHeight + 10, 0xFF2222);
         }
 
         // draw the label at the top
-        matrices.push();
-        matrices.translate(0, 0, 110);
-        fill(matrices, 0, 0, width, labelMenuHeight, 0xFF555555);
-        drawHorizontalLine(matrices, 0, width, labelMenuHeight, 0xFFFFFFFF);
-        drawCenteredTextWithShadow(matrices, textRenderer, Text.literal("Monumenta Item Dictionary").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 110);
+        context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
+        context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Monumenta Item Dictionary").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
+        context.getMatrices().pop();
 
         // draw gui elements
-        matrices.push();
-        matrices.translate(0, 0, 110);
-        searchBar.render(matrices, mouseX, mouseY, delta);
-        reloadItemsButton.render(matrices, mouseX, mouseY, delta);
-        showCharmsButton.render(matrices, mouseX, mouseY, delta);
-        filterButton.render(matrices, mouseX, mouseY, delta);
-        resetFilterButton.render(matrices, mouseX, mouseY, delta);
-        minMasterworkButton.render(matrices, mouseX, mouseY, delta);
-        maxMasterworkButton.render(matrices, mouseX, mouseY, delta);
-        tipsMasterworkButton.render(matrices, mouseX, mouseY, delta);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 110);
+        searchBar.render(context, mouseX, mouseY, delta);
+        reloadItemsButton.render(context, mouseX, mouseY, delta);
+        showCharmsButton.render(context, mouseX, mouseY, delta);
+        filterButton.render(context, mouseX, mouseY, delta);
+        resetFilterButton.render(context, mouseX, mouseY, delta);
+        minMasterworkButton.render(context, mouseX, mouseY, delta);
+        maxMasterworkButton.render(context, mouseX, mouseY, delta);
+        tipsMasterworkButton.render(context, mouseX, mouseY, delta);
+        context.getMatrices().pop();
 
         try {
-            super.render(matrices, mouseX, mouseY, delta);
+            super.render(context, mouseX, mouseY, delta);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -397,7 +397,7 @@ public class ItemDictionaryGui extends Screen {
 
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player != null && player.getAbilities().creativeMode) {
-            lines.add(Text.literal("[ALT] + Click to generate this item").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
+            lines.add(Text.literal("[CTRL] [ALT] + Click to generate this item").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
         }
         lines.add(Text.literal("[CTRL] [SHIFT] + Click to open in the wiki").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
         lines.add(Text.literal(item.type + " - " + item.baseItem).setStyle(Style.EMPTY

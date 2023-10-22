@@ -2,8 +2,8 @@ package dev.eliux.monumentaitemdictionary.gui.widgets;
 
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
@@ -35,16 +35,16 @@ public class ItemIconButtonWidget extends ButtonWidget {
     }
 
     @Override
-    public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        super.renderButton(matrices, mouseX, mouseY, delta);
+    public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.renderButton(context, mouseX, mouseY, delta);
 
-        matrices.push();
-        matrices.translate(0, 0, 120);
-        MinecraftClient.getInstance().getItemRenderer().renderGuiItemIcon(matrices, iconItem, getX() + (width - 16) / 2, getY() + (width - 16) / 2);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 120);
+        context.drawItem(iconItem, getX() + (width - 16) / 2, getY() + (width - 16) / 2);
+        context.getMatrices().pop();
 
         if (isHovered() && MinecraftClient.getInstance().currentScreen != null) {
-            MinecraftClient.getInstance().currentScreen.renderTooltip(matrices, tooltipText, mouseX, mouseY);
+            context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltipText, mouseX, mouseY);
         }
     }
 }

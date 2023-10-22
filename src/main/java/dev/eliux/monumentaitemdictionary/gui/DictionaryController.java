@@ -1,6 +1,7 @@
 package dev.eliux.monumentaitemdictionary.gui;
 
 import com.google.gson.*;
+import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.charm.CharmDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.CharmFilterGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
@@ -110,11 +111,13 @@ public class DictionaryController {
     }
 
     public void open() {
-        if (lastOpenedScreen == null || lastOpenedScreen instanceof ItemDictionaryGui) {
-            setItemDictionaryScreen();
-        } else if (lastOpenedScreen instanceof CharmDictionaryGui) {
+        if (lastOpenedScreen instanceof ItemFilterGui)
+            setItemFilterScreen();
+        else if (lastOpenedScreen instanceof CharmDictionaryGui)
             setCharmDictionaryScreen();
-        }
+        else if (lastOpenedScreen instanceof CharmFilterGui)
+            setCharmFilterScreen();
+        else setItemDictionaryScreen();
     }
 
     public void setItemDictionaryScreen() {

@@ -7,6 +7,7 @@ import dev.eliux.monumentaitemdictionary.util.Filter;
 import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -144,8 +145,8 @@ public class CharmFilterGui extends Screen {
             /*
             ItemIconButtonWidget duplicate = new ItemIconButtonWidget(30, labelMenuHeight + 5 + index * 25, 20, 20, Text.literal(""), b -> {
 
-            }, ((button1, matrices, mouseX, mouseY) -> {
-                renderTooltip(matrices, Text.literal("Duplicate").setStyle(Style.EMPTY.withColor(0x4444FF)), mouseX, mouseY);
+            }, ((button1, mouseX, mouseY) -> {
+                renderTooltip(Text.literal("Duplicate").setStyle(Style.EMPTY.withColor(0x4444FF)), mouseX, mouseY);
             }), "blue_stained_glass_pane", "");
              */
 
@@ -191,60 +192,60 @@ public class CharmFilterGui extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context);
 
         // draw filter buttons and stuff
         boolean anyOpen = false;
         for (DropdownWidget o : filterListOption) if (o.willClick(mouseX, mouseY)) anyOpen = true;
         if (anyOpen) {
-            addFilterButton.render(matrices, 0, 0, delta); // funny band-aid fix for rendering white outline while in dropdown menu
+            addFilterButton.render(context, 0, 0, delta); // funny band-aid fix for rendering white outline while in dropdown menu
         } else {
-            addFilterButton.render(matrices, mouseX, mouseY, delta);
+            addFilterButton.render(context, mouseX, mouseY, delta);
         }
 
         for (DropdownWidget o : filterListOption) {
-            o.renderMain(matrices, mouseX, mouseY, delta);
+            o.renderMain(context, mouseX, mouseY, delta);
         }
         for (DropdownWidget v : filterListValue) {
             if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().equals("") && !filterListOption.get(filterListValue.indexOf(v)).getLastChoice().equals("Charm Power"))
-                v.renderMain(matrices, mouseX, mouseY, delta);
+                v.renderMain(context, mouseX, mouseY, delta);
         }
         for (TextFieldWidget c : filterListConstant) {
             if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat") && !(charmFilters.get(filterListConstant.indexOf(c)).comparator < 2) || filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Charm Power"))
-                c.render(matrices, mouseX, mouseY, delta);
+                c.render(context, mouseX, mouseY, delta);
         }
         for (ButtonWidget c : filterListComparator) {
             if (!filterListOption.get(filterListComparator.indexOf(c)).getLastChoice().equals(""))
-                c.render(matrices, mouseX, mouseY, delta);
+                c.render(context, mouseX, mouseY, delta);
         }
-        filterListDelete.forEach(i -> i.render(matrices, mouseX, mouseY, delta));
-        //filterListDuplicate.forEach(i -> i.render(matrices, mouseX, mouseY, delta));
+        filterListDelete.forEach(i -> i.render(context, mouseX, mouseY, delta));
+        //filterListDuplicate.forEach(i -> i.render(mouseX, mouseY, delta));
 
         for (DropdownWidget o : filterListOption) {
-            o.renderDropdown(matrices, mouseX, mouseY, delta);
+            o.renderDropdown(context, mouseX, mouseY, delta);
         }
         for (DropdownWidget v : filterListValue) {
             if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().equals(""))
-                v.renderDropdown(matrices, mouseX, mouseY, delta);
+                v.renderDropdown(context, mouseX, mouseY, delta);
         }
 
         // draw the label at the top
-        matrices.push();
-        matrices.translate(0, 0, 110);
-        fill(matrices, 0, 0, width, labelMenuHeight, 0xFF555555);
-        drawHorizontalLine(matrices, 0, width, labelMenuHeight, 0xFFFFFFFF);
-        drawCenteredTextWithShadow(matrices, textRenderer, Text.literal("Charm Filters").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFFFAA00);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 110);
+        context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
+        context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Charm Filters").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFFFAA00);
+        context.getMatrices().pop();
 
         // draw gui elements
-        matrices.push();
-        matrices.translate(0, 0, 110);
-        backButton.render(matrices, mouseX, mouseY, delta);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 110);
+        backButton.render(context, mouseX, mouseY, delta);
+        context.getMatrices().pop();
 
         try {
-            super.render(matrices, mouseX, mouseY, delta);
+            super.render(context, mouseX, mouseY, delta);
         } catch (Exception e) {
             e.printStackTrace();
         }
