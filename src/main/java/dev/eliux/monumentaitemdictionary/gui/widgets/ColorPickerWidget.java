@@ -1,6 +1,7 @@
 package dev.eliux.monumentaitemdictionary.gui.widgets;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -36,44 +37,44 @@ public class ColorPickerWidget extends ButtonWidget {
         brightness = hsb[2];
     }
 
-    public void renderMain(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void renderMain(DrawContext context, int mouseX, int mouseY, float delta) {
         if (!visible) return;
 
         int borderColor = isOpen ? 0xFFFFFFFF : 0xFFAAAAAA;
 
-        fill(matrices, getX(), getY(), getX() + getWidth(), getY() + getHeight(), displayColor);
-        drawHorizontalLine(matrices, getX() - 1, getX() + getWidth(), getY() - 1, borderColor);
-        drawHorizontalLine(matrices, getX() - 1, getX() + getWidth(), getY() + getHeight(), borderColor);
-        drawVerticalLine(matrices, getX() - 1, getY() - 1, getY() + getHeight(), borderColor);
-        drawVerticalLine(matrices, getX() + getWidth(), getY() - 1, getY() + getHeight(), borderColor);
+        context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), displayColor);
+        context.drawHorizontalLine(getX() - 1, getX() + getWidth(), getY() - 1, borderColor);
+        context.drawHorizontalLine(getX() - 1, getX() + getWidth(), getY() + getHeight(), borderColor);
+        context.drawVerticalLine(getX() - 1, getY() - 1, getY() + getHeight(), borderColor);
+        context.drawVerticalLine(getX() + getWidth(), getY() - 1, getY() + getHeight(), borderColor);
     }
 
-    public void renderPopup(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void renderPopup(DrawContext context, int mouseX, int mouseY, float delta) {
         if (!visible || !isOpen) return;
 
         // main box
         for (int x = 0; x < popupWidth; x++) {
             for (int y = 0; y < popupHeight; y++) {
                 int color = Color.HSBtoRGB(hue, (float)x / popupWidth, 1f - ((float)y / popupHeight));
-                fill(matrices, getX() + x, getY() + getHeight() + y, getX() + x + 1, getY() + getHeight() + y + 1, color);
+                context.fill(getX() + x, getY() + getHeight() + y, getX() + x + 1, getY() + getHeight() + y + 1, color);
             }
         }
 
-        drawHorizontalLine(matrices, getX() - 1, getX() + popupWidth, getY() + getHeight(), 0xFFFFFFFF);
-        drawHorizontalLine(matrices, getX() - 1, getX() + popupWidth, getY() + getHeight() + popupHeight, 0xFFFFFFFF);
-        drawVerticalLine(matrices, getX() - 1, getY() + getHeight(), getY() + getHeight() + popupHeight, 0xFFFFFFFF);
-        drawVerticalLine(matrices, getX() + popupWidth, getY() + getHeight(), getY() + getHeight() + popupHeight, 0xFFFFFFFF);
+        context.drawHorizontalLine(getX() - 1, getX() + popupWidth, getY() + getHeight(), 0xFFFFFFFF);
+        context.drawHorizontalLine(getX() - 1, getX() + popupWidth, getY() + getHeight() + popupHeight, 0xFFFFFFFF);
+        context.drawVerticalLine(getX() - 1, getY() + getHeight(), getY() + getHeight() + popupHeight, 0xFFFFFFFF);
+        context.drawVerticalLine(getX() + popupWidth, getY() + getHeight(), getY() + getHeight() + popupHeight, 0xFFFFFFFF);
 
         // hue box
         for (int x = 0; x < popupWidth; x++) {
             int color = Color.HSBtoRGB((float)x / popupWidth, 1, 1);
-            fill(matrices, getX() + x, getY() + getHeight() + popupHeight + 4, getX() + x + 1, getY() + getHeight() + popupHeight + 10, color);
+            context.fill(getX() + x, getY() + getHeight() + popupHeight + 4, getX() + x + 1, getY() + getHeight() + popupHeight + 10, color);
         }
 
-        drawHorizontalLine(matrices, getX() - 1, getX() + popupWidth, getY() + getHeight() + popupHeight + 4, 0xFFFFFFFF);
-        drawHorizontalLine(matrices, getX() - 1, getX() + popupWidth, getY() + getHeight() + popupHeight + 10, 0xFFFFFFFF);
-        drawVerticalLine(matrices, getX() - 1, getY() + getHeight() + popupHeight + 4, getY() + getHeight() + popupHeight + 10, 0xFFFFFFFF);
-        drawVerticalLine(matrices, getX() + popupWidth, getY() + getHeight() + popupHeight + 4, getY() + getHeight() + popupHeight + 10, 0xFFFFFFFF);
+        context.drawHorizontalLine(getX() - 1, getX() + popupWidth, getY() + getHeight() + popupHeight + 4, 0xFFFFFFFF);
+        context.drawHorizontalLine(getX() - 1, getX() + popupWidth, getY() + getHeight() + popupHeight + 10, 0xFFFFFFFF);
+        context.drawVerticalLine(getX() - 1, getY() + getHeight() + popupHeight + 4, getY() + getHeight() + popupHeight + 10, 0xFFFFFFFF);
+        context.drawVerticalLine(getX() + popupWidth, getY() + getHeight() + popupHeight + 4, getY() + getHeight() + popupHeight + 10, 0xFFFFFFFF);
     }
 
     public boolean willClick(double mouseX, double mouseY) {

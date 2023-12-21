@@ -36,8 +36,6 @@ public class Mid implements ModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (controller == null) {
 				controller = new DictionaryController();
-
-				controller.requestAndUpdate();
 			}
 
 			controller.tick();
