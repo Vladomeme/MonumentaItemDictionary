@@ -9,6 +9,7 @@ import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -123,72 +124,72 @@ public class CharmDictionaryGui extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context);
 
         // draw the scroll bar
         int totalRows = (int) Math.ceil((double)charmButtons.size() / (double)((width - sideMenuWidth - 5) / (itemSize + itemPadding)));
         int totalPixelHeight = totalRows * itemSize + (totalRows + 1) * itemPadding;
         double bottomPercent = (double)scrollPixels / totalPixelHeight;
         double screenPercent = (double)(height - labelMenuHeight) / totalPixelHeight;
-        drawVerticalLine(matrices, width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
-        drawVerticalLine(matrices, width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
-        drawVerticalLine(matrices, width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
-        drawVerticalLine(matrices, width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
+        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
+        context.drawVerticalLine(width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+        context.drawVerticalLine(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
 
         // draw the sort menu
-        drawVerticalLine(matrices, width - sideMenuWidth, labelMenuHeight, height, 0xFFFFFFFF);
+        context.drawVerticalLine(width - sideMenuWidth, labelMenuHeight, height, 0xFFFFFFFF);
 
         // draw item buttons
         if (!controller.isRequesting) {
             charmButtons.forEach(b -> {
                 if (b.getY() - scrollPixels + itemSize >= labelMenuHeight && b.getY() - scrollPixels <= height) {
-                    b.renderButton(matrices, mouseX, mouseY, delta);
+                    b.renderButton(context, mouseX, mouseY, delta);
                 }
             });
 
             if (charmButtons.isEmpty()) {
-                drawCenteredTextWithShadow(matrices, textRenderer, "Found No Charms", width / 2, labelMenuHeight + 10, 0xFF2222);
+                context.drawCenteredTextWithShadow(textRenderer, "Found No Charms", width / 2, labelMenuHeight + 10, 0xFF2222);
 
                 if (controller.anyCharms()) {
-                    drawCenteredTextWithShadow(matrices, textRenderer, "It seems like there were no charms to begin with...", width / 2, labelMenuHeight + 30, 0xFF2222);
-                    drawCenteredTextWithShadow(matrices, textRenderer, "Try clicking the Reload All Data button in the top left", width / 2, labelMenuHeight + 45, 0xFF2222);
+                    context.drawCenteredTextWithShadow(textRenderer, "It seems like there were no charms to begin with...", width / 2, labelMenuHeight + 30, 0xFF2222);
+                    context.drawCenteredTextWithShadow(textRenderer, "Try clicking the Reload All Data button in the top left", width / 2, labelMenuHeight + 45, 0xFF2222);
                 }
             }
         }
 
         if (controller.isRequesting) {
-            drawCenteredTextWithShadow(matrices, textRenderer, "Requesting item data...", width / 2, labelMenuHeight + 10, 0xFF2222);
+            context.drawCenteredTextWithShadow(textRenderer, "Requesting item data...", width / 2, labelMenuHeight + 10, 0xFF2222);
         }
 
         // draw the label at the top
-        matrices.push();
-        matrices.translate(0, 0, 110);
-        fill(matrices, 0, 0, width, labelMenuHeight, 0xFF555555);
-        drawHorizontalLine(matrices, 0, width, labelMenuHeight, 0xFFFFFFFF);
-        drawCenteredTextWithShadow(matrices, textRenderer, Text.literal("Monumenta Charm Dictionary").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFd8b427);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 110);
+        context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
+        context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Monumenta Charm Dictionary").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFd8b427);
+        context.getMatrices().pop();
 
         // draw gui elements
-        matrices.push();
-        matrices.translate(0, 0, 110);
-        searchBar.render(matrices, mouseX, mouseY, delta);
-        reloadCharmsButton.render(matrices, mouseX, mouseY, delta);
-        filterButton.render(matrices, mouseX, mouseY, delta);
-        resetFilterButton.render(matrices, mouseX, mouseY, delta);
-        tipsMasterworkButton.render(matrices, mouseX, mouseY, delta);
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 110);
+        searchBar.render(context, mouseX, mouseY, delta);
+        reloadCharmsButton.render(context, mouseX, mouseY, delta);
+        filterButton.render(context, mouseX, mouseY, delta);
+        resetFilterButton.render(context, mouseX, mouseY, delta);
+        tipsMasterworkButton.render(context, mouseX, mouseY, delta);
 
         if (!isGettingBuildCharm) {
-            showItemsButton.render(matrices, mouseX, mouseY, delta);
-            buildDictionaryButton.render(matrices, mouseX, mouseY, delta);
+            showItemsButton.render(context, mouseX, mouseY, delta);
+            buildDictionaryButton.render(context, mouseX, mouseY, delta);
         } else {
-            builderButton.render(matrices, mouseX, mouseY, delta);
+            builderButton.render(context, mouseX, mouseY, delta);
         }
 
-        matrices.pop();
+        context.getMatrices().pop();
 
         try {
-            super.render(matrices, mouseX, mouseY, delta);
+            super.render(context, mouseX, mouseY, delta);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -10,6 +10,7 @@ import dev.eliux.monumentaitemdictionary.gui.widgets.CheckBoxWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.*;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
@@ -495,22 +496,21 @@ public class BuilderGui extends Screen {
         updateButtons();
     }
 
-    private void drawButtons(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        buildItemButtons.forEach((b) -> b.renderButton(matrices, mouseX, mouseY, delta));
-        buildCharmButtons.forEach((b) -> b.renderButton(matrices, mouseX, mouseY, delta));
-        situationalCheckBoxList.forEach((b) -> b.renderButton(matrices, mouseX, mouseY, delta));
-        infusionsCheckBoxList.forEach((b) -> b.renderButton(matrices, mouseX, mouseY, delta));
+    private void drawButtons(DrawContext context, int mouseX, int mouseY, float delta) {
+        buildItemButtons.forEach((b) -> b.renderButton(context, mouseX, mouseY, delta));
+        buildCharmButtons.forEach((b) -> b.renderButton(context, mouseX, mouseY, delta));
+        situationalCheckBoxList.forEach((b) -> b.renderButton(context, mouseX, mouseY, delta));
+        infusionsCheckBoxList.forEach((b) -> b.renderButton(context, mouseX, mouseY, delta));
     }
 
-    private void drawItemText(MatrixStack matrices) {
+    private void drawItemText(DrawContext context) {
         for (int i = 0;i < buildItems.size(); i++) {
             DictionaryItem item = buildItems.get(i);
             if (item != null) {
                 int x = ((i < 2) ? halfWidth + halfWidthPadding : itemPadding) + buttonSize + 2*itemPadding;
                 int y = 10 + labelMenuHeight + itemPadding + (buttonSize+itemPadding)*(i < 2 ? i : i - 2) - scrollPixels;
                 String itemText = getSlidingText(item.name, x, (i < 2) ? width - sideMenuWidth : width/3, true);
-                drawTextWithShadow(matrices,
-                        textRenderer,
+                context.drawTextWithShadow(textRenderer,
                         Text.literal(itemText).setStyle(Style.EMPTY.withBold(true).withUnderline(true)),
                         x,
                         y,
@@ -522,8 +522,7 @@ public class BuilderGui extends Screen {
             int x = ((i < 2) ? halfWidth + halfWidthPadding : itemPadding) + buttonSize + 2*itemPadding;
             int y = labelMenuHeight + itemPadding + (buttonSize+itemPadding)*(i < 2 ? i : i - 2) - scrollPixels;
             String text = getSlidingText(itemTypesIndex.get(i), x, (i < 2) ? width - sideMenuWidth : width/3, true);
-            drawTextWithShadow(matrices,
-                    textRenderer,
+            context.drawTextWithShadow(textRenderer,
                     Text.literal(text).setStyle(Style.EMPTY.withBold(true)),
                     x,
                     y,
@@ -532,20 +531,20 @@ public class BuilderGui extends Screen {
 
         String stars = "★".repeat(getCharmsListWithPower().size()) + "☆".repeat(12 - getCharmsListWithPower().size()) + " " + getCharmsListWithPower().size() + "/12";
         stars = (textRenderer.getWidth(stars) > width - sideMenuWidth - charmsX) ? getCharmsListWithPower().size() + "/12" : stars;
-        drawTextWithShadow(matrices, textRenderer,
+        context.drawTextWithShadow(textRenderer,
                 Text.literal("Charms"),
                 charmsX, charmsY-20 - scrollPixels, 0xFFFFFFFF);
-        drawTextWithShadow(matrices, textRenderer,
+        context.drawTextWithShadow(textRenderer,
                 Text.literal(stars),
                 charmsX, charmsY - 10 - scrollPixels, 0xFFFFFF00);
         if (getCharmsListWithPower().size() == 12) {
-            drawTextWithShadow(matrices, textRenderer,
+            context.drawTextWithShadow(textRenderer,
                     Text.literal(getSlidingText("Full Charms", charmsX, width - labelMenuHeight, true)).setStyle(Style.EMPTY.withBold(true).withUnderline(true)),
                     charmsX, charmsY-30 - scrollPixels, 0xFFFF0000);
         }
 
         if (!statusText.isEmpty()) {
-            drawTextWithShadow(matrices, textRenderer, Text.literal(statusText), itemPadding, statusY - scrollPixels, 0xFFFF0000);
+            context.drawTextWithShadow(textRenderer, Text.literal(statusText), itemPadding, statusY - scrollPixels, 0xFFFF0000);
         }
     }
 
@@ -561,7 +560,7 @@ public class BuilderGui extends Screen {
         return (text + " " + text + " " + text).substring(start, start + textLength);
     }
 
-    private void drawStats(MatrixStack matrices) {
+    private void drawStats(DrawContext context) {
         if (statsToRender.isEmpty()) return;
         List<String> statsTypes = new ArrayList<>(Arrays.asList("Misc Stats", "Health Stats", "DR Stats", "HP Normalized DR Stats", "EHP Stats", "Melee Stats", "Projectile Stats", "Magic Stats"));
         List<List<String>> statsByType = new ArrayList<>();
@@ -578,10 +577,10 @@ public class BuilderGui extends Screen {
         int i = 0;
         int j = 0;
         for (List<String> stats : statsByType) {
-            drawTextWithShadow(matrices, textRenderer, Text.literal(statsTypes.get(i)).setStyle(Style.EMPTY.withBold(true)), itemPadding + (i/4)* statsColumn, statsY + (j*10)% statsRow - scrollPixels, 0xFF92BDA3);
+            context.drawTextWithShadow(textRenderer, Text.literal(statsTypes.get(i)).setStyle(Style.EMPTY.withBold(true)), itemPadding + (i/4)* statsColumn, statsY + (j*10)% statsRow - scrollPixels, 0xFF92BDA3);
             for (String stat : stats) {
                 j++;
-                drawTextWithShadow(matrices, textRenderer, Text.literal(stat), itemPadding + (i/4)* statsColumn, statsY + (j*10)% statsRow - scrollPixels, 0xFFA1BA89);
+                context.drawTextWithShadow(textRenderer, Text.literal(stat), itemPadding + (i/4)* statsColumn, statsY + (j*10)% statsRow - scrollPixels, 0xFFA1BA89);
             }
             j += 2;
             i++;
@@ -589,8 +588,8 @@ public class BuilderGui extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context);
 
         deltaTicks += delta;
         textTimeOffset += (deltaTicks >= 20) ? 1 : 0;
@@ -601,41 +600,41 @@ public class BuilderGui extends Screen {
         int totalPixelHeight = totalRows * buttonSize + (totalRows + 1) * itemPadding;
         double bottomPercent = (double)scrollPixels / totalPixelHeight;
         double screenPercent = (double)(height - labelMenuHeight) / totalPixelHeight;
-        drawVerticalLine(matrices, width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
-        drawVerticalLine(matrices, width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
-        drawVerticalLine(matrices, width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
-        drawVerticalLine(matrices, width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
+        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
+        context.drawVerticalLine(width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+        context.drawVerticalLine(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
 
 
         updateGuiPositions();
         updateButtons();
-        classButton.render(matrices, mouseX, mouseY, delta);
-        specializationButton.render(matrices, mouseX, mouseY, delta);
-        drawButtons(matrices, mouseX, mouseY, delta);
-        drawItemText(matrices);
-        drawStats(matrices);
+        classButton.render(context, mouseX, mouseY, delta);
+        specializationButton.render(context, mouseX, mouseY, delta);
+        drawButtons(context, mouseX, mouseY, delta);
+        drawItemText(context);
+        drawStats(context);
 
-        matrices.push();
-        matrices.translate(0, 0, 440);
-        fill(matrices, 0, 0, width, labelMenuHeight, 0xFF555555);
-        drawHorizontalLine(matrices, 0, width, labelMenuHeight, 0xFFFFFFFF);
-        drawTextWithShadow(matrices, textRenderer, Text.literal("Monumenta Builder").setStyle(Style.EMPTY.withBold(true)), 185, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
-        matrices.pop();
-        drawVerticalLine(matrices, width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA);
-        drawVerticalLine(matrices, width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 440);
+        context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
+        context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
+        context.drawTextWithShadow(textRenderer, Text.literal("Monumenta Builder").setStyle(Style.EMPTY.withBold(true)), 185, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
+        context.getMatrices().pop();
+        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA);
+        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
 
-        matrices.push();
-        matrices.translate(0, 0, 200);
-        regionButton.render(matrices, mouseX, mouseY, delta);
-        nameBar.render(matrices, mouseX, mouseY, delta);
-        currentHealthSlider.render(matrices, mouseX, mouseY, delta);
-        addBuildButton.render(matrices, mouseX, mouseY, delta);
-        setBuildFromClipboardButton.render(matrices, mouseX, mouseY, delta);
-        showBuildDictionaryButton.render(matrices, mouseX, mouseY, delta);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 500);
+        regionButton.render(context, mouseX, mouseY, delta);
+        nameBar.render(context, mouseX, mouseY, delta);
+        currentHealthSlider.render(context, mouseX, mouseY, delta);
+        addBuildButton.render(context, mouseX, mouseY, delta);
+        setBuildFromClipboardButton.render(context, mouseX, mouseY, delta);
+        showBuildDictionaryButton.render(context, mouseX, mouseY, delta);
+        context.getMatrices().pop();
 
         try {
-            super.render(matrices, mouseX, mouseY, delta);
+            super.render(context, mouseX, mouseY, delta);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -652,7 +651,11 @@ public class BuilderGui extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         super.mouseClicked(mouseX, mouseY, button);
 
-        nameBar.mouseClicked(mouseX, mouseY, button);
+        if (nameBar.isMouseOver(mouseX, mouseY)) {
+            nameBar.setFocused(true);
+            nameBar.mouseClicked(mouseX, mouseY, button);
+        }
+        else nameBar.setFocused(false);
         regionButton.mouseClicked(mouseX, mouseY, button);
         classButton.mouseClicked(mouseX, mouseY, button);
         specializationButton.mouseClicked(mouseX, mouseY, button);

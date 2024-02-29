@@ -10,6 +10,7 @@ import dev.eliux.monumentaitemdictionary.gui.widgets.DropdownWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -163,11 +164,11 @@ public class GeneratorGui extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        super.render(matrices, mouseX, mouseY, delta);
-        this.renderBackground(matrices);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.render(context, mouseX, mouseY, delta);
+        this.renderBackground(context);
 
-        textRenderer.drawTrimmed(matrices, StringVisitable.plain("Preview:"), 130, labelMenuHeight + 23, 60, 0xFFFFFFFF);
+        context.drawTextWrapped(textRenderer, StringVisitable.plain("Preview:"), 130, labelMenuHeight + 23, 60, 0xFFFFFFFF);
         if (lastFocused != null && MinecraftClient.getInstance().currentScreen != null) {
 
             int minX = 175;
@@ -175,58 +176,58 @@ public class GeneratorGui extends Screen {
             int maxX = 199;
             int maxY = labelMenuHeight + 38;
 
-            fill(matrices, minX, minY, maxX, maxY, 0x6B666666);
-            drawHorizontalLine(matrices, minX, maxX, minY, 0xFFCCCCCC);
-            drawHorizontalLine(matrices, minX, maxX, maxY, 0xFFCCCCCC);
-            drawVerticalLine(matrices, minX, minY, maxY, 0xFFCCCCCC);
-            drawVerticalLine(matrices, maxX, minY, maxY, 0xFFCCCCCC);
+            context.fill(minX, minY, maxX, maxY, 0x6B666666);
+            context.drawHorizontalLine(minX, maxX, minY, 0xFFCCCCCC);
+            context.drawHorizontalLine(minX, maxX, maxY, 0xFFCCCCCC);
+            context.drawVerticalLine(minX, minY, maxY, 0xFFCCCCCC);
+            context.drawVerticalLine(maxX, minY, maxY, 0xFFCCCCCC);
 
-            MinecraftClient.getInstance().getItemRenderer().renderGuiItemIcon(matrices, generatedItem, 180, labelMenuHeight + 18);
+            context.drawItem(generatedItem, 180, labelMenuHeight + 18);
 
-            MinecraftClient.getInstance().currentScreen.renderTooltip(matrices, generatedItem.getTooltip(MinecraftClient.getInstance().player, MinecraftClient.getInstance().options.advancedItemTooltips ? TooltipContext.ADVANCED : TooltipContext.BASIC), 118, labelMenuHeight + 61);
+            context.drawTooltip(textRenderer, generatedItem.getTooltip(MinecraftClient.getInstance().player, MinecraftClient.getInstance().options.advancedItemTooltips ? TooltipContext.ADVANCED : TooltipContext.BASIC), 118, labelMenuHeight + 61);
         }
 
         // draw vertical line
-        matrices.push();
-        matrices.translate(0, 0, 100);
-        drawVerticalLine(matrices, 113, labelMenuHeight, height, 0xFFFFFFFF);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 100);
+        context.drawVerticalLine(113, labelMenuHeight, height, 0xFFFFFFFF);
+        context.getMatrices().pop();
 
-        giveButton.render(matrices, mouseX, mouseY, delta);
+        giveButton.render(context, mouseX, mouseY, delta);
 
         if (lastFocused == DictionaryItem.class && focusedItem.hasMasterwork) {
-            matrices.push();
-            matrices.translate(0, 0, 200);
-            textRenderer.drawTrimmed(matrices, StringVisitable.plain("Change Masterwork Level"), 10, labelMenuHeight + 40, 100, 0xFFFFFFFF);
-            decreaseMasterworkButton.render(matrices, mouseX, mouseY, delta);
-            increaseMasterworkButton.render(matrices, mouseX, mouseY, delta);
-            matrices.pop();
+            context.getMatrices().push();
+            context.getMatrices().translate(0, 0, 200);
+            context.drawTextWrapped(textRenderer, StringVisitable.plain("Change Masterwork Level"), 10, labelMenuHeight + 40, 100, 0xFFFFFFFF);
+            decreaseMasterworkButton.render(context, mouseX, mouseY, delta);
+            increaseMasterworkButton.render(context, mouseX, mouseY, delta);
+            context.getMatrices().pop();
         }
 
         if (generatedItem.getItem() instanceof DyeableItem) {
-            matrices.push();
-            matrices.translate(0, 0, 200);
-            textRenderer.drawTrimmed(matrices, StringVisitable.plain("Set Dye Color"), 10, labelMenuHeight + 92, 100, 0xFFFFFFFF);
-            colorSelectDropdown.renderMain(matrices, mouseX, mouseY, delta);
-            customColorTextField.render(matrices, mouseX, mouseY, delta);
-            colorPicker.renderMain(matrices, mouseX, mouseY, delta);
-            colorSelectDropdown.renderDropdown(matrices, mouseX, mouseY, delta);
-            colorPicker.renderPopup(matrices, mouseX, mouseY, delta);
-            matrices.pop();
+            context.getMatrices().push();
+            context.getMatrices().translate(0, 0, 200);
+            context.drawTextWrapped(textRenderer, StringVisitable.plain("Set Dye Color"), 10, labelMenuHeight + 92, 100, 0xFFFFFFFF);
+            colorSelectDropdown.renderMain(context, mouseX, mouseY, delta);
+            customColorTextField.render(context, mouseX, mouseY, delta);
+            colorPicker.renderMain(context, mouseX, mouseY, delta);
+            colorSelectDropdown.renderDropdown(context, mouseX, mouseY, delta);
+            colorPicker.renderPopup(context, mouseX, mouseY, delta);
+            context.getMatrices().pop();
         }
 
         // draw the label at the tops
-        matrices.push();
-        matrices.translate(0, 0, 100);
-        fill(matrices, 0, 0, width, labelMenuHeight, 0xFF555555);
-        drawHorizontalLine(matrices, 0, width, labelMenuHeight, 0xFFFFFFFF);
-        drawCenteredTextWithShadow(matrices, textRenderer, Text.literal("Monumenta Item Generator").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFeb4034);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 100);
+        context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
+        context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Monumenta Item Generator").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFeb4034);
+        context.getMatrices().pop();
 
-        matrices.push();
-        matrices.translate(0, 0, 110);
-        backButton.render(matrices, mouseX, mouseY, delta);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 110);
+        backButton.render(context, mouseX, mouseY, delta);
+        context.getMatrices().pop();
     }
 
     @Override

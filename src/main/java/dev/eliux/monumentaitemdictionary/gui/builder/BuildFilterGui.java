@@ -5,6 +5,7 @@ import dev.eliux.monumentaitemdictionary.gui.widgets.DropdownWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.Filter;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -132,56 +133,56 @@ public class BuildFilterGui extends Screen {
     private void updateFilterOutput() {controller.updateBuildFilters(buildFilters);}
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context);
 
         boolean anyOpen = false;
         for (DropdownWidget o : filterListOption) if (o.willClick(mouseX, mouseY)) anyOpen = true;
         if (anyOpen) {
-            addFilterButton.render(matrices, 0, 0, delta);
+            addFilterButton.render(context, 0, 0, delta);
         } else {
-            addFilterButton.render(matrices, mouseX, mouseY, delta);
+            addFilterButton.render(context, mouseX, mouseY, delta);
         }
 
         for (DropdownWidget o : filterListOption) {
-            o.renderMain(matrices, mouseX, mouseY, delta);
+            o.renderMain(context, mouseX, mouseY, delta);
         }
         for (DropdownWidget v : filterListValue) {
             if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty())
-                v.renderMain(matrices, mouseX, mouseY, delta);
+                v.renderMain(context, mouseX, mouseY, delta);
         }
         for (TextFieldWidget c : filterListConstant) {
             if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat") && !(buildFilters.get(filterListConstant.indexOf(c)).comparator < 2))
-                c.render(matrices, mouseX, mouseY, delta);
+                c.render(context, mouseX, mouseY, delta);
         }
         for (ButtonWidget c : filterListComparator) {
             if (!filterListOption.get(filterListComparator.indexOf(c)).getLastChoice().isEmpty())
-                c.render(matrices, mouseX, mouseY, delta);
+                c.render(context, mouseX, mouseY, delta);
         }
-        filterListDelete.forEach(i -> i.render(matrices, mouseX, mouseY, delta));
+        filterListDelete.forEach(i -> i.render(context, mouseX, mouseY, delta));
 
         for (DropdownWidget o : filterListOption) {
-            o.renderDropdown(matrices, mouseX, mouseY, delta);
+            o.renderDropdown(context, mouseX, mouseY, delta);
         }
         for (DropdownWidget v : filterListValue) {
             if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty())
-                v.renderDropdown(matrices, mouseX, mouseY, delta);
+                v.renderDropdown(context, mouseX, mouseY, delta);
         }
 
-        matrices.push();
-        matrices.translate(0, 0, 110);
-        fill(matrices, 0, 0, width, labelMenuHeight, 0xFF555555);
-        drawHorizontalLine(matrices, 0, width, labelMenuHeight, 0xFFFFFFFF);
-        drawCenteredTextWithShadow(matrices, textRenderer, Text.literal("Build Filters").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFFFAA00);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 110);
+        context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
+        context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Build Filters").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFFFAA00);
+        context.getMatrices().pop();
 
-        matrices.push();
-        matrices.translate(0, 0, 110);
-        backButton.render(matrices, mouseX, mouseY, delta);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 110);
+        backButton.render(context, mouseX, mouseY, delta);
+        context.getMatrices().pop();
 
         try {
-            super.render(matrices, mouseX, mouseY, delta);
+            super.render(context, mouseX, mouseY, delta);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -8,6 +8,7 @@ import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
@@ -53,7 +54,7 @@ public class BuildButtonWidget extends ButtonWidget {
     }
 
     @Override
-    public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
         int minX = getX();
         int minY = getY();
         int maxX = minX + width;
@@ -67,13 +68,13 @@ public class BuildButtonWidget extends ButtonWidget {
         int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
 
-        fill(matrices, minX, minY, maxX, maxY, favorite ? 0x88FFFF00 : fillOpacity | (!Objects.equals(build.className, "No Class") ? ItemColors.getColorForClass(build.className) : 0x00000000));
-        drawHorizontalLine(matrices, minX, maxX, minY, outlineColor);
-        drawHorizontalLine(matrices, minX, maxX, maxY, outlineColor);
-        drawVerticalLine(matrices, minX, minY, maxY, outlineColor);
-        drawVerticalLine(matrices, maxX, minY, maxY, outlineColor);
+        context.fill(minX, minY, maxX, maxY, favorite ? 0x88FFFF00 : fillOpacity | (!Objects.equals(build.className, "No Class") ? ItemColors.getColorForClass(build.className) : 0x00000000));
+        context.drawHorizontalLine(minX, maxX, minY, outlineColor);
+        context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
+        context.drawVerticalLine(minX, minY, maxY, outlineColor);
+        context.drawVerticalLine(maxX, minY, maxY, outlineColor);
 
-        MinecraftClient.getInstance().getItemRenderer().renderGuiItemIcon(matrices, builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);
+        context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);
 
         if (hovered) {
             List<Text> lines = new ArrayList<>();
@@ -90,7 +91,7 @@ public class BuildButtonWidget extends ButtonWidget {
 
             lines.add(Text.literal("SHIFT + Click to toggle favorite on this build").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
             lines.add(Text.literal("CTRL + SHIFT + Click to delete this build").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
-            gui.renderTooltip(matrices, lines, mouseX, mouseY);
+            context.drawTooltip(MinecraftClient.getInstance().textRenderer, lines, mouseX, mouseY);
         }
     }
 

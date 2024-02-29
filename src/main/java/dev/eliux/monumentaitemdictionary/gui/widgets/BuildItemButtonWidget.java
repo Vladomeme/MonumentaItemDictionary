@@ -6,6 +6,8 @@ import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
@@ -49,7 +51,7 @@ public class BuildItemButtonWidget extends ButtonWidget {
     }
 
     @Override
-    public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
         RenderSystem.enableDepthTest();
 
         int minX = getX();
@@ -63,22 +65,22 @@ public class BuildItemButtonWidget extends ButtonWidget {
         int outlineColor = hovered ?  0xFFC6C6C6 : 0xFFFFFFFF;
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
 
-        fill(matrices, minX, minY, maxX, maxY, fillOpacity | (gui.itemOnBuildButton == item && item != null ? 0x000FF000 : 0x00000000) | (item != null ? (ItemColors.getColorForTier(item.hasMasterwork ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork())) : 0x00000000));
-        drawHorizontalLine(matrices, minX, maxX, minY, outlineColor);
-        drawHorizontalLine(matrices, minX, maxX, maxY, outlineColor);
-        drawVerticalLine(matrices, minX, minY, maxY, outlineColor);
-        drawVerticalLine(matrices, maxX, minY, maxY, outlineColor);
+        context.fill(minX, minY, maxX, maxY, fillOpacity | (gui.itemOnBuildButton == item && item != null ? 0x000FF000 : 0x00000000) | (item != null ? (ItemColors.getColorForTier(item.hasMasterwork ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork())) : 0x00000000));
+        context.drawHorizontalLine(minX, maxX, minY, outlineColor);
+        context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
+        context.drawVerticalLine(minX, minY, maxY, outlineColor);
+        context.drawVerticalLine(maxX, minY, maxY, outlineColor);
 
-        matrices.push();
-        matrices.scale(scale, scale, scale);
-        MinecraftClient.getInstance().getItemRenderer().renderGuiItemIcon(matrices, builtItem, (int) ceil((minX + (double) width/2 - ceil(
+        context.getMatrices().push();
+        context.getMatrices().scale(scale, scale, scale);
+        context.drawItem(builtItem, (int) ceil((minX + (double) width/2 - ceil(
                 (double) itemSize/2))/scale), (int) ceil((minY + (double) height/2 - ceil((double) itemSize/2))/scale));
-        matrices.pop();
+        context.getMatrices().pop();
 
         if (hovered) {
             List<Text> lines = new ArrayList<>();
             lines.add(Text.literal("Click to add an item."));
-            gui.renderTooltip(matrices, (item != null ? lore.get() : lines), mouseX, mouseY);
+            context.drawTooltip(MinecraftClient.getInstance().textRenderer, (item != null ? lore.get() : lines), mouseX, mouseY);
         }
     }
 }

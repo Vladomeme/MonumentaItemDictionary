@@ -8,6 +8,7 @@ import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.gui.widgets.BuildButtonWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -127,35 +128,35 @@ public class BuildDictionaryGui extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context);
 
-        matrices.push();
-        matrices.translate(0, 0, 110);
-        fill(matrices, 0, 0, width, labelMenuHeight, 0xFF555555);
-        drawHorizontalLine(matrices, 0, width, labelMenuHeight, 0xFFFFFFFF);
-        drawCenteredTextWithShadow(matrices, textRenderer, Text.literal("Build Dictionary").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
-        matrices.pop();
-        drawVerticalLine(matrices, width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
-        drawVerticalLine(matrices, width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 110);
+        context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
+        context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Build Dictionary").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
+        context.getMatrices().pop();
+        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
+        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
 
-        buildsButtons.forEach((build, button) -> button.renderButton(matrices, mouseX, mouseY, delta));
+        buildsButtons.forEach((build, button) -> button.renderButton(context, mouseX, mouseY, delta));
 
         if (buildsButtons.isEmpty()) {
-            drawCenteredTextWithShadow(matrices, textRenderer, "Found No Builds", width / 2, labelMenuHeight + 10, 0xFF2222);
+            context.drawCenteredTextWithShadow(textRenderer, "Found No Builds", width / 2, labelMenuHeight + 10, 0xFF2222);
         }
 
-        matrices.push();
-        matrices.translate(0, 0, 110);
-        addBuildButton.render(matrices, mouseX, mouseY, delta);
-        showCharmsButton.render(matrices, mouseX, mouseY, delta);
-        showItemsButton.render(matrices, mouseX, mouseY, delta);
-        filterButton.render(matrices, mouseX, mouseY, delta);
-        searchBar.render(matrices, mouseX, mouseY, delta);
-        matrices.pop();
+        context.getMatrices().push();
+        context.getMatrices().translate(0, 0, 110);
+        addBuildButton.render(context, mouseX, mouseY, delta);
+        showCharmsButton.render(context, mouseX, mouseY, delta);
+        showItemsButton.render(context, mouseX, mouseY, delta);
+        filterButton.render(context, mouseX, mouseY, delta);
+        searchBar.render(context, mouseX, mouseY, delta);
+        context.getMatrices().pop();
 
         try {
-            super.render(matrices, mouseX, mouseY, delta);
+            super.render(context, mouseX, mouseY, delta);
         } catch (Exception e) {
             e.printStackTrace();
         }
