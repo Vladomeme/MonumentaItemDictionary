@@ -33,6 +33,7 @@ public class ItemDictionaryGui extends Screen {
     public final int itemSize = 25;
     public String itemTypeLookingFor;
     private int scrollPixels = 0;
+    private long lastAltPressed = 0;
 
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
@@ -317,6 +318,17 @@ public class ItemDictionaryGui extends Screen {
     }
 
     @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        super.keyReleased(keyCode, scanCode, modifiers);
+
+        if (keyCode == 342 || keyCode == 346) { // left or right alt pressed
+            lastAltPressed = System.currentTimeMillis();
+        }
+
+        return true;
+    }
+
+    @Override
     public boolean charTyped(char chr, int modifiers) {
         super.charTyped(chr, modifiers);
 
@@ -543,5 +555,9 @@ public class ItemDictionaryGui extends Screen {
 
     public int getScrollPixels() {
         return scrollPixels;
+    }
+
+    public void clearSearchBar() {
+        searchBar.setText("");
     }
 }

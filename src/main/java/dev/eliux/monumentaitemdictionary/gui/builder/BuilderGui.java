@@ -16,7 +16,6 @@ import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.Clipboard;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
@@ -26,6 +25,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.floor;
 import static java.lang.Math.max;
@@ -65,7 +65,7 @@ public class BuilderGui extends Screen {
     private TextFieldWidget nameBar;
     private SliderWidget currentHealthSlider;
     private ItemIconButtonWidget showBuildDictionaryButton;
-    private ItemIconButtonWidget setBuildFromClipboardButton;
+    private ItemIconButtonWidget buildClipboard;
     private ItemIconButtonWidget addBuildButton;
     private CyclingButtonWidget<Regions> regionButton;
     private Map<String, Boolean> enabledSituationals;
@@ -75,7 +75,7 @@ public class BuilderGui extends Screen {
     private double currentHealthPercent = 100;
     private int scrollPixels = 0;
     private int statusY;
-    private String statusText = "";
+    private Text statusText = Text.literal("");
     private CyclingButtonWidget<ClassName> classButton;
     private CyclingButtonWidget<Specializations> specializationButton;
 
@@ -90,7 +90,7 @@ public class BuilderGui extends Screen {
                 (buttonSize + itemPadding) - scrollPixels + buttonSize + itemPadding;
         this.halfWidth = width/2;
         this.scrollPixels = 0;
-        this.statusText = "";
+        this.statusText = Text.literal("");
 
         nameBar = new TextFieldWidget(textRenderer,
                 190 + textRenderer.getWidth(Text.literal("Monumenta Builder").setStyle(Style.EMPTY.withBold(true))),
@@ -98,7 +98,7 @@ public class BuilderGui extends Screen {
                 width - itemPadding - (185 + textRenderer.getWidth(Text.literal("Monumenta Builder").setStyle(Style.EMPTY.withBold(true)))),
                 20, Text.literal("Build Name"));
         nameBar.setPlaceholder(Text.literal("Build Name: "));
-        nameBar.setChangedListener(text -> statusText = "");
+        nameBar.setChangedListener(text -> statusText = Text.literal(""));
         nameBar.setText("");
 
         currentHealthSlider = new SliderWidget(
@@ -120,13 +120,12 @@ public class BuilderGui extends Screen {
             }
         };
 
-        setBuildFromClipboardButton = new ItemIconButtonWidget(30, 5, 20, 20, Text.literal(""), (button) -> {
-            String buildUrl = new Clipboard().getClipboard(0, (e, d) -> Mid.LOGGER.info("Failed to get Clipboard"));
-            if (verifyUrl(buildUrl)) {
-                getBuildFromUrl(buildUrl);
-            }
-        }, Text.literal("Set Build From Clipboard"), "name_tag", "");
-
+        buildClipboard = new ItemIconButtonWidget(30, 5, 20, 20, Text.literal(""), (button) -> buildClipboardButtonClicked(),
+                Arrays.asList(Text.literal("Build Clipboard").setStyle(Style.EMPTY.withColor(0xFFFFFFFF)),
+                        Text.literal("Click").setStyle(Style.EMPTY.withBold(true).withColor(ItemColors.TEXT_COLOR)).append(Text.literal(" to set a build from your clipboard").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR).withBold(false))),
+                        Text.literal(""),
+                        Text.literal("SHIFT + Click").setStyle(Style.EMPTY.withBold(true).withColor(ItemColors.TEXT_COLOR)).append(Text.literal(" to copy the build url of the current build").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR).withBold(false)))),
+                "name_tag", "");
         showBuildDictionaryButton = new ItemIconButtonWidget(
                 width - sideMenuWidth + 10, labelMenuHeight + 10, 20, 20,
                 Text.literal(""),
@@ -138,8 +137,8 @@ public class BuilderGui extends Screen {
                 5, 5, 20, 20,
                 Text.literal(""),
                 (button) -> {
-                    if (itemOnBuildButton == null) statusText = "Please select an item to appear on your Build Icon";
-                    else if (nameBar.getText().isBlank()) statusText = "Please put a name to your Build";
+                    if (itemOnBuildButton == null) statusText = Text.literal("Please select an item to appear on your Build Icon").setStyle(Style.EMPTY.withColor(0xFFFF0000));
+                    else if (nameBar.getText().isBlank()) statusText = Text.literal("Please put a name to your Build").setStyle(Style.EMPTY.withColor(0xFFFF0000));
                     else {
                         controller.buildDictionaryGui.addBuild(nameBar.getText(), buildItems, charms,
                                 itemOnBuildButton, switch (region) {
@@ -158,7 +157,6 @@ public class BuilderGui extends Screen {
                 .initially(Regions.NO_REGION)
                 .build(55, 5, 125, 20, Text.literal("Region"),
                         (button, region) -> this.region = region);
-        regionButton.setValue(Regions.NO_REGION);
 
         classButton = CyclingButtonWidget.builder(ClassName::getText)
                 .values(ClassName.values())
@@ -167,18 +165,12 @@ public class BuilderGui extends Screen {
                         labelMenuHeight + itemPadding + (itemPadding+buttonSize)*2,
                         width - sideMenuWidth - halfWidth - halfWidthPadding, 20,
                         Text.literal("Class"),
-                        (button, className) -> this.className = className);
-        classButton.setValue(ClassName.NO_CLASS);
+                        (button, className) -> {
+                            this.className = className;
+                            updateSpecializations();
+                        });
 
-        specializationButton = CyclingButtonWidget.builder(Specializations::getText)
-                .values(Specializations.values())
-                .initially(Specializations.NO_SPECIALIZATION)
-                .build(halfWidth + halfWidthPadding,
-                        labelMenuHeight + itemPadding + (itemPadding+buttonSize)*2 + 25,
-                        width - sideMenuWidth - halfWidth - halfWidthPadding, 20,
-                        Text.literal("Spec"),
-                        (button, specialization) -> this.specialization = specialization);
-        specializationButton.setValue(Specializations.NO_SPECIALIZATION);
+        updateSpecializations();
         enabledSituationals = new HashMap<>() {{
             put("shielding", false);
             put("poise", false);
@@ -207,6 +199,83 @@ public class BuilderGui extends Screen {
         updateGuiPositions();
     }
 
+    private void buildClipboardButtonClicked() {
+        if (hasShiftDown()) {
+            getBuildUrl();
+        } else {
+            String buildUrl = new Clipboard().getClipboard(0, (e, d) -> Mid.LOGGER.info("Failed to get Clipboard"));
+            if (verifyUrl(buildUrl)) {
+                getBuildFromUrl(buildUrl);
+            }
+        }
+    }
+
+    private void getBuildUrl() {
+        StringBuilder baseUrl = new StringBuilder("https://ohthemisery-psi.vercel.app/builder/");
+        for (int i = 0; i < itemTypesIndex.size(); i++) {
+            DictionaryItem item  = buildItems.get(i);
+            baseUrl.append(itemTypesIndex.get(i).substring(0, 1).toLowerCase()).append("=");
+            if (item != null) {
+                if (!item.region.equals("Ring")) baseUrl.append(item.name.replace(" ", "%20")).append("&");
+                else {
+                    if (isItemExalted(item)) baseUrl.append("EX ");
+                    baseUrl.append(item.name.replace(" ", "%20")).append(String.format("-%d", item.getMaxMasterwork()-1)).append("&");
+                }
+            } else baseUrl.append("None&");
+        }
+
+        baseUrl.append("charm=");
+        if (!charms.isEmpty()) {
+            baseUrl.append(charms.stream().map(this::getWeirdCharmName).collect(Collectors.joining(",")));
+        } else baseUrl.append("None");
+
+        Clipboard clipboard = new Clipboard();
+        clipboard.setClipboard(0, baseUrl.toString());
+        statusText = Text.literal("Build Url copied to your clipboard!").setStyle(Style.EMPTY.withColor(0xFF00FF00));
+    }
+
+    private boolean isItemExalted(DictionaryItem itemToCheck) {
+        List<DictionaryItem> itemsWithSameName = controller.getItems().stream().filter(item -> item.name.equals(itemToCheck.name)).toList();
+        return itemsWithSameName.size() > 1;
+    }
+
+    private ArrayList<String> extractRelevantLetters(String charmName, int n) {
+        ArrayList<String> parts = new ArrayList<>();
+        parts.add(charmName.substring(0, 3).replace(" ", "_"));
+        parts.add((charmName.length() - 3 < n) ? charmName.substring(3).replace(" ", "_") : charmName.substring(charmName.length() - n).replace(" ", "_"));
+
+        return parts;
+    }
+
+    private String getWeirdCharmName(DictionaryCharm charm) {
+        ArrayList<String> relevantLetters = extractRelevantLetters(charm.name.replace(" Charm", ""), 6);
+        return String.format("%s-%s-%d-%s", relevantLetters.get(0), relevantLetters.get(1), charm.power, charm.className.charAt(0));
+    }
+
+
+
+    private void updateSpecializations() {
+        specializationButton = CyclingButtonWidget.builder(Specializations::getText)
+                .values(switch (className) {
+                    case NO_CLASS -> List.of(Specializations.NO_SPECIALIZATION);
+                    case MAGE -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.ARCANIST, Specializations.ELEMENTALIST);
+                    case SCOUT -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.HUNTER, Specializations.RANGER);
+                    case ROGUE -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.SWORDSAGE, Specializations.ASSASSIN);
+                    case WARRIOR -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.BERSERKER, Specializations.GUARDIAN);
+                    case ALCHEMIST -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.HARBINGER, Specializations.APOTHECARY);
+                    case WARLOCK -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.TENEBRIST, Specializations.REAPER);
+                    case SHAMAN -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.HEXBREAKER, Specializations.SOOTHSLAYER);
+                    case CLERIC -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.PALADIN, Specializations.HIEROPHANT);
+                    case DD_ZENITH -> Specializations.getDDZenithClasses();
+                })
+                .initially(Specializations.NO_SPECIALIZATION)
+                .build(halfWidth + halfWidthPadding,
+                        labelMenuHeight + itemPadding + (itemPadding+buttonSize)*2 + 25,
+                        width - sideMenuWidth - halfWidth - halfWidthPadding, 20,
+                        Text.literal("Spec"),
+                        (button, specialization) -> this.specialization = specialization);
+    }
+
     private void getBuildFromUrl(String buildUrl) {
         updateUserOptions();
         buildUrl = buildUrl.substring(buildUrl.indexOf("m="));
@@ -221,7 +290,7 @@ public class BuilderGui extends Screen {
             }
 
             if (itemName.contains("EX")) {
-                itemName = itemName.replaceAll("EX ", "");
+                itemName = itemName.replace("EX ", "");
                 isExalted = true;
             }
 
@@ -308,7 +377,7 @@ public class BuilderGui extends Screen {
             updateStats();
         } else if (!shiftDown && item != null) {
             itemOnBuildButton = item;
-            statusText = "";
+            statusText = Text.literal("");
         } else if (item != null) {
             String wikiFormatted = item.name.replace(" ", "_").replace("'", "%27");
             Util.getOperatingSystem().open("https://monumenta.wiki.gg/wiki/" + wikiFormatted);
@@ -324,7 +393,7 @@ public class BuilderGui extends Screen {
         charmsY = labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 2 + (checkBoxSise + itemPadding) * 5 + 85;
         charmsButtonY = (int) ((getCharmsListWithPower().size())/floor((double) (width - sideMenuWidth - charmsX)/(buttonSize + itemPadding)))*
                 (buttonSize + itemPadding) - scrollPixels + buttonSize + 2*itemPadding;
-        statsY = Math.max(labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 4, labelMenuHeight + itemPadding + (checkBoxSise + itemPadding)*6) + 20;
+        statsY = max(labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 4, labelMenuHeight + itemPadding + (checkBoxSise + itemPadding)*6) + 20;
         statusY = statsY - 20;
 
         showBuildDictionaryButton.setX(width - sideMenuWidth + 10);
@@ -543,8 +612,8 @@ public class BuilderGui extends Screen {
                     charmsX, charmsY-30 - scrollPixels, 0xFFFF0000);
         }
 
-        if (!statusText.isEmpty()) {
-            context.drawTextWithShadow(textRenderer, Text.literal(statusText), itemPadding, statusY - scrollPixels, 0xFFFF0000);
+        if (!statusText.getString().isEmpty()) {
+            context.drawTextWithShadow(textRenderer, statusText, itemPadding, statusY - scrollPixels, 0xFFFF0000);
         }
     }
 
@@ -629,7 +698,7 @@ public class BuilderGui extends Screen {
         nameBar.render(context, mouseX, mouseY, delta);
         currentHealthSlider.render(context, mouseX, mouseY, delta);
         addBuildButton.render(context, mouseX, mouseY, delta);
-        setBuildFromClipboardButton.render(context, mouseX, mouseY, delta);
+        buildClipboard.render(context, mouseX, mouseY, delta);
         showBuildDictionaryButton.render(context, mouseX, mouseY, delta);
         context.getMatrices().pop();
 
@@ -661,7 +730,7 @@ public class BuilderGui extends Screen {
         specializationButton.mouseClicked(mouseX, mouseY, button);
         currentHealthSlider.mouseClicked(mouseX, mouseY, button);
         addBuildButton.mouseClicked(mouseX, mouseY, button);
-        setBuildFromClipboardButton.mouseClicked(mouseX, mouseY, button);
+        buildClipboard.mouseClicked(mouseX, mouseY, button);
         showBuildDictionaryButton.mouseClicked(mouseX, mouseY, button);
 
         situationalCheckBoxList.forEach((b) -> b.mouseClicked(mouseX, mouseY, button));
@@ -674,11 +743,13 @@ public class BuilderGui extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        if (mouseX >= 0 && mouseX < width - sideMenuWidth && mouseY >= labelMenuHeight && mouseY < height) {
+        if(classButton.isHovered()) classButton.mouseScrolled(mouseX, mouseY, amount);
+        else if (specializationButton.isHovered()) specializationButton.mouseScrolled(mouseX, mouseY, amount);
+        else if (mouseX >= 0 && mouseX < width - sideMenuWidth && mouseY >= labelMenuHeight && mouseY < height) {
             scrollPixels += (int) (-amount * 22); // scaled
 
             updateScrollLimits();
-            }
+        }
         return true;
     }
 
@@ -748,7 +819,8 @@ public class BuilderGui extends Screen {
         ALCHEMIST(Text.literal("Alchemist")),
         WARLOCK(Text.literal("Warlock")),
         SHAMAN(Text.literal("Shaman")),
-        CLERIC(Text.literal("Cleric"));
+        CLERIC(Text.literal("Cleric")),
+        DD_ZENITH(Text.literal("DD/Zenith"));
 
         private final Text text;
         ClassName(Text text) {
@@ -783,7 +855,16 @@ public class BuilderGui extends Screen {
         SOOTHSLAYER(Text.literal("Soothslayer")),
         HEXBREAKER(Text.literal("Hexbreaker")),
         PALADIN(Text.literal("Paladin")),
-        HIEROPHANT(Text.literal("Hierophant"));
+        HIEROPHANT(Text.literal("Hierophant")),
+
+        NO_CLASS(Text.literal("No class")),
+        DAWNBRINGER(Text.literal("Dawnbringer")),
+        EARTHBOUND(Text.literal("Earthbound")),
+        FLAMECALLER(Text.literal("Flamecaller")),
+        FROSTBORN(Text.literal("Frostborn")),
+        SHADOWDANCER(Text.literal("Shadowdancer")),
+        STEELSAGE(Text.literal("Steelsage")),
+        WINDWALKER(Text.literal("Windwalker"));
 
         private final Text text;
         Specializations(Text text) {
@@ -799,6 +880,10 @@ public class BuilderGui extends Screen {
                 if (specilaziations.text.getString().equals(specialization)) return specilaziations;
             }
             return NO_SPECIALIZATION;
+        }
+
+        public static List<Specializations> getDDZenithClasses() {
+            return Arrays.asList(NO_CLASS, DAWNBRINGER, EARTHBOUND, FLAMECALLER, FROSTBORN, SHADOWDANCER, STEELSAGE, WINDWALKER);
         }
     }
 }

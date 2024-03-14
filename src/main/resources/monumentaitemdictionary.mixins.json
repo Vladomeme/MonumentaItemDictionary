@@ -4,8 +4,10 @@
   "package": "dev.eliux.monumentaitemdictionary.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ScreenHandlerMixin"
   ],
   "client": [
+    "HandledScreenAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -408,4 +408,8 @@ public class CharmDictionaryGui extends Screen {
     public int getScrollPixels() {
         return scrollPixels;
     }
+
+    public void clearSearchBar() {
+        searchBar.setText("");
+    }
 }

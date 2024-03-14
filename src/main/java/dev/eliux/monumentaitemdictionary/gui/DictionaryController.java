@@ -16,6 +16,7 @@ import dev.eliux.monumentaitemdictionary.gui.item.ItemFilterGui;
 import dev.eliux.monumentaitemdictionary.util.*;
 import dev.eliux.monumentaitemdictionary.web.WebManager;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import net.minecraft.client.MinecraftClient;
@@ -254,7 +255,7 @@ public class DictionaryController {
         try {
             File buildsFile = new File("config/mid/builds.json");
             buildsFile.createNewFile();
-            return Files.readString(buildsFile.toPath());
+            return Files.readString(buildsFile.toPath(), Charset.defaultCharset());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -296,7 +297,7 @@ public class DictionaryController {
         });
     }
 
-    private void loadBuilds() {
+    public void loadBuilds() {
         try {
             ArrayList<DictionaryBuild> buildsInFile = new ArrayList<>();
 
@@ -844,8 +845,8 @@ public class DictionaryController {
                             case 2 -> filteredCharms.removeIf(i -> !(i.power >= filter.constant));
                             case 3 -> filteredCharms.removeIf(i -> !(i.power > filter.constant));
                             case 4 -> filteredCharms.removeIf(i -> !(i.power == filter.constant));
-                            case 5 -> filteredCharms.removeIf(i -> !(i.power < filter.constant));
-                            case 6 -> filteredCharms.removeIf(i -> !(i.power <= filter.constant));
+                            case 5 -> filteredCharms.removeIf(i -> !(i.power <= filter.constant));
+                            case 6 -> filteredCharms.removeIf(i -> !(i.power < filter.constant));
                         }
                     }
                     case "Location" -> {
@@ -981,8 +982,8 @@ public class DictionaryController {
     public DictionaryCharm getCharmByWeirdName(String rawCharm) {
         String[] rawCharmParts = rawCharm.split("-");
 
-        String preffix = rawCharmParts[0].replaceAll("_", " ");
-        String suffix = rawCharmParts[1].replaceAll("_", " ");
+        String preffix = rawCharmParts[0].replace("_", " ");
+        String suffix = rawCharmParts[1].replace("_", " ");
         int power = Integer.parseInt(rawCharmParts[2]);
         String classLetter = rawCharmParts[3];
 
@@ -1006,13 +1007,23 @@ public class DictionaryController {
     }
 
     public void getItemFromDictionary(String itemType) {
+        itemGui.postInit();
         itemGui.isGettingBuildItem = true;
         itemGui.itemTypeLookingFor = itemType;
+        clearItemNameFilter();
+        itemGui.clearSearchBar();
+        itemFilterGui.clearFilters();
         setItemDictionaryScreen();
     }
 
     public void getCharmFromDictionary() {
+        charmGui.postInit();
         charmGui.isGettingBuildCharm = true;
+        if (charmGuiPreviouslyOpened) {
+            clearCharmNameFilter();
+            charmGui.clearSearchBar();
+            charmFilterGui.clearFilters();
+        }
         setCharmDictionaryScreen();
     }
 
@@ -1061,5 +1072,15 @@ public class DictionaryController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public int generateNewId() {
+        Random rand = new Random();
+        int id = rand.nextInt(10000);
+
+        while (idExists(id)) {
+            id = rand.nextInt(10000);
+        }
+        return id;
     }
 }
