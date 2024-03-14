@@ -16,7 +16,6 @@ import dev.eliux.monumentaitemdictionary.gui.item.ItemFilterGui;
 import dev.eliux.monumentaitemdictionary.util.*;
 import dev.eliux.monumentaitemdictionary.web.WebManager;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import net.minecraft.client.MinecraftClient;

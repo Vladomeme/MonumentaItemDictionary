@@ -1,6 +1,5 @@
 package dev.eliux.monumentaitemdictionary.gui.item;
 
-import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
 import dev.eliux.monumentaitemdictionary.util.ItemStat;
 
