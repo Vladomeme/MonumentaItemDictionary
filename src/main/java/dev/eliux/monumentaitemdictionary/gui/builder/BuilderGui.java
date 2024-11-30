@@ -11,6 +11,7 @@ import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
@@ -419,8 +420,6 @@ public class BuilderGui extends Screen {
             CheckBoxWidget situationalCheckBox = new CheckBoxWidget(
                     width/3 + (i/6)*90,
                     labelMenuHeight + itemPadding + (checkBoxSise + itemPadding)*(i%6) - scrollPixels,
-                    checkBoxSise,
-                    checkBoxSise,
                     Text.literal(situational),
                     enabledSituationals.get(situational.replace(" ", "_").toLowerCase()),
                     true,
@@ -435,8 +434,6 @@ public class BuilderGui extends Screen {
             CheckBoxWidget infusionCheckBox = new CheckBoxWidget(
                     halfWidth + halfWidthPadding + (i/6)*90,
                     labelMenuHeight + itemPadding + 2*(buttonSize + itemPadding) + (checkBoxSise + itemPadding)*(i%6) - scrollPixels + 55,
-                    checkBoxSise,
-                    checkBoxSise,
                     Text.literal(infusion),
                     enabledInfusions.get(infusions.get(i).toLowerCase()),
                     true,
@@ -528,7 +525,7 @@ public class BuilderGui extends Screen {
             formattedStatValue = String.valueOf(intStatValue);
         } else {
             doubleStatValue = field.getDouble(buildStats);
-            formattedStatValue = String.valueOf(String.format("%.2f", doubleStatValue));
+            formattedStatValue = String.format("%.2f", doubleStatValue);
         }
 
         return formattedStatName + formattedStatValue;
@@ -565,10 +562,10 @@ public class BuilderGui extends Screen {
     }
 
     private void drawButtons(DrawContext context, int mouseX, int mouseY, float delta) {
-        buildItemButtons.forEach((b) -> b.renderButton(context, mouseX, mouseY, delta));
-        buildCharmButtons.forEach((b) -> b.renderButton(context, mouseX, mouseY, delta));
-        situationalCheckBoxList.forEach((b) -> b.renderButton(context, mouseX, mouseY, delta));
-        infusionsCheckBoxList.forEach((b) -> b.renderButton(context, mouseX, mouseY, delta));
+        buildItemButtons.forEach((b) -> b.renderWidget(context, mouseX, mouseY, delta));
+        buildCharmButtons.forEach((b) -> b.renderWidget(context, mouseX, mouseY, delta));
+        situationalCheckBoxList.forEach((b) -> b.renderWidget(context, mouseX, mouseY, delta));
+        infusionsCheckBoxList.forEach((b) -> b.renderWidget(context, mouseX, mouseY, delta));
     }
 
     private void drawItemText(DrawContext context) {
@@ -657,7 +654,7 @@ public class BuilderGui extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
+        this.renderBackground(context, mouseX, mouseY, delta);
 
         deltaTicks += delta;
         textTimeOffset += (deltaTicks >= 20) ? 1 : 0;
@@ -702,7 +699,7 @@ public class BuilderGui extends Screen {
         context.getMatrices().pop();
 
         try {
-            super.render(context, mouseX, mouseY, delta);
+            children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -741,11 +738,11 @@ public class BuilderGui extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        if(classButton.isHovered()) classButton.mouseScrolled(mouseX, mouseY, amount);
-        else if (specializationButton.isHovered()) specializationButton.mouseScrolled(mouseX, mouseY, amount);
+    public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
+        if(classButton.isHovered()) classButton.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
+        else if (specializationButton.isHovered()) specializationButton.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
         else if (mouseX >= 0 && mouseX < width - sideMenuWidth && mouseY >= labelMenuHeight && mouseY < height) {
-            scrollPixels += (int) (-amount * 22); // scaled
+            scrollPixels += (int) (-vAmount * 22); // scaled
 
             updateScrollLimits();
         }

@@ -10,6 +10,7 @@ import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -124,7 +125,7 @@ public class CharmDictionaryGui extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
+        this.renderBackground(context, mouseX, mouseY, delta);
 
         // draw the scroll bar
         int totalRows = (int) Math.ceil((double)charmButtons.size() / (double)((width - sideMenuWidth - 5) / (itemSize + itemPadding)));
@@ -143,7 +144,7 @@ public class CharmDictionaryGui extends Screen {
         if (!controller.isRequesting) {
             charmButtons.forEach(b -> {
                 if (b.getY() - scrollPixels + itemSize >= labelMenuHeight && b.getY() - scrollPixels <= height) {
-                    b.renderButton(context, mouseX, mouseY, delta);
+                    b.renderWidget(context, mouseX, mouseY, delta);
                 }
             });
 
@@ -188,7 +189,7 @@ public class CharmDictionaryGui extends Screen {
         context.getMatrices().pop();
 
         try {
-            super.render(context, mouseX, mouseY, delta);
+            children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -380,14 +381,14 @@ public class CharmDictionaryGui extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        super.mouseScrolled(mouseX, mouseY, amount);
+    public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
+        super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
         if (Screen.hasControlDown()) {
-            charmButtons.forEach((b) -> b.scrolled(mouseX, mouseY, amount));
+            charmButtons.forEach((b) -> b.scrolled(mouseX, mouseY, vAmount));
         } else {
             if (mouseX >= 0 && mouseX < width - sideMenuWidth && mouseY >= labelMenuHeight && mouseY < height) {
-                scrollPixels += (int) (-amount * 22); // scaled
+                scrollPixels += (int) (-vAmount * 22); // scaled
 
                 updateScrollLimits();
             }

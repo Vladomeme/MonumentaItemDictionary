@@ -11,6 +11,7 @@ import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -164,8 +165,8 @@ public class GeneratorGui extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
-        this.renderBackground(context);
+        this.renderBackground(context, mouseX, mouseY, delta);
+        children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
 
         context.drawTextWrapped(textRenderer, StringVisitable.plain("Preview:"), 130, labelMenuHeight + 23, 60, 0xFFFFFFFF);
         if (lastFocused != null && MinecraftClient.getInstance().currentScreen != null) {
@@ -278,10 +279,10 @@ public class GeneratorGui extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        super.mouseScrolled(mouseX, mouseY, amount);
+    public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
+        super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
-        colorSelectDropdown.mouseScrolled(mouseX, mouseY, amount);
+        colorSelectDropdown.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
         return true;
     }

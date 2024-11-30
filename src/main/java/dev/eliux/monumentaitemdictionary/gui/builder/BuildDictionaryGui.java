@@ -9,6 +9,7 @@ import dev.eliux.monumentaitemdictionary.gui.widgets.BuildButtonWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Style;
@@ -130,7 +131,7 @@ public class BuildDictionaryGui extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
+        this.renderBackground(context, mouseX, mouseY, delta);
 
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 110);
@@ -141,7 +142,7 @@ public class BuildDictionaryGui extends Screen {
         context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
         context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
 
-        buildsButtons.forEach((build, button) -> button.renderButton(context, mouseX, mouseY, delta));
+        buildsButtons.forEach((build, button) -> button.renderWidget(context, mouseX, mouseY, delta));
 
         if (buildsButtons.isEmpty()) {
             context.drawCenteredTextWithShadow(textRenderer, "Found No Builds", width / 2, labelMenuHeight + 10, 0xFF2222);
@@ -157,7 +158,7 @@ public class BuildDictionaryGui extends Screen {
         context.getMatrices().pop();
 
         try {
-            super.render(context, mouseX, mouseY, delta);
+            children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
         } catch (Exception e) {
             e.printStackTrace();
         }

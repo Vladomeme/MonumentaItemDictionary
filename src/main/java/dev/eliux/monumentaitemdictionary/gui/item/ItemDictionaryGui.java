@@ -13,6 +13,7 @@ import java.util.TreeMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -157,7 +158,7 @@ public class ItemDictionaryGui extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
+        this.renderBackground(context, mouseX, mouseY, delta);
 
         // draw the scroll bar
         int totalRows = itemButtons.size();
@@ -178,7 +179,7 @@ public class ItemDictionaryGui extends Screen {
                     .subMap(labelMenuHeight + scrollPixels - itemSize, true,
                             height + scrollPixels, true)
                     .values()) {
-                row.forEach(b -> b.renderButton(context, mouseX, mouseY, delta));
+                row.forEach(b -> b.renderWidget(context, mouseX, mouseY, delta));
             }
 
             if (itemButtons.isEmpty()) {
@@ -224,7 +225,7 @@ public class ItemDictionaryGui extends Screen {
         context.getMatrices().pop();
 
         try {
-            super.render(context, mouseX, mouseY, delta);
+            children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -523,19 +524,19 @@ public class ItemDictionaryGui extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        super.mouseScrolled(mouseX, mouseY, amount);
+    public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
+        super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
         if (Screen.hasControlDown() && !isGettingBuildItem) {
             for (List<ItemButtonWidget> row : itemButtons
                     .subMap(labelMenuHeight + scrollPixels - itemSize, true,
                             height + scrollPixels, true)
                     .values()) {
-                row.forEach(b -> b.scrolled(mouseX, mouseY, amount));
+                row.forEach(b -> b.scrolled(mouseX, mouseY, vAmount));
             }
         } else {
             if (mouseX >= 0 && mouseX < width - sideMenuWidth && mouseY >= labelMenuHeight && mouseY < height) {
-                scrollPixels += (int) (-amount * 22); // scaled
+                scrollPixels += (int) (-vAmount * 22); // scaled
 
                 updateScrollLimits();
             }

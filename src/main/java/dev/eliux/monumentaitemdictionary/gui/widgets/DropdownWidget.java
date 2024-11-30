@@ -86,7 +86,7 @@ public class DropdownWidget extends TextFieldWidget {
         validChoices.clear();
         visualValidChoices.clear();
         if (isFocused()) {
-            if (getText().length() == 0) {
+            if (getText().isEmpty()) {
                 validChoices = new ArrayList<>(choices);
                 visualValidChoices = new ArrayList<>(visualChoices);
             } else {
@@ -167,14 +167,14 @@ public class DropdownWidget extends TextFieldWidget {
 
     // must be called manually
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        super.mouseScrolled(mouseX, mouseY, amount);
+    public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
+        super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
         if (mouseX >= this.getX() && mouseX <= this.getX() + this.width && mouseY >= this.getY() && mouseY <= this.getY() + ((this.height + 1) * (Math.min(validChoices.size(), maxShown) + 1))) {
             // mouse is in scroll area
             if (validChoices.size() > maxShown) {
                 // should be able to scroll
-                scrollAmount -= amount;
+                scrollAmount -= vAmount;
                 updateScrollLimits();
             }
         }
@@ -193,7 +193,7 @@ public class DropdownWidget extends TextFieldWidget {
     public void renderMain(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        if (lastChoice.equals("") && !isFocused()) context.drawTextWithShadow(textRenderer, defaultText, this.getX() + 3, this.getY() + 3, 0x666666);
+        if (lastChoice.isEmpty() && !isFocused()) context.drawTextWithShadow(textRenderer, defaultText, this.getX() + 3, this.getY() + 3, 0x666666);
     }
 
     // must be called manually
@@ -201,7 +201,7 @@ public class DropdownWidget extends TextFieldWidget {
     public void renderDropdown(DrawContext context, int mouseX, int mouseY, float delta) {
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 200);
-        if (this.isFocused() && validChoices.size() > 0) {
+        if (this.isFocused() && !validChoices.isEmpty()) {
             context.fill(this.getX() - 1, this.getY() + this.height, this.getX() + this.width + 1, this.getY() + this.height + ((this.height + 1) * Math.min(validChoices.size(), maxShown)) + 1, 0xFFA0A0A0);
             context.fill(this.getX(), this.getY() + this.height + 1, this.getX() + this.width, this.getY() + this.height + ((this.height + 1) * Math.min(validChoices.size(), maxShown)), 0xFF000000);
 

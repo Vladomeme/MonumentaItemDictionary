@@ -6,6 +6,7 @@ import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.Filter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -133,7 +134,7 @@ public class BuildFilterGui extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
+        this.renderBackground(context, mouseX, mouseY, delta);
 
         boolean anyOpen = false;
         for (DropdownWidget o : filterListOption) if (o.willClick(mouseX, mouseY)) anyOpen = true;
@@ -181,7 +182,7 @@ public class BuildFilterGui extends Screen {
         context.getMatrices().pop();
 
         try {
-            super.render(context, mouseX, mouseY, delta);
+            children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -267,11 +268,11 @@ public class BuildFilterGui extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        super.mouseScrolled(mouseX, mouseY, amount);
+    public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
+        super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
-        filterListOption.forEach(i -> i.mouseScrolled(mouseX, mouseY, amount));
-        filterListValue.forEach(i -> i.mouseScrolled(mouseX, mouseY, amount));
+        filterListOption.forEach(i -> i.mouseScrolled(mouseX, mouseY, hAmount, vAmount));
+        filterListValue.forEach(i -> i.mouseScrolled(mouseX, mouseY, hAmount, vAmount));
 
         return true;
     }

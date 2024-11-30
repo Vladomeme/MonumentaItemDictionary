@@ -68,7 +68,7 @@ public class CharmButtonWidget extends ButtonWidget {
      public void scrolled (double mouseX, double mouseY, double amount) {
      }
     @Override
-    public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         int yPixelOffset = -gui.getScrollPixels();
 
         int minX = getX();

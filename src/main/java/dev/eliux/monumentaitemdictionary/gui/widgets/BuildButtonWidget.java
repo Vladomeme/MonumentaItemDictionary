@@ -53,7 +53,7 @@ public class BuildButtonWidget extends ButtonWidget {
     }
 
     @Override
-    public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         int minX = getX();
         int minY = getY();
         int maxX = minX + width;
