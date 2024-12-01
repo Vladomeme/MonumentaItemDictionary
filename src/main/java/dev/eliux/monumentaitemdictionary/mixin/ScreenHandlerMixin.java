@@ -52,7 +52,8 @@ public abstract class ScreenHandlerMixin {
 
     @Inject(method = "init(Lnet/minecraft/client/MinecraftClient;II)V", at = @At("TAIL"))
     private void init(MinecraftClient client, int width, int height, CallbackInfo ci) {
-        String inventoryTitle = Objects.requireNonNull(client.currentScreen).getTitle().getString();
+        if (client.currentScreen == null) return;
+        String inventoryTitle = client.currentScreen.getTitle().getString();
         if (client.currentScreen instanceof GenericContainerScreen && (inventoryTitle.equals("Player Stats Calculator") || inventoryTitle.equals("Mechanical Armory"))) {
             int x = ((HandledScreenAccessor) client.currentScreen).getX() + ((HandledScreenAccessor) client.currentScreen).getBackGroundWidth() - 20;
             int y = ((HandledScreenAccessor) client.currentScreen).getY() - 20;
