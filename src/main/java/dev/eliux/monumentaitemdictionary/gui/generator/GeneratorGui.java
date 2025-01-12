@@ -197,7 +197,7 @@ public class GeneratorGui extends Screen {
 
         if (lastFocused == DictionaryItem.class && focusedItem.hasMasterwork) {
             context.getMatrices().push();
-            context.getMatrices().translate(0, 0, 200);
+            context.getMatrices().translate(0, 0, 500);
             context.drawTextWrapped(textRenderer, StringVisitable.plain("Change Masterwork Level"), 10, labelMenuHeight + 40, 100, 0xFFFFFFFF);
             decreaseMasterworkButton.render(context, mouseX, mouseY, delta);
             increaseMasterworkButton.render(context, mouseX, mouseY, delta);
@@ -206,7 +206,7 @@ public class GeneratorGui extends Screen {
 
         if (generatedItem.getItem() instanceof DyeableItem) {
             context.getMatrices().push();
-            context.getMatrices().translate(0, 0, 200);
+            context.getMatrices().translate(0, 0, 500);
             context.drawTextWrapped(textRenderer, StringVisitable.plain("Set Dye Color"), 10, labelMenuHeight + 92, 100, 0xFFFFFFFF);
             colorSelectDropdown.renderMain(context, mouseX, mouseY, delta);
             customColorTextField.render(context, mouseX, mouseY, delta);
@@ -252,7 +252,7 @@ public class GeneratorGui extends Screen {
         }
 
         colorSelectDropdown.mouseClicked(mouseX, mouseY, button);
-        customColorTextField.mouseClicked(mouseX, mouseY, button);
+        customColorTextField.setFocused(customColorTextField.mouseClicked(mouseX, mouseY, button));
         colorPicker.mouseClicked(mouseX, mouseY, button);
 
         return true;
