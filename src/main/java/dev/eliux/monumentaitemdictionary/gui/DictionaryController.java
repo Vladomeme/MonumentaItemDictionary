@@ -455,6 +455,7 @@ public class DictionaryController {
                     // attempt to add a tier to the item
                     boolean hasItem = false;
                     for (DictionaryItem dictionaryItem : items) {
+                        if (!dictionaryItem.hasMasterwork) continue;
                         if (dictionaryItem.name.equals(itemName) && masterworkPrimitive.getAsInt() <= ItemFormatter.getMasterworkForRarity(itemTier)) {
                             // if the item already exists
                             hasItem = true;
