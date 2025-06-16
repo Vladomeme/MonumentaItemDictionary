@@ -11,6 +11,7 @@ import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -164,8 +165,8 @@ public class GeneratorGui extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        super.render(context, mouseX, mouseY, delta);
-        this.renderBackground(context);
+        this.renderBackground(context, mouseX, mouseY, delta);
+        children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
 
         context.drawTextWrapped(textRenderer, StringVisitable.plain("Preview:"), 130, labelMenuHeight + 23, 60, 0xFFFFFFFF);
         if (lastFocused != null && MinecraftClient.getInstance().currentScreen != null) {
@@ -196,7 +197,7 @@ public class GeneratorGui extends Screen {
 
         if (lastFocused == DictionaryItem.class && focusedItem.hasMasterwork) {
             context.getMatrices().push();
-            context.getMatrices().translate(0, 0, 200);
+            context.getMatrices().translate(0, 0, 500);
             context.drawTextWrapped(textRenderer, StringVisitable.plain("Change Masterwork Level"), 10, labelMenuHeight + 40, 100, 0xFFFFFFFF);
             decreaseMasterworkButton.render(context, mouseX, mouseY, delta);
             increaseMasterworkButton.render(context, mouseX, mouseY, delta);
@@ -205,7 +206,7 @@ public class GeneratorGui extends Screen {
 
         if (generatedItem.getItem() instanceof DyeableItem) {
             context.getMatrices().push();
-            context.getMatrices().translate(0, 0, 200);
+            context.getMatrices().translate(0, 0, 500);
             context.drawTextWrapped(textRenderer, StringVisitable.plain("Set Dye Color"), 10, labelMenuHeight + 92, 100, 0xFFFFFFFF);
             colorSelectDropdown.renderMain(context, mouseX, mouseY, delta);
             customColorTextField.render(context, mouseX, mouseY, delta);
@@ -251,7 +252,7 @@ public class GeneratorGui extends Screen {
         }
 
         colorSelectDropdown.mouseClicked(mouseX, mouseY, button);
-        customColorTextField.mouseClicked(mouseX, mouseY, button);
+        customColorTextField.setFocused(customColorTextField.mouseClicked(mouseX, mouseY, button));
         colorPicker.mouseClicked(mouseX, mouseY, button);
 
         return true;
@@ -278,10 +279,10 @@ public class GeneratorGui extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        super.mouseScrolled(mouseX, mouseY, amount);
+    public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
+        super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
-        colorSelectDropdown.mouseScrolled(mouseX, mouseY, amount);
+        colorSelectDropdown.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
         return true;
     }

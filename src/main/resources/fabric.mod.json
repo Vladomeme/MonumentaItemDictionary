@@ -21,11 +21,11 @@
   "mixins": [
     "monumentaitemdictionary.mixins.json"
   ],
-
+  "accessWidener" : "mid.accesswidener",
   "depends": {
-    "fabricloader": ">=0.14.21",
+    "fabricloader": ">=0.15.7",
     "fabric": "*",
-    "minecraft": "~1.20.1",
+    "minecraft": "~1.20.4",
     "java": ">=17"
   },
   "suggests": {
