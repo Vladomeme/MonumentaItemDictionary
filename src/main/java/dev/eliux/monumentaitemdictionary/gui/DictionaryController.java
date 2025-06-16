@@ -558,14 +558,15 @@ public class DictionaryController {
                 }
 
                 ArrayList<CharmStat> charmStats = new ArrayList<>();
-                JsonObject statObject = charmData.get("stats").getAsJsonObject();
-                for (Map.Entry<String, JsonElement> statEntry : statObject.entrySet()) {
+                JsonObject statsObject = charmData.get("stats").getAsJsonObject();
+                for (Map.Entry<String, JsonElement> statEntry : statsObject.entrySet()) {
+                    JsonObject statObject = (JsonObject) statEntry.getValue();
                     String statKey = statEntry.getKey();
                     String skillMod = ItemFormatter.getSkillFromCharmStat(statKey);
                     if (!allCharmSkillMods.contains(skillMod))
                         allCharmSkillMods.add(skillMod);
 
-                    charmStats.add(new CharmStat(statKey, skillMod, statEntry.getValue().getAsDouble()));
+                    charmStats.add(new CharmStat(statKey, skillMod, statObject.get("locked").getAsBoolean(), statObject.get("value").getAsDouble()));
 
                     if (!allCharmStats.contains(statKey))
                         allCharmStats.add(statKey);

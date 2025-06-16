@@ -335,7 +335,7 @@ public class CharmDictionaryGui extends Screen {
 
         lines.add(Text.literal("When in Charm Slot:").setStyle(Style.EMPTY.withColor(0xAAAAAA)));
         for (CharmStat stat : charm.stats) {
-            lines.add(Text.literal((stat.statValue >= 0 ? "+" : "") + stat.statValue + (stat.statNameFull.endsWith("percent") ? "" : " ") + ItemFormatter.formatCharmStat(stat.statNameFull)).setStyle(Style.EMPTY
+            lines.add(Text.literal((stat.statLocked ? "\uD83D\uDD12 " : "") + (stat.statValue >= 0 ? "+" : "") + stat.statValue + (stat.statNameFull.endsWith("percent") ? "" : " ") + ItemFormatter.formatCharmStat(stat.statNameFull)).setStyle(Style.EMPTY
                     .withColor(ItemColors.getColorForCharmStat(stat))));
         }
 
