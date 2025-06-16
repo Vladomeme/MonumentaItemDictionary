@@ -136,6 +136,10 @@ public class ItemColors {
     public static final int STARPOINT_COLOR = 0x342768;
     public static final int ZENITH_COLOR = 0xFF9CF0;
     public static final int SIRIUS_COLOR = 0x34CFBC;
+    public static final int HEXFALL_COLOR =0xA930DA;
+    public static final int SKR_COLOR = 0xE8C392;
+    public static final int HUNTS_COLOR = 0x414E18;
+    public static final int TWISTED_COLOR = 0x6B0000;
 
     public static int getColorForTier(String itemTier) {
         return switch (itemTier) {
@@ -221,7 +225,8 @@ public class ItemColors {
                 || charmStat.statNameFull.contains("penalty")
                 || charmStat.statNameFull.contains("delay")
                 || charmStat.statNameFull.contains("price")
-                || charmStat.statNameFull.contains("received_damage");
+                || charmStat.statNameFull.contains("received_damage")
+                || (charmStat.statLocked && charmStat.statNameFull.contains("max_debuff")); // Stupid hardcoded idk
         return (positive ^ inverted) ? TEXT_POSITIVE_CHARM_COLOR : TEXT_NEGATIVE_CHARM_COLOR;
     }
 
