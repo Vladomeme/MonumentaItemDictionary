@@ -245,7 +245,7 @@ public class ItemFormatter {
         return inEnchant.equals("gills") ||
                 inEnchant.equals("weightless") ||
                 inEnchant.equals("rage_of_the_keter") ||
-                inEnchant.equals("jungle_s_nourishment") ||
+                inEnchant.equals("jungle's_nourishment") ||
                 inEnchant.equals("unbreakable") ||
                 inEnchant.equals("adaptability") ||
                 inEnchant.equals("multishot") ||
@@ -279,7 +279,8 @@ public class ItemFormatter {
                 inEnchant.equals("instant_drink") ||
                 inEnchant.equals("divine_aura") ||
                 inEnchant.equals("cumbersome") ||
-                inEnchant.equals("persistence");
+                inEnchant.equals("persistence") ||
+                inEnchant.equals("curse_of_instability");
     }
 
     public static boolean isCurseEnchant(String inEnchant) {
@@ -297,7 +298,9 @@ public class ItemFormatter {
                 inEnchant.equals("magic_fragility") ||
                 inEnchant.equals("curse_of_anemia") ||
                 inEnchant.equals("cumbersome") ||
-                inEnchant.equals("curse_of_ephemerality");
+                inEnchant.equals("curse_of_ephemerality") ||
+                inEnchant.equals("curse_of_instability") ||
+                inEnchant.equals("curse_of_the_veil");
     }
 
     public static boolean isStat(String inStat) {
