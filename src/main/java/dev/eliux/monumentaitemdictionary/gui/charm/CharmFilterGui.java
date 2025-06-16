@@ -88,7 +88,8 @@ public class CharmFilterGui extends Screen {
                 updateFilterOutput();
             });
             TextFieldWidget constant = new TextFieldWidget(textRenderer, 375, labelMenuHeight + 8 + index * 25, 30, 14, Text.literal(""));
-            constant.setText("0");
+            // constant.setText("0");
+            constant.setFocused(true);
             constant.setChangedListener(c -> {
                 try {
                     filter.constant = Double.parseDouble(c);
