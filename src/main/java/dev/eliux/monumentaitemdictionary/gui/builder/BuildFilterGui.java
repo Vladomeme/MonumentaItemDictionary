@@ -216,7 +216,7 @@ public class BuildFilterGui extends Screen {
         }
         for (TextFieldWidget c : filterListConstant) {
             if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat") && !(buildFilters.get(filterListConstant.indexOf(c)).comparator < 2))
-                c.mouseClicked(mouseX, mouseY, button);
+                c.setFocused(c.mouseClicked(mouseX, mouseY, button));
         }
         filterListDelete.forEach(i -> i.mouseClicked(mouseX, mouseY, button));
 

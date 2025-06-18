@@ -88,8 +88,7 @@ public class CharmFilterGui extends Screen {
                 updateFilterOutput();
             });
             TextFieldWidget constant = new TextFieldWidget(textRenderer, 375, labelMenuHeight + 8 + index * 25, 30, 14, Text.literal(""));
-            // constant.setText("0");
-            constant.setFocused(true);
+            constant.setText("0");
             constant.setChangedListener(c -> {
                 try {
                     filter.constant = Double.parseDouble(c);
@@ -279,7 +278,7 @@ public class CharmFilterGui extends Screen {
         }
         for (TextFieldWidget c : filterListConstant) {
             if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat") && !(charmFilters.get(filterListConstant.indexOf(c)).comparator < 2) || filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Charm Power"))
-                c.mouseClicked(mouseX, mouseY, button);
+                c.setFocused(c.mouseClicked(mouseX, mouseY, button));
         }
         filterListDelete.forEach(i -> i.mouseClicked(mouseX, mouseY, button));
         //filterListDuplicate.forEach(i -> i.mouseClicked(mouseX, mouseY, button));

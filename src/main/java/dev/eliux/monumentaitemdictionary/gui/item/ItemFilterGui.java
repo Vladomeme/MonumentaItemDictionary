@@ -283,7 +283,7 @@ public class ItemFilterGui extends Screen {
         }
         for (TextFieldWidget c : filterListConstant) {
             if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat") && !(itemFilters.get(filterListConstant.indexOf(c)).comparator < 2))
-                c.mouseClicked(mouseX, mouseY, button);
+                c.setFocused(c.mouseClicked(mouseX, mouseY, button));
         }
         filterListDelete.forEach(i -> i.mouseClicked(mouseX, mouseY, button));
         //filterListDuplicate.forEach(i -> i.mouseClicked(mouseX, mouseY, button));
