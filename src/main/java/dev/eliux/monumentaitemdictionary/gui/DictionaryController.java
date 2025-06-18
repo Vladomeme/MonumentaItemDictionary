@@ -667,7 +667,7 @@ public class DictionaryController {
                 "Reaper",
                 "Tenebrist",
                 "Hexbreaker",
-                "Soothslayer"
+                "Soothsayer"
         ));
     }
 
