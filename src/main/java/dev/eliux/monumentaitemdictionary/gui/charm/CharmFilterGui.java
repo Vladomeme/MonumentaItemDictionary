@@ -279,7 +279,7 @@ public class CharmFilterGui extends Screen {
         }
         for (TextFieldWidget c : filterListConstant) {
             if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat") && !(charmFilters.get(filterListConstant.indexOf(c)).comparator < 2) || filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Charm Power"))
-                c.mouseClicked(mouseX, mouseY, button);
+                c.setFocused(c.mouseClicked(mouseX, mouseY, button));
         }
         filterListDelete.forEach(i -> i.mouseClicked(mouseX, mouseY, button));
         //filterListDuplicate.forEach(i -> i.mouseClicked(mouseX, mouseY, button));
