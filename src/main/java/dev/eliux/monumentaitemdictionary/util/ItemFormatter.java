@@ -280,7 +280,8 @@ public class ItemFormatter {
                 inEnchant.equals("divine_aura") ||
                 inEnchant.equals("cumbersome") ||
                 inEnchant.equals("persistence") ||
-                inEnchant.equals("curse_of_instability");
+                inEnchant.equals("curse_of_instability") ||
+                inEnchant.equals("snowy");
     }
 
     public static boolean isCurseEnchant(String inEnchant) {
