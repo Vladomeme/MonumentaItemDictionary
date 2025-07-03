@@ -229,6 +229,10 @@ public class BuilderGui extends Screen {
             baseUrl.append(charms.stream().map(this::getWeirdCharmName).collect(Collectors.joining(",")));
         } else baseUrl.append("None");
 
+        if (!nameBar.getText().isEmpty()) {
+            baseUrl.append("&name=").append(nameBar.getText().replace(" ", "%20"));
+        }
+
         Clipboard clipboard = new Clipboard();
         clipboard.setClipboard(0, baseUrl.toString());
         statusText = Text.literal("Build Url copied to your clipboard!").setStyle(Style.EMPTY.withColor(0xFF00FF00));
@@ -312,12 +316,19 @@ public class BuilderGui extends Screen {
         }
 
         charms.clear();
-        String[] rawCharms = buildUrl.substring(buildUrl.indexOf("charm=") + 6).split(",");
+        String[] rawCharms = buildUrl.substring(
+                buildUrl.indexOf("charm=") + 6,
+                buildUrl.contains("name=") ? buildUrl.indexOf("name=") - 1 : buildUrl.length())
+                .split(",");
         if (!rawCharms[0].equals("None")) {
             for (String charm : rawCharms) {
                 DictionaryCharm charmToAdd = controller.getCharmByWeirdName(charm);
                 charms.add(charmToAdd);
             }
+        }
+
+        if (buildUrl.contains("name=")) {
+           nameBar.setText(buildUrl.substring(buildUrl.indexOf("name=") + 5).replace("%20", " "));
         }
 
         updateButtons();
