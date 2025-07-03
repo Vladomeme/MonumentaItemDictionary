@@ -211,7 +211,7 @@ public class BuilderGui extends Screen {
     }
 
     private void getBuildUrl() {
-        StringBuilder baseUrl = new StringBuilder("https://ohthemisery-psi.vercel.app/builder/");
+        StringBuilder baseUrl = new StringBuilder("https://odetomisery.vercel.app/builder/");
         for (int i = 0; i < itemTypesIndex.size(); i++) {
             DictionaryItem item  = buildItems.get(i);
             baseUrl.append(itemTypesIndex.get(i).substring(0, 1).toLowerCase()).append("=");
@@ -325,7 +325,7 @@ public class BuilderGui extends Screen {
     }
 
     private boolean verifyUrl(String buildUrl) {
-        return buildUrl.contains("ohthemisery.tk/builder") || buildUrl.contains("ohthemisery.vercel.app/builder") || buildUrl.contains("ohthemisery-psi.vercel.app/builder");
+        return buildUrl.contains("ohthemisery.tk/builder") || buildUrl.contains("ohthemisery.vercel.app/builder") || buildUrl.contains("ohthemisery-psi.vercel.app/builder") || buildUrl.contains("odetomisery.vercel.app/builder");
     }
 
     private BuildCharmButtonWidget getCharmButtonWidget(int i, @Nullable DictionaryCharm charm) {
