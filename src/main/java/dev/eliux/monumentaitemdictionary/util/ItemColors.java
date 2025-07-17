@@ -140,6 +140,7 @@ public class ItemColors {
     public static final int SKR_COLOR = 0xE8C392;
     public static final int HUNTS_COLOR = 0x414E18;
     public static final int TWISTED_COLOR = 0x6B0000;
+    public static final int INDIGO_COLOR = 0x6F00FF;
 
     public static int getColorForTier(String itemTier) {
         return switch (itemTier) {
@@ -414,6 +415,8 @@ public class ItemColors {
                 yield HUNTS_COLOR;
             case "Twisted":
                 yield TWISTED_COLOR;
+            case "Indigo":
+                yield INDIGO_COLOR;
             default:
                 yield DEFAULT_COLOR;
         };
