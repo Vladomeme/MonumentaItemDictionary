@@ -227,7 +227,8 @@ public class ItemColors {
                 || charmStat.statNameFull.contains("delay")
                 || charmStat.statNameFull.contains("price")
                 || charmStat.statNameFull.contains("received_damage")
-                || (charmStat.statLocked && charmStat.statNameFull.contains("max_debuff")); // Stupid hardcoded idk
+                || charmStat.statNameFull.contains("threshold")
+                || (charmStat.statLocked && charmStat.statNameFull.contains("max_debuff")); // Hardcoded for Psychosis
         return (positive ^ inverted) ? TEXT_POSITIVE_CHARM_COLOR : TEXT_NEGATIVE_CHARM_COLOR;
     }
 
