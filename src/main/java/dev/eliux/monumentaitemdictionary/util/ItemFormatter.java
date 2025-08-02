@@ -180,7 +180,7 @@ public class ItemFormatter {
         String stat = inStat;
         stat = stat.replace("_s_", "'s_");
         if (stat.endsWith("_prot")) stat = stat.substring(0, stat.lastIndexOf("_prot")) + "_protection";
-        if (stat.endsWith("_base")) stat = stat.substring(0, stat.lastIndexOf("_base")) + "";
+        if (stat.endsWith("_base")) stat = stat.equals("spell_power_base") ? "%_" + stat.substring(0, stat.lastIndexOf("_base")) : stat.substring(0, stat.lastIndexOf("_base")) + "";
         if (stat.endsWith("_flat")) stat = stat.substring(0, stat.lastIndexOf("_flat")) + "";
         if (stat.endsWith("_percent")) stat = "%_" + stat.substring(0, stat.lastIndexOf("_percent"));
         if (stat.endsWith("_bow")) stat = stat.substring(0, stat.lastIndexOf("_bow")) + "";
@@ -332,7 +332,8 @@ public class ItemFormatter {
     }
 
     public static boolean isPercentStat(String inStat) {
-        return inStat.endsWith("_percent");
+        return inStat.endsWith("_percent") ||
+                inStat.equals("spell_power_base");
     }
 
     public static boolean isBaseStat(String inStat) {
