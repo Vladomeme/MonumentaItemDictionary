@@ -4,7 +4,7 @@ import java.util.TreeMap;
 
 public class ItemFormatter {
     public static String[] modifiableSkills = {"alchemist_potion", "gruesome_alchemy", "iron_tincture", "empowering_odor", "energizing_elixir", "brutal_alchemy", "alchemical_artillery", "unstable_amalgam", "bezoar", "taboo", "scorched_earth", "esoteric_enhancements", "panacea", "transmutation_ring", "warding_remedy",
-            "rejuvenation", "celestial_blessing", "divine_justice", "heavenly_boon", "illuminate", "cleansing_rain", "hand_of_light", "crusade", "sanctified_armor", "holy_javelin", "choir_bells", "luminous_infusion", "enchanted_prayer", "thurible_procession", "hallowed_beam",
+            "crusade", "celestial_blessing", "divine_justice", "heavenly_boon", "illuminate", "cleansing_rain", "hand_of_light", "touch_of_radiance", "sanctified_armor", "holy_javelin", "choir_bells", "luminous_infusion", "rejuvenation", "enchanted_prayer", "thurible_procession", "hallowed_beam",
             "arcane_strike", "frost_nova", "mana_lance", "thunder_step", "elemental_arrows", "magma_shield", "spellshock", "prismatic_shield", "astral_omen", "cosmic_moonblade", "sage's_insight", "blizzard", "elemental_spirits", "starfall",
             "advancing_shadows", "dagger_throw", "escape_death", "smokescreen", "by_my_blade", "dodging", "skirmisher", "vicious_combos", "blade_dance", "deadly_ronde", "wind_walk", "bodkin_blitz", "cloak_and_dagger", "coup_de_grace",
             "hunting_companion", "wind_bomb", "swift_cuts", "swiftness", "eagle_eye", "sharpshooter", "quickdraw", "volley", "rending_razor", "whirling_blade", "tactical_maneuver", "pinning_shot", "split_arrow", "predator_strike",
@@ -180,7 +180,7 @@ public class ItemFormatter {
         String stat = inStat;
         stat = stat.replace("_s_", "'s_");
         if (stat.endsWith("_prot")) stat = stat.substring(0, stat.lastIndexOf("_prot")) + "_protection";
-        if (stat.endsWith("_base")) stat = stat.substring(0, stat.lastIndexOf("_base")) + "";
+        if (stat.endsWith("_base")) stat = stat.equals("spell_power_base") ? "%_" + stat.substring(0, stat.lastIndexOf("_base")) : stat.substring(0, stat.lastIndexOf("_base")) + "";
         if (stat.endsWith("_flat")) stat = stat.substring(0, stat.lastIndexOf("_flat")) + "";
         if (stat.endsWith("_percent")) stat = "%_" + stat.substring(0, stat.lastIndexOf("_percent"));
         if (stat.endsWith("_bow")) stat = stat.substring(0, stat.lastIndexOf("_bow")) + "";
@@ -280,7 +280,8 @@ public class ItemFormatter {
                 inEnchant.equals("divine_aura") ||
                 inEnchant.equals("cumbersome") ||
                 inEnchant.equals("persistence") ||
-                inEnchant.equals("curse_of_instability");
+                inEnchant.equals("curse_of_instability") ||
+                inEnchant.equals("snowy");
     }
 
     public static boolean isCurseEnchant(String inEnchant) {
@@ -331,7 +332,8 @@ public class ItemFormatter {
     }
 
     public static boolean isPercentStat(String inStat) {
-        return inStat.endsWith("_percent");
+        return inStat.endsWith("_percent") ||
+                inStat.equals("spell_power_base");
     }
 
     public static boolean isBaseStat(String inStat) {

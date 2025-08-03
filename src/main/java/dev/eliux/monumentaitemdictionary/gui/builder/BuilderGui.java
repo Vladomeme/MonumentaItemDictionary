@@ -51,7 +51,7 @@ public class BuilderGui extends Screen {
     public int labelMenuHeight = 30;
     public int itemPadding = 5;
     public int buttonSize = 50;
-    public int checkBoxSise = 20;
+    public int checkBoxSize = 20;
     public int statsY = 260 + itemPadding*2;
     public int statsRow = 350;
     public int statsColumn = 170;
@@ -211,7 +211,7 @@ public class BuilderGui extends Screen {
     }
 
     private void getBuildUrl() {
-        StringBuilder baseUrl = new StringBuilder("https://ohthemisery-psi.vercel.app/builder/");
+        StringBuilder baseUrl = new StringBuilder("https://odetomisery.vercel.app/builder/");
         for (int i = 0; i < itemTypesIndex.size(); i++) {
             DictionaryItem item  = buildItems.get(i);
             baseUrl.append(itemTypesIndex.get(i).substring(0, 1).toLowerCase()).append("=");
@@ -228,6 +228,10 @@ public class BuilderGui extends Screen {
         if (!charms.isEmpty()) {
             baseUrl.append(charms.stream().map(this::getWeirdCharmName).collect(Collectors.joining(",")));
         } else baseUrl.append("None");
+
+        if (!nameBar.getText().isEmpty()) {
+            baseUrl.append("&name=").append(nameBar.getText().replace(" ", "%20"));
+        }
 
         Clipboard clipboard = new Clipboard();
         clipboard.setClipboard(0, baseUrl.toString());
@@ -264,7 +268,7 @@ public class BuilderGui extends Screen {
                     case WARRIOR -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.BERSERKER, Specializations.GUARDIAN);
                     case ALCHEMIST -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.HARBINGER, Specializations.APOTHECARY);
                     case WARLOCK -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.TENEBRIST, Specializations.REAPER);
-                    case SHAMAN -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.HEXBREAKER, Specializations.SOOTHSLAYER);
+                    case SHAMAN -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.HEXBREAKER, Specializations.SOOTHSAYER);
                     case CLERIC -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.PALADIN, Specializations.HIEROPHANT);
                     case DD_ZENITH -> Specializations.getDDZenithClasses();
                 })
@@ -312,7 +316,10 @@ public class BuilderGui extends Screen {
         }
 
         charms.clear();
-        String[] rawCharms = buildUrl.substring(buildUrl.indexOf("charm=") + 6).split(",");
+        String[] rawCharms = buildUrl.substring(
+                buildUrl.indexOf("charm=") + 6,
+                buildUrl.contains("name=") ? buildUrl.indexOf("name=") - 1 : buildUrl.length())
+                .split(",");
         if (!rawCharms[0].equals("None")) {
             for (String charm : rawCharms) {
                 DictionaryCharm charmToAdd = controller.getCharmByWeirdName(charm);
@@ -320,12 +327,16 @@ public class BuilderGui extends Screen {
             }
         }
 
+        if (buildUrl.contains("name=")) {
+           nameBar.setText(buildUrl.substring(buildUrl.indexOf("name=") + 5).replace("%20", " "));
+        }
+
         updateButtons();
         updateStats();
     }
 
     private boolean verifyUrl(String buildUrl) {
-        return buildUrl.contains("ohthemisery.tk/builder") || buildUrl.contains("ohthemisery.vercel.app/builder") || buildUrl.contains("ohthemisery-psi.vercel.app/builder");
+        return buildUrl.contains("ohthemisery.tk/builder") || buildUrl.contains("ohthemisery.vercel.app/builder") || buildUrl.contains("ohthemisery-psi.vercel.app/builder") || buildUrl.contains("odetomisery.vercel.app/builder");
     }
 
     private BuildCharmButtonWidget getCharmButtonWidget(int i, @Nullable DictionaryCharm charm) {
@@ -386,14 +397,14 @@ public class BuilderGui extends Screen {
 
     public void updateGuiPositions() {
         halfWidth = width/2;
-        halfWidthPadding = textRenderer.getWidth(situationalCheckBoxList.get(6).getMessage()) + 3*(checkBoxSise + itemPadding);
+        halfWidthPadding = textRenderer.getWidth(situationalCheckBoxList.get(6).getMessage()) + 3*(checkBoxSize + itemPadding);
         buttonSize = width/18;
         itemPadding = buttonSize/10;
 
-        charmsY = labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 2 + (checkBoxSise + itemPadding) * 5 + 85;
+        charmsY = labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 2 + (checkBoxSize + itemPadding) * 5 + 85;
         charmsButtonY = (int) ((getCharmsListWithPower().size())/floor((double) (width - sideMenuWidth - charmsX)/(buttonSize + itemPadding)))*
                 (buttonSize + itemPadding) - scrollPixels + buttonSize + 2*itemPadding;
-        statsY = max(labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 4, labelMenuHeight + itemPadding + (checkBoxSise + itemPadding)*6) + 20;
+        statsY = max(labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 4, labelMenuHeight + itemPadding + (checkBoxSize + itemPadding)*6) + 20;
         statusY = statsY - 20;
 
         showBuildDictionaryButton.setX(width - sideMenuWidth + 10);
@@ -419,7 +430,7 @@ public class BuilderGui extends Screen {
 
             CheckBoxWidget situationalCheckBox = new CheckBoxWidget(
                     width/3 + (i/6)*90,
-                    labelMenuHeight + itemPadding + (checkBoxSise + itemPadding)*(i%6) - scrollPixels,
+                    labelMenuHeight + itemPadding + (checkBoxSize + itemPadding)*(i%6) - scrollPixels,
                     Text.literal(situational),
                     enabledSituationals.get(situational.replace(" ", "_").toLowerCase()),
                     true,
@@ -429,11 +440,11 @@ public class BuilderGui extends Screen {
 
         infusionsCheckBoxList.clear();
         for (int i = 0; i < infusions.size() ; i++) {
-            String infusion = getSlidingText(infusions.get(i), halfWidth + halfWidthPadding + (i/6)*90 + checkBoxSise, width - sideMenuWidth, false);
+            String infusion = getSlidingText(infusions.get(i), halfWidth + halfWidthPadding + (i/6)*90 + checkBoxSize, width - sideMenuWidth, false);
 
             CheckBoxWidget infusionCheckBox = new CheckBoxWidget(
                     halfWidth + halfWidthPadding + (i/6)*90,
-                    labelMenuHeight + itemPadding + 2*(buttonSize + itemPadding) + (checkBoxSise + itemPadding)*(i%6) - scrollPixels + 55,
+                    labelMenuHeight + itemPadding + 2*(buttonSize + itemPadding) + (checkBoxSize + itemPadding)*(i%6) - scrollPixels + 55,
                     Text.literal(infusion),
                     enabledInfusions.get(infusions.get(i).toLowerCase()),
                     true,
@@ -441,7 +452,7 @@ public class BuilderGui extends Screen {
             infusionsCheckBoxList.add(infusionCheckBox);
         }
 
-        halfWidthPadding = textRenderer.getWidth(situationalCheckBoxList.get(6).getMessage()) + 3*(checkBoxSise + itemPadding);
+        halfWidthPadding = textRenderer.getWidth(situationalCheckBoxList.get(6).getMessage()) + 3*(checkBoxSize + itemPadding);
 
         buildItemButtons.clear();
         for (int i = 0; i < 6; i++) {
@@ -848,7 +859,7 @@ public class BuilderGui extends Screen {
         APOTHECARY(Text.literal("Apothecary")),
         REAPER(Text.literal("Reaper")),
         TENEBRIST(Text.literal("Tenebrist")),
-        SOOTHSLAYER(Text.literal("Soothslayer")),
+        SOOTHSAYER(Text.literal("Soothsayer")),
         HEXBREAKER(Text.literal("Hexbreaker")),
         PALADIN(Text.literal("Paladin")),
         HIEROPHANT(Text.literal("Hierophant")),
@@ -872,8 +883,8 @@ public class BuilderGui extends Screen {
         }
 
         public Specializations getSpecialization(String specialization) {
-            for (Specializations specilaziations : Specializations.values()) {
-                if (specilaziations.text.getString().equals(specialization)) return specilaziations;
+            for (Specializations specializations : Specializations.values()) {
+                if (specializations.text.getString().equals(specialization)) return specializations;
             }
             return NO_SPECIALIZATION;
         }
