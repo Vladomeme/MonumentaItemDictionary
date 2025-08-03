@@ -216,7 +216,11 @@ public class BuilderGui extends Screen {
             DictionaryItem item  = buildItems.get(i);
             baseUrl.append(itemTypesIndex.get(i).substring(0, 1).toLowerCase()).append("=");
             if (item != null) {
-                if (!item.region.equals("Ring")) baseUrl.append(item.name.replace(" ", "%20")).append("&");
+                if (!item.region.equals("Ring")) {
+                    if (item.name.equals("Carcano 91/38"))
+                        baseUrl.append(item.name.replace(" ", "%20").replace("/", "")).append("&"); //CARCANO HARDCODE
+                    else baseUrl.append(item.name.replace(" ", "%20")).append("&");
+                }
                 else {
                     if (isItemExalted(item)) baseUrl.append("EX ");
                     baseUrl.append(item.name.replace(" ", "%20")).append(String.format("-%d", item.getMaxMasterwork()-1)).append("&");
@@ -300,7 +304,8 @@ public class BuilderGui extends Screen {
 
             String itemType = rawItem.substring(0, 1);
 
-            item = controller.getItemByName(itemName, isExalted);
+            if (itemName.equals("Carcano 9138")) item = controller.getItemByName("Carcano 91/38", isExalted); //CARCANO HARDCODE
+            else item = controller.getItemByName(itemName, isExalted);
             if (item == null) { continue; }
 
             switch (itemType) {
