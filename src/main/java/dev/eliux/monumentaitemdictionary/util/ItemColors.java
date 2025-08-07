@@ -227,8 +227,14 @@ public class ItemColors {
                 || charmStat.statNameFull.contains("delay")
                 || charmStat.statNameFull.contains("price")
                 || charmStat.statNameFull.contains("received_damage")
-                || charmStat.statNameFull.contains("threshold")
-                || (charmStat.statLocked && charmStat.statNameFull.contains("max_debuff")); // Hardcoded for Psychosis
+                /* Hardcode Affected Charm Note
+                    Silver Codex, Focused/Greater/Lesser Executioner's Charm: Coup de Grace health threshold
+                    Loci's Hunger: Rampage stacks needed for activation
+                    Rocket Boots: Meteor Slam reduced threshold
+                    Psychosis: Locked Amplifying Hex max debuffs */
+                || (charmStat.statNameFull.contains("threshold") && !(charmStat.statNameFull.contains("coup_de_grace") || charmStat.statNameFull.equals("meteor_slam_reduced_threshold_flat")))
+                || charmStat.statNameFull.equals("rampage_stacks_needed_for_activation_flat")
+                || (charmStat.statLocked && charmStat.statNameFull.equals("amplifying_hex_max_debuffs_flat"));
         return (positive ^ inverted) ? TEXT_POSITIVE_CHARM_COLOR : TEXT_NEGATIVE_CHARM_COLOR;
     }
 
