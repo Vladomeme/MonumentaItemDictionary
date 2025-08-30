@@ -45,7 +45,8 @@ public class CharmDictionaryGui extends Screen {
 
     public final DictionaryController controller;
     private ItemIconButtonWidget buildDictionaryButton;
-    public boolean isGettingBuildCharm;
+    public boolean isGettingBuildCharm = false;
+    public boolean isInBuilderGui = false;
     private ItemIconButtonWidget builderButton;
 
     public CharmDictionaryGui(Text title, DictionaryController controller) {
@@ -213,7 +214,7 @@ public class CharmDictionaryGui extends Screen {
                     String wikiFormatted = charm.name.replace(" ", "_").replace("'", "%27");
                     Util.getOperatingSystem().open("https://monumenta.wiki.gg/wiki/" + wikiFormatted);
                 } else if (isGettingBuildCharm) {
-                    if (!(charm.power + controller.builderGui.charms.size() >= 13)) {
+                    if (charm.power + controller.builderGui.getCharmsListWithPower().size() <= 12 && !hasAltDown()) {
                         returnCharm(charm);
                     }
                 }
@@ -345,7 +346,7 @@ public class CharmDictionaryGui extends Screen {
         lines.add(Text.literal(""));
 
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null && player.getAbilities().creativeMode) {
+        if (player != null && player.getAbilities().creativeMode && !isInBuilderGui) {
             lines.add(Text.literal("[ALT] + Click to generate this item").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
         }
         lines.add(Text.literal("[CTRL] [SHIFT] + Click to open in the wiki").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));

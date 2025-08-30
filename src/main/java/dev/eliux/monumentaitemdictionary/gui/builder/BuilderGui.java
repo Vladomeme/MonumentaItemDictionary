@@ -614,14 +614,14 @@ public class BuilderGui extends Screen {
         stars = (textRenderer.getWidth(stars) > width - sideMenuWidth - charmsX) ? getCharmsListWithPower().size() + "/12" : stars;
         context.drawTextWithShadow(textRenderer,
                 Text.literal("Charms"),
-                charmsX, charmsY-20 - scrollPixels, 0xFFFFFFFF);
+                charmsX, charmsY - 20 - scrollPixels, 0xFFFFFFFF);
         context.drawTextWithShadow(textRenderer,
                 Text.literal(stars),
                 charmsX, charmsY - 10 - scrollPixels, 0xFFFFFF00);
         if (getCharmsListWithPower().size() == 12) {
             context.drawTextWithShadow(textRenderer,
                     Text.literal(getSlidingText("Full Charms", charmsX, width - labelMenuHeight, true)).setStyle(Style.EMPTY.withBold(true).withUnderline(true)),
-                    charmsX, charmsY-30 - scrollPixels, 0xFFFF0000);
+                    charmsX, charmsY - 30 - scrollPixels, 0xFFFF0000);
         }
 
         if (!statusText.getString().isEmpty()) {
