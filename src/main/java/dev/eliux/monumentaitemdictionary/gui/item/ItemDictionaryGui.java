@@ -50,6 +50,7 @@ public class ItemDictionaryGui extends Screen {
     private ItemIconButtonWidget maxMasterworkButton;
     private ItemIconButtonWidget tipsMasterworkButton;
     public boolean isGettingBuildItem = false;
+    public boolean isInBuilderGui = false;
 
     public final DictionaryController controller;
     private ItemIconButtonWidget builderButton;
@@ -250,7 +251,7 @@ public class ItemDictionaryGui extends Screen {
                     String wikiFormatted = item.name.replace(" ", "_").replace("'", "%27");
                     Util.getOperatingSystem().open("https://monumenta.wiki.gg/wiki/" + wikiFormatted);
 
-                } else if (isGettingBuildItem) {
+                } else if (isGettingBuildItem && !hasAltDown()) {
                     returnItem(item);
                 }
 
@@ -479,7 +480,7 @@ public class ItemDictionaryGui extends Screen {
         lines.add(Text.literal(""));
 
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null && player.getAbilities().creativeMode) lines.add(Text.literal("[ALT] + Click to generate this item").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
+        if (player != null && player.getAbilities().creativeMode && !isInBuilderGui) lines.add(Text.literal("[ALT] + Click to generate this item").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
 
         Screen currentScreen = MinecraftClient.getInstance().currentScreen;
         if (currentScreen instanceof ItemDictionaryGui || currentScreen instanceof CharmDictionaryGui || currentScreen instanceof BuilderGui) {
