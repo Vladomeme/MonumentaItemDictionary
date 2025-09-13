@@ -16,16 +16,20 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.item.DyeableItem;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.DyedColorComponent;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class GeneratorGui extends Screen {
     public final int labelMenuHeight = 30;
@@ -94,10 +98,9 @@ public class GeneratorGui extends Screen {
             if (e.equals("Default")) {
                 dyeColor = -1;
             } else if (e.equals("Undyed")) {
-                dyeColor = DyeableItem.DEFAULT_COLOR;
+                dyeColor = DyedColorComponent.DEFAULT_COLOR;
             } else if (!e.equals("Custom")) {
-                float[] colorComponents = DyeColor.byName(e, DyeColor.WHITE).getColorComponents();
-                dyeColor = (int)(0xFF0000 * colorComponents[0] + 0xFF00 * colorComponents[1] + 0xFF * colorComponents[2]);
+                dyeColor = Objects.requireNonNullElse(Formatting.byName(e), Formatting.WHITE).getColorValue();
             }
 
             updateGeneratedItem();
@@ -158,8 +161,8 @@ public class GeneratorGui extends Screen {
             generatedItem = ItemFactory.fromEncodingWithStringNbt(focusedCharm.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"), focusedCharm.nbt);
         }
 
-        if (generatedItem.getItem() instanceof DyeableItem item && dyeColor != -1) {
-            item.setColor(generatedItem, dyeColor);
+        if (generatedItem.contains(DataComponentTypes.DYED_COLOR) && dyeColor != -1) {
+            generatedItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(dyeColor, true));
         }
     }
 
@@ -184,7 +187,7 @@ public class GeneratorGui extends Screen {
 
             context.drawItem(generatedItem, 180, labelMenuHeight + 18);
 
-            context.drawTooltip(textRenderer, generatedItem.getTooltip(MinecraftClient.getInstance().player, MinecraftClient.getInstance().options.advancedItemTooltips ? TooltipContext.ADVANCED : TooltipContext.BASIC), 118, labelMenuHeight + 61);
+            context.drawTooltip(textRenderer, generatedItem.getTooltip(Item.TooltipContext.DEFAULT, MinecraftClient.getInstance().player, MinecraftClient.getInstance().options.advancedItemTooltips ? TooltipType.ADVANCED : TooltipType.BASIC), 118, labelMenuHeight + 61);
         }
 
         // draw vertical line
@@ -204,7 +207,7 @@ public class GeneratorGui extends Screen {
             context.getMatrices().pop();
         }
 
-        if (generatedItem.getItem() instanceof DyeableItem) {
+        if (generatedItem.contains(DataComponentTypes.DYED_COLOR)) {
             context.getMatrices().push();
             context.getMatrices().translate(0, 0, 500);
             context.drawTextWrapped(textRenderer, StringVisitable.plain("Set Dye Color"), 10, labelMenuHeight + 92, 100, 0xFFFFFFFF);

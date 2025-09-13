@@ -1,6 +1,9 @@
 package dev.eliux.monumentaitemdictionary.gui;
 
 import com.google.gson.*;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuildDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuildFilterGui;
@@ -20,8 +23,17 @@ import java.util.*;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.component.ComponentChanges;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.datafixer.fix.ItemStackComponentizationFix;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.text.Text;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -444,7 +456,7 @@ public class DictionaryController {
                         allItemStats.add(statKey);
                 }
 
-                String itemNbt = "";
+                String itemNbt = "{}";
                 JsonPrimitive nbtPrimitive = itemData.getAsJsonPrimitive("nbt");
                 if (nbtPrimitive != null) {
                     itemNbt = nbtPrimitive.getAsString();
@@ -554,7 +566,7 @@ public class DictionaryController {
                 if (!allCharmBaseItems.contains(charmBaseItem))
                     allCharmBaseItems.add(charmBaseItem);
 
-                String charmNbt = "";
+                String charmNbt = "{}";
                 if (charmData.has("nbt")) {
                     charmNbt = charmData.get("nbt").getAsString();
                 }
@@ -562,16 +574,22 @@ public class DictionaryController {
                 ArrayList<CharmStat> charmStats = new ArrayList<>();
                 JsonObject statsObject = charmData.get("stats").getAsJsonObject();
                 for (Map.Entry<String, JsonElement> statEntry : statsObject.entrySet()) {
-                    JsonObject statObject = (JsonObject) statEntry.getValue();
+                    JsonElement statElement = statEntry.getValue();
+
                     String statKey = statEntry.getKey();
                     String skillMod = ItemFormatter.getSkillFromCharmStat(statKey);
                     if (!allCharmSkillMods.contains(skillMod))
                         allCharmSkillMods.add(skillMod);
-
-                    charmStats.add(new CharmStat(statKey, skillMod, statObject.get("locked").getAsBoolean(), statObject.get("value").getAsDouble()));
-
                     if (!allCharmStats.contains(statKey))
                         allCharmStats.add(statKey);
+
+                    if (statElement instanceof JsonPrimitive) {
+                        charmStats.add(new CharmStat(statKey, skillMod, false, statElement.getAsDouble()));
+                    }
+                    else {
+                        JsonObject statObject = (JsonObject) statElement;
+                        charmStats.add(new CharmStat(statKey, skillMod, statObject.get("locked").getAsBoolean(), statObject.get("value").getAsDouble()));
+                    }
                 }
 
                 charms.add(new DictionaryCharm(charmName, charmRegion, charmLocation, charmTier, charmPower, charmClass, charmBaseItem, charmNbt, charmStats));

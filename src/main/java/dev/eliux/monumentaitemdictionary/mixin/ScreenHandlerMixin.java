@@ -13,7 +13,8 @@ import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.item.Item;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
@@ -95,7 +96,7 @@ public abstract class ScreenHandlerMixin {
         for (int slot : itemsInOrderOfBuild) {
             String itemName = slotItemNames.get(slot);
             boolean isExalted =
-                    slots.get(slot).getStack().getTooltip(client.player, TooltipContext.BASIC).stream()
+                    slots.get(slot).getStack().getTooltip(Item.TooltipContext.DEFAULT, client.player, TooltipType.BASIC).stream()
                             .anyMatch(text -> text.getString().contains("Exalted version"));
             itemsFromBuild.add(controller.getItemByName(itemName, isExalted));
         }
@@ -143,7 +144,7 @@ public abstract class ScreenHandlerMixin {
         for (int slot : slotsInOrderOfBuild) {
             String itemName = slots.get(slot).getStack().getName().getString();
             boolean isExalted =
-                    slots.get(slot).getStack().getTooltip(client.player, TooltipContext.BASIC).stream()
+                    slots.get(slot).getStack().getTooltip(Item.TooltipContext.DEFAULT, client.player, TooltipType.BASIC).stream()
                             .anyMatch(text -> text.getString().contains("Ring"));
             itemsFromBuild.add(controller.getItemByName(itemName, isExalted));
         }

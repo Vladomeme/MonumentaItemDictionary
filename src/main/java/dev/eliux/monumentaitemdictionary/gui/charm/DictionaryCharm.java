@@ -15,7 +15,8 @@ public class DictionaryCharm {
     public String nbt; // will exist
     public ArrayList<CharmStat> stats; // will exist
 
-    public DictionaryCharm(String name, String region, String location, String tier, int power, String className, String baseItem, String nbt, ArrayList<CharmStat> stats) {
+    public DictionaryCharm(String name, String region, String location, String tier, int power,
+                           String className, String baseItem, String nbt, ArrayList<CharmStat> stats) {
         this.name = name;
         this.region = region;
         this.location = location;
