@@ -1,5 +1,11 @@
 package dev.eliux.monumentaitemdictionary.web;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.hud.ChatHud;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,7 +16,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -30,27 +38,29 @@ public class WebManager {
     }
 
     public static void manageRequestAsynchronous(String targetUrl, Consumer<String> onSuccess, Runnable onFailure) {
-        Thread thread = new Thread(() -> {
+        new Thread(() -> {
+            ChatHud chat = MinecraftClient.getInstance().inGameHud.getChatHud();
+            Style style = Style.EMPTY.withColor(Formatting.RED);
+
             try {
                 HttpRequest request = HttpRequest.newBuilder().uri(URI.create(targetUrl)).timeout(Duration.ofMinutes(1)).GET().build();
-                CompletableFuture<HttpResponse<String>> response = HttpClient.newHttpClient().sendAsync(request, HttpResponse.BodyHandlers.ofString());
-                int iterations = 0;
-                while (!response.isDone() || iterations > 2000) { // timeout after 20 seconds
-                    if (response.isCompletedExceptionally() || response.isCancelled()) {
-                        // REQUEST FAILED
-                        onFailure.run();
-                    }
-                    Thread.sleep(10);
-                    iterations++;
-                }
-                if (response.isDone()) {
-                    // REQUEST SUCCEEDED
-                    onSuccess.accept(response.get().body());
-                }
-            } catch (Exception e) {
+                HttpResponse<String> response = HttpClient.newHttpClient().sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                        .get(20, TimeUnit.SECONDS);
+                onSuccess.accept(response.body());
+                chat.addMessage(Text.literal("Monumenta Item Dictionary data request is finished.").setStyle(Style.EMPTY.withColor(Formatting.GREEN)));
+                return;
+            }
+            catch (InterruptedException e) {
+                chat.addMessage(Text.literal("Monumenta Item Dictionary data request was interrupted.").setStyle(style));
+            }
+            catch (ExecutionException e) {
+                chat.addMessage(Text.literal("An error occurred during an Monumenta Item Dictionary data request.").setStyle(style));
                 e.printStackTrace();
             }
-        });
-        thread.start();
+            catch (TimeoutException e) {
+                chat.addMessage(Text.literal("Monumenta Item Dictionary data request timed out, API might be unreachable. Try again later.").setStyle(style));
+            }
+            onFailure.run();
+        }).start();
     }
 }
