@@ -19,6 +19,7 @@ import dev.eliux.monumentaitemdictionary.gui.item.ItemFilterGui;
 import dev.eliux.monumentaitemdictionary.util.*;
 import dev.eliux.monumentaitemdictionary.web.WebManager;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import net.minecraft.client.MinecraftClient;
@@ -243,7 +244,7 @@ public class DictionaryController {
 
     private String readItemData() {
         try {
-            return Files.readString(Path.of("config/mid/items.json"));
+            return Files.readString(Path.of("config/mid/items.json"), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -258,7 +259,7 @@ public class DictionaryController {
             targetFile.getParentFile().mkdirs();
             targetFile.createNewFile();
 
-            FileUtils.writeStringToFile(targetFile, writeData, Charset.defaultCharset());
+            FileUtils.writeStringToFile(targetFile, writeData, StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
