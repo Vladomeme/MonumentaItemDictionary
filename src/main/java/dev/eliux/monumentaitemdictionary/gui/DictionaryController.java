@@ -269,7 +269,7 @@ public class DictionaryController {
         try {
             File buildsFile = new File("config/mid/builds.json");
             buildsFile.createNewFile();
-            return Files.readString(buildsFile.toPath(), Charset.defaultCharset());
+            return Files.readString(buildsFile.toPath(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -284,7 +284,7 @@ public class DictionaryController {
             JsonObject fileBuilds = JsonParser.parseString((readJsonBuild().isEmpty()) ? "{}" : readJsonBuild()).getAsJsonObject();
             fileBuilds.add(String.valueOf(id), jsonBuild);
 
-            FileUtils.writeStringToFile(file, fileBuilds.toString(), Charset.defaultCharset());
+            FileUtils.writeStringToFile(file, fileBuilds.toString(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -675,9 +675,9 @@ public class DictionaryController {
         return new ArrayList<>(Arrays.asList(
                 "Arcanist",
                 "Elementalist",
-                "Berskerker",
+                "Berserker",
                 "Guardian",
-                "Hierophant",
+                "Seraph",
                 "Paladin",
                 "Assassin",
                 "Swordsage",
@@ -1004,14 +1004,14 @@ public class DictionaryController {
     public DictionaryCharm getCharmByWeirdName(String rawCharm) {
         String[] rawCharmParts = rawCharm.split("-");
 
-        String preffix = rawCharmParts[0].replace("_", " ");
+        String prefix = rawCharmParts[0].replace("_", " ");
         String suffix = rawCharmParts[1].replace("_", " ");
         int power = Integer.parseInt(rawCharmParts[2]);
         String classLetter = rawCharmParts[3];
 
         for (DictionaryCharm charm : charms) {
             String name = charm.name;
-            if (name.substring(0, 3).equals(preffix) && name.contains(suffix) && charm.power == power && charm.className.startsWith(classLetter)) {
+            if (name.substring(0, 3).equals(prefix) && name.contains(suffix) && charm.power == power && charm.className.startsWith(classLetter)) {
                 return charm;
             }
         }
@@ -1068,7 +1068,7 @@ public class DictionaryController {
                 }
             }
 
-            FileUtils.writeStringToFile(file, fileBuilds.toString(), Charset.defaultCharset());
+            FileUtils.writeStringToFile(file, fileBuilds.toString(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -1091,7 +1091,7 @@ public class DictionaryController {
 
             fileBuilds.remove(String.valueOf(id));
 
-            FileUtils.writeStringToFile(file, fileBuilds.toString(), Charset.defaultCharset());
+            FileUtils.writeStringToFile(file, fileBuilds.toString(), StandardCharsets.UTF_8);
             builds.removeIf(build -> build.id == id);
         } catch (IOException e) {
             e.printStackTrace();

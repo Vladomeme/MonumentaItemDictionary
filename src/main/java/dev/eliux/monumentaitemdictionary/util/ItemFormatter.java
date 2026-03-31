@@ -3,14 +3,14 @@ package dev.eliux.monumentaitemdictionary.util;
 import java.util.TreeMap;
 
 public class ItemFormatter {
-    public static String[] modifiableSkills = {"alchemist_potion", "gruesome_alchemy", "iron_tincture", "empowering_odor", "energizing_elixir", "brutal_alchemy", "alchemical_artillery", "unstable_amalgam", "bezoar", "taboo", "scorched_earth", "esoteric_enhancements", "panacea", "transmutation_ring", "warding_remedy",
-            "crusade", "celestial_blessing", "divine_justice", "heavenly_boon", "illuminate", "cleansing_rain", "hand_of_light", "touch_of_radiance", "sanctified_armor", "holy_javelin", "choir_bells", "luminous_infusion", "rejuvenation", "enchanted_prayer", "thurible_procession", "hallowed_beam",
-            "arcane_strike", "frost_nova", "mana_lance", "thunder_step", "elemental_arrows", "magma_shield", "spellshock", "prismatic_shield", "astral_omen", "cosmic_moonblade", "sage's_insight", "blizzard", "elemental_spirits", "starfall",
-            "advancing_shadows", "dagger_throw", "escape_death", "smokescreen", "by_my_blade", "dodging", "skirmisher", "vicious_combos", "blade_dance", "deadly_ronde", "wind_walk", "bodkin_blitz", "cloak_and_dagger", "coup_de_grace",
-            "hunting_companion", "wind_bomb", "swift_cuts", "swiftness", "eagle_eye", "sharpshooter", "quickdraw", "volley", "rending_razor", "whirling_blade", "tactical_maneuver", "pinning_shot", "split_arrow", "predator_strike",
-            "cleansing_totem", "flame_totem", "lightning_totem", "earthen_tremor", "totemic_projection", "interconnected_havoc", "chain_lightning", "crystalline_combos", "sanctuary", "whirlwind_totem", "chain_healing_wave", "desecrating_shot", "decayed_totem", "devastation",
-            "amplifying_hex", "choleric_flames", "melancholic_lament", "sanguine_harvest", "phlegmatic_resolve", "cursed_wound", "grasping_claws", "soul_rend", "dark_pact", "judgement_chain", "voodoo_bonds", "haunting_shades", "restless_souls", "withering_gaze",
-            "brute_force", "defensive_line", "riposte", "toughness", "counter_strike", "frenzy", "shield_bash", "weapon_mastery", "glorious_battle", "meteor_slam", "rampage", "bodyguard", "challenge", "shield_wall",
+    public static String[] modifiableSkills = {"alchemist_potions", "gruesome_alchemy", "iron_tincture", "volatile_reaction", "energizing_elixir", "brutal_alchemy", "alchemical_artillery", "unstable_amalgam", "bezoar", "taboo", "scorched_earth", "esoteric_enhancements", "panacea", "transmutation_ring", "warding_remedy",
+            "crusade", "celestial_blessing", "divine_justice", "heavenly_boon", "illuminate", "cleansing_rain", "hand_of_light", "touch_of_radiance", "sanctified_armor", "unwavering", "holy_javelin", "choir_bells", "luminous_infusion", "rejuvenation", "ethereal_ascension", "hallowed_beam", "keeper_virtue",
+            "channeling", "arcane_strike", "frost_nova", "mana_lance", "thunder_step", "elemental_arrows", "magma_shield", "spellshock", "prismatic_shield", "astral_omen", "cosmic_moonblade", "sage's_insight", "blizzard", "elemental_spirits", "starfall",
+            "dethroner", "advancing_shadows", "dagger_throw", "escape_death", "smokescreen", "by_my_blade", "dodging", "skirmisher", "vicious_combos", "blade_dance", "deadly_ronde", "wind_walk", "bodkin_blitz", "cloak_and_dagger", "coup_de_grace",
+            "versatile", "hunting_companion", "wind_bomb", "swift_cuts", "swiftness", "eagle_eye", "sharpshooter", "quickdraw", "volley", "rending_razor", "whirling_blade", "tactical_maneuver", "pinning_shot", "split_arrow", "predator_strike",
+            "totemic_projection", "cleansing_totem", "flame_totem", "lightning_totem", "earthen_tremor", "spiritualism", "interconnected_havoc", "chain_lightning", "ignition_drive", "spiritual_combos", "whirlwind_totem", "totemic_consecration", "spiritcatcher_orbs", "decayed_totem", "devastation",
+            "culling", "amplifying_hex", "choleric_flames", "melancholic_lament", "sanguine_harvest", "phlegmatic_resolve", "cursed_wound", "grasping_claws", "soul_rend", "dark_pact", "judgement_chain", "voodoo_bonds", "haunting_shades", "restless_souls", "withering_gaze",
+            "formidable", "brute_force", "defensive_line", "riposte", "toughness", "counter_strike", "frenzy", "shield_bash", "weapon_mastery", "bloodlust", "glorious_battle", "meteor_slam", "rampage", "bodyguard", "challenge", "shield_wall",
             "decay", "inferno", "recoil", "jungle's_nourishment", "rage_of_the_keter", "hex_eater", "sapper", "life_drain", "regicide", "quake", "eruption", "smite", "slayer", "duelist", "regeneration", "thunder_aspect"};
 
     public static boolean shouldBold(String inTier) {
@@ -46,7 +46,7 @@ public class ItemFormatter {
 
     public static String buildStatString(String name, double value) {
         if (isStat(name)) {
-            return (value < 0 ? "" : (isBaseStat(name) ? " " : "+")) + value + (isPercentStat(name) ? "" : " ") + formatStat(name);
+            return (value < 0 ? "" : (isBaseStat(name) ? " " : "+")) + (name.equals("knockback_resistance_flat") ? 10 * value : (name.equals("potion_recharge_rate_percent")) ? value / 100 : value) + (isPercentStat(name) ? "" : " ") + formatStat(name);
         } else {
             return formatStat(name) + " " + (isSingleEnchant(name) ? "" : (int)value);
         }
@@ -181,8 +181,8 @@ public class ItemFormatter {
         stat = stat.replace("_s_", "'s_");
         if (stat.endsWith("_prot")) stat = stat.substring(0, stat.lastIndexOf("_prot")) + "_protection";
         if (stat.endsWith("_base")) stat = stat.equals("spell_power_base") ? "%_" + stat.substring(0, stat.lastIndexOf("_base")) : stat.substring(0, stat.lastIndexOf("_base")) + "";
-        if (stat.endsWith("_flat")) stat = stat.substring(0, stat.lastIndexOf("_flat")) + "";
-        if (stat.endsWith("_percent")) stat = "%_" + stat.substring(0, stat.lastIndexOf("_percent"));
+        if (stat.endsWith("_flat")) stat = stat.equals("knockback_resistance_flat") ? "%_" + stat.substring(0, stat.lastIndexOf("_flat")) : stat.substring(0, stat.lastIndexOf("_flat")) + "";
+        if (stat.endsWith("_percent")) stat = stat.equals("potion_recharge_rate_percent") ? stat.substring(0, stat.lastIndexOf("_percent")) : "%_" + stat.substring(0, stat.lastIndexOf("_percent")) + "";
         if (stat.endsWith("_bow")) stat = stat.substring(0, stat.lastIndexOf("_bow")) + "";
         if (stat.endsWith("_tool")) stat = stat.substring(0, stat.lastIndexOf("_tool")) + "_food";
         if (stat.endsWith("_m")) stat = stat.substring(0, stat.lastIndexOf("_m")) + "_melee";
@@ -281,7 +281,10 @@ public class ItemFormatter {
                 inEnchant.equals("cumbersome") ||
                 inEnchant.equals("persistence") ||
                 inEnchant.equals("curse_of_instability") ||
-                inEnchant.equals("snowy");
+                inEnchant.equals("snowy") ||
+                inEnchant.equals("spiritshot") ||
+                inEnchant.equals("oversized") ||
+                inEnchant.equals("kinetic_loading");
     }
 
     public static boolean isCurseEnchant(String inEnchant) {
@@ -301,7 +304,9 @@ public class ItemFormatter {
                 inEnchant.equals("cumbersome") ||
                 inEnchant.equals("curse_of_ephemerality") ||
                 inEnchant.equals("curse_of_instability") ||
-                inEnchant.equals("curse_of_the_veil");
+                inEnchant.equals("curse_of_the_veil") ||
+                inEnchant.equals("oversized") ||
+                inEnchant.equals("curse_of_pestilence");
     }
 
     public static boolean isStat(String inStat) {
@@ -328,12 +333,14 @@ public class ItemFormatter {
                 inStat.equals("attack_speed_base") ||
                 inStat.equals("potion_damage_flat") ||
                 inStat.equals("potion_radius_flat") ||
-                inStat.equals("throw_rate_base");
+                inStat.equals("throw_rate_base") ||
+                inStat.equals("potion_recharge_rate_percent");
     }
 
     public static boolean isPercentStat(String inStat) {
-        return inStat.endsWith("_percent") ||
-                inStat.equals("spell_power_base");
+        return (inStat.endsWith("_percent") && !inStat.equals("potion_recharge_rate_percent")) ||
+                inStat.equals("spell_power_base") ||
+                inStat.equals("knockback_resistance_flat");
     }
 
     public static boolean isBaseStat(String inStat) {
@@ -343,7 +350,8 @@ public class ItemFormatter {
                 inStat.equals("potion_radius_flat") ||
                 inStat.equals("attack_speed_base") ||
                 inStat.equals("attack_damage_base") ||
-                inStat.equals("throw_rate_base");
+                inStat.equals("throw_rate_base") ||
+                inStat.equals("potion_recharge_rate_percent");
     }
 
     public static boolean isHiddenStat(String inStat) {
