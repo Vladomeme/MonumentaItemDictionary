@@ -73,6 +73,7 @@ public class ItemColors {
     public static final int REMORSE_COLOR = 0xEEE6D6;
     public static final int REMORSEFUL_SKIN_COLOR = 0xEEE6D6;
     public static final int DEPTHS_COLOR = 0x5D2D87;
+    public static final int ABYSSAL_SKIN_COLOR = 0x5D2D87;
     public static final int ELDRASK_COLOR = 0x87CEFA;
     public static final int TITANIC_SKIN_COLOR = 0x87CEFA;
     public static final int HEKAWT_COLOR = 0xFFB43E;
@@ -128,6 +129,7 @@ public class ItemColors {
     public static final int THE_ETERNAL_VIGIL_COLOR = 0x72999C;
     public static final int WINTER_EVENT_COLOR = 0xAFC2E3;
     public static final int HOLIDAY_SKIN_COLOR = 0xB00C2F;
+    public static final int COALRUPTED_SIERHAVEN_COLOR = 0xA1C4E0;
     public static final int HALLOWEEN_EVENT_COLOR = 0xFFAA00;
     public static final int HALLOWEEN_SKIN_COLOR = 0xFFAA00;
     public static final int FISHING_COLOR = 0xA9D1D0;
@@ -220,20 +222,22 @@ public class ItemColors {
 
     public static int getColorForCharmStat(CharmStat charmStat) {
         boolean positive = charmStat.statValue >= 0;
-        boolean inverted = (charmStat.statNameFull.contains("cooldown") && !(charmStat.statNameFull.contains("cooldown_reduction") || charmStat.statNameFull.contains("cooldown_cap")))
+        boolean inverted = (charmStat.statNameFull.contains("cooldown")
+                && !(charmStat.statNameFull.contains("cooldown_reduction")
+                    || charmStat.statNameFull.contains("cooldown_cap")
+                    || charmStat.statNameFull.contains("cooldown_recharge_rate")
+                    || charmStat.statNameFull.contains("cooldown_refund") ))
                 || charmStat.statNameFull.contains("self_damage")
                 || charmStat.statNameFull.contains("requirement")
                 || charmStat.statNameFull.contains("penalty")
                 || charmStat.statNameFull.contains("delay")
                 || charmStat.statNameFull.contains("price")
                 || charmStat.statNameFull.contains("received_damage")
+                || charmStat.statNameFull.contains("cost")
                 /* Hardcode Affected Charm Note
                     Silver Codex, Focused/Greater/Lesser Executioner's Charm: Coup de Grace health threshold
-                    Loci's Hunger: Rampage stacks needed for activation
-                    Rocket Boots: Meteor Slam reduced threshold
                     Psychosis: Locked Amplifying Hex max debuffs */
-                || (charmStat.statNameFull.contains("threshold") && !(charmStat.statNameFull.contains("coup_de_grace") || charmStat.statNameFull.equals("meteor_slam_reduced_threshold_flat")))
-                || charmStat.statNameFull.equals("rampage_stacks_needed_for_activation_flat")
+                || (charmStat.statNameFull.contains("threshold") && !(charmStat.statNameFull.contains("coup_de_grace")))
                 || (charmStat.statLocked && charmStat.statNameFull.equals("amplifying_hex_max_debuffs_flat"));
         return (positive ^ inverted) ? TEXT_POSITIVE_CHARM_COLOR : TEXT_NEGATIVE_CHARM_COLOR;
     }
@@ -288,6 +292,8 @@ public class ItemColors {
                 yield REMORSEFUL_SKIN_COLOR;
             case "Depths":
                 yield DEPTHS_COLOR;
+            case "Abyssalskin":
+                yield ABYSSAL_SKIN_COLOR;
             case "Eldrask":
                 yield ELDRASK_COLOR;
             case "Titanic Skin":
@@ -398,6 +404,8 @@ public class ItemColors {
                 yield WINTER_EVENT_COLOR;
             case "Holiday Skin":
                 yield HOLIDAY_SKIN_COLOR;
+            case "Koal":
+                yield COALRUPTED_SIERHAVEN_COLOR;
             case "Halloween Event":
                 yield HALLOWEEN_EVENT_COLOR;
             case "Halloween Skin":

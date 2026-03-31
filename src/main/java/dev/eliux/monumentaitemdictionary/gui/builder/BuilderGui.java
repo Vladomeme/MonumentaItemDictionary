@@ -222,7 +222,7 @@ public class BuilderGui extends Screen {
                     else baseUrl.append(item.name.replace(" ", "%20")).append("&");
                 }
                 else {
-                    if (isItemExalted(item)) baseUrl.append("EX ");
+                    if (isItemExalted(item)) baseUrl.append("EX%20");
                     baseUrl.append(item.name.replace(" ", "%20")).append(String.format("-%d", item.getMaxMasterwork()-1)).append("&");
                 }
             } else baseUrl.append("None&");
@@ -273,7 +273,7 @@ public class BuilderGui extends Screen {
                     case ALCHEMIST -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.HARBINGER, Specializations.APOTHECARY);
                     case WARLOCK -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.TENEBRIST, Specializations.REAPER);
                     case SHAMAN -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.HEXBREAKER, Specializations.SOOTHSAYER);
-                    case CLERIC -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.PALADIN, Specializations.HIEROPHANT);
+                    case CLERIC -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.PALADIN, Specializations.SERAPH);
                     case DD_ZENITH -> Specializations.getDDZenithClasses();
                 })
                 .initially(Specializations.NO_SPECIALIZATION)
@@ -867,7 +867,7 @@ public class BuilderGui extends Screen {
         SOOTHSAYER(Text.literal("Soothsayer")),
         HEXBREAKER(Text.literal("Hexbreaker")),
         PALADIN(Text.literal("Paladin")),
-        HIEROPHANT(Text.literal("Hierophant")),
+        SERAPH(Text.literal("Seraph")),
 
         NO_CLASS(Text.literal("No class")),
         DAWNBRINGER(Text.literal("Dawnbringer")),
