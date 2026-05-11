@@ -81,10 +81,12 @@ public class ItemColors {
     public static final int ISLES_CASINO_COLOR = 0x1773B1;
     public static final int ISLES_OVERWORLD_COLOR = 0x32D7DC;
     public static final int CELSIAN_ISLES_COLOR = 0xFFFFFF;
+    public static final int ISLES_EXPLORER_COLOR = 0x32D7DC;
     public static final int ROYAL_ARMORY_COLOR = 0xCAFFFD;
     public static final int VALLEY_CASINO_COLOR = 0xEDC863;
     public static final int VALLEY_OVERWORLD_COLOR = 0xDCAE32;
     public static final int KINGS_VALLEY_COLOR = 0xFFFFFF;
+    public static final int VALLEY_EXPLORER_COLOR = 0xDCAE32;
     public static final int LOWTIDE_SMUGGLER_COLOR = 0x196383;
     public static final int AZACOR_COLOR = 0xFF6F55;
     public static final int LABS_COLOR = 0xB4ACC3;
@@ -143,6 +145,7 @@ public class ItemColors {
     public static final int HUNTS_COLOR = 0x414E18;
     public static final int TWISTED_COLOR = 0x6B0000;
     public static final int INDIGO_COLOR = 0x6F00FF;
+    public static final int AURORA_COLOR = 0xA6CFE3;
 
     public static int getColorForTier(String itemTier) {
         return switch (itemTier) {
@@ -234,6 +237,7 @@ public class ItemColors {
                 || charmStat.statNameFull.contains("price")
                 || charmStat.statNameFull.contains("received_damage")
                 || charmStat.statNameFull.contains("cost")
+                || charmStat.statNameFull.contains("priming_duration")
                 /* Hardcode Affected Charm Note
                     Silver Codex, Focused/Greater/Lesser Executioner's Charm: Coup de Grace health threshold
                     Psychosis: Locked Amplifying Hex max debuffs */
@@ -308,6 +312,8 @@ public class ItemColors {
                 yield ISLES_OVERWORLD_COLOR;
             case "Celsian Isles":
                 yield CELSIAN_ISLES_COLOR;
+            case "Isleexplorer":
+                yield ISLES_EXPLORER_COLOR;
             case "Royal Armory":
                 yield ROYAL_ARMORY_COLOR;
             case "Valley Casino":
@@ -316,6 +322,8 @@ public class ItemColors {
                 yield VALLEY_OVERWORLD_COLOR;
             case "King's Valley":
                 yield KINGS_VALLEY_COLOR;
+            case "Valleyexplorer":
+                yield VALLEY_EXPLORER_COLOR;
             case "Lowtide Smuggler":
                 yield LOWTIDE_SMUGGLER_COLOR;
             case "Azacor":
@@ -432,6 +440,8 @@ public class ItemColors {
                 yield TWISTED_COLOR;
             case "Indigo":
                 yield INDIGO_COLOR;
+            case "Aurora":
+                yield AURORA_COLOR;
             default:
                 yield DEFAULT_COLOR;
         };
