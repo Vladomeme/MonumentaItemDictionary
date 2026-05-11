@@ -7,7 +7,7 @@ public class ItemFormatter {
             "crusade", "celestial_blessing", "divine_justice", "heavenly_boon", "illuminate", "cleansing_rain", "hand_of_light", "touch_of_radiance", "sanctified_armor", "unwavering", "holy_javelin", "choir_bells", "luminous_infusion", "rejuvenation", "ethereal_ascension", "hallowed_beam", "keeper_virtue",
             "channeling", "arcane_strike", "frost_nova", "mana_lance", "thunder_step", "elemental_arrows", "magma_shield", "spellshock", "prismatic_shield", "astral_omen", "cosmic_moonblade", "sage's_insight", "blizzard", "elemental_spirits", "starfall",
             "dethroner", "advancing_shadows", "dagger_throw", "escape_death", "smokescreen", "by_my_blade", "dodging", "skirmisher", "vicious_combos", "blade_dance", "deadly_ronde", "wind_walk", "bodkin_blitz", "cloak_and_dagger", "coup_de_grace",
-            "versatile", "hunting_companion", "wind_bomb", "swift_cuts", "swiftness", "eagle_eye", "sharpshooter", "quickdraw", "volley", "rending_razor", "whirling_blade", "tactical_maneuver", "pinning_shot", "split_arrow", "predator_strike",
+            "versatile", "hunting_companion", "wind_bomb", "steel_trap", "swiftness", "shrapnel_bomb", "sharpshooter", "parting_shot", "volley", "rending_razor", "gale_shot", "tactical_maneuver", "lockdown", "quiver_storm", "predator_strike",
             "totemic_projection", "cleansing_totem", "flame_totem", "lightning_totem", "earthen_tremor", "spiritualism", "interconnected_havoc", "chain_lightning", "ignition_drive", "spiritual_combos", "whirlwind_totem", "totemic_consecration", "spiritcatcher_orbs", "decayed_totem", "devastation",
             "culling", "amplifying_hex", "choleric_flames", "melancholic_lament", "sanguine_harvest", "phlegmatic_resolve", "cursed_wound", "grasping_claws", "soul_rend", "dark_pact", "judgement_chain", "voodoo_bonds", "haunting_shades", "restless_souls", "withering_gaze",
             "formidable", "brute_force", "defensive_line", "riposte", "toughness", "counter_strike", "frenzy", "shield_bash", "weapon_mastery", "bloodlust", "glorious_battle", "meteor_slam", "rampage", "bodyguard", "challenge", "shield_wall",
@@ -300,13 +300,15 @@ public class ItemFormatter {
                 inEnchant.equals("blast_fragility") ||
                 inEnchant.equals("projectile_fragility") ||
                 inEnchant.equals("magic_fragility") ||
+                inEnchant.equals("ailment_fragility") ||
                 inEnchant.equals("curse_of_anemia") ||
                 inEnchant.equals("cumbersome") ||
                 inEnchant.equals("curse_of_ephemerality") ||
                 inEnchant.equals("curse_of_instability") ||
                 inEnchant.equals("curse_of_the_veil") ||
                 inEnchant.equals("oversized") ||
-                inEnchant.equals("curse_of_pestilence");
+                inEnchant.equals("curse_of_pestilence") ||
+                inEnchant.equals("starvation");
     }
 
     public static boolean isStat(String inStat) {
