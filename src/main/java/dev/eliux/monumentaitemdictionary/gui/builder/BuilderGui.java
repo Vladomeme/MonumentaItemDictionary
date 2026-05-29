@@ -33,13 +33,13 @@ import static java.lang.Math.max;
 public class BuilderGui extends Screen {
     private final DictionaryController controller;
     public final List<String> itemTypesIndex = Arrays.asList("Mainhand", "Offhand", "Helmet", "Chestplate", "Leggings", "Boots");
-    public final List<String> situationals = Arrays.asList("Shielding", "Poise", "Inure", "Steadfast", "Guard", "Second Wind", "Ethereal", "Reflexes", "Evasion", "Tempo", "Cloaked", "Versatile");
+    public final List<String> situationals = Arrays.asList("Shielding", "Poise", "Inure", "Steadfast", "Guard", "Second Wind", "Ethereal", "Reflexes", "Evasion", "Tempo", "Cloaked", "Adaptability");
     public final List<String> infusions = Arrays.asList("Vigor", "Focus", "Tenacity", "Vitality", "Perspicacity");
     private final List<BuildItemButtonWidget> buildItemButtons = new ArrayList<>();
     private final List<BuildCharmButtonWidget> buildCharmButtons = new ArrayList<>();
     public List<DictionaryCharm> charms = new ArrayList<>();
     public List<DictionaryItem> buildItems = Arrays.asList(null, null, null, null, null, null);
-    private Regions region = Regions.NO_REGION;
+    private Regions region = Regions.ARCHITECTS_RING;
     private ClassName className = ClassName.NO_CLASS;
     private Specializations specialization = Specializations.NO_SPECIALIZATION;
     public DictionaryItem itemOnBuildButton;
@@ -145,7 +145,6 @@ public class BuilderGui extends Screen {
                                     case ARCHITECTS_RING -> "Ring";
                                     case CELSIAN_ISLES -> "Isles";
                                     case KINGS_VALLEY -> "Valley";
-                                    default -> "No Region";
                                 }, className.getText().getString(), specialization.getText().getString());
                         controller.setBuildDictionaryScreen();
                     }
@@ -154,9 +153,12 @@ public class BuilderGui extends Screen {
 
         regionButton = CyclingButtonWidget.builder(Regions::getText)
                 .values(Regions.values())
-                .initially(Regions.NO_REGION)
+                .initially(Regions.ARCHITECTS_RING)
                 .build(55, 5, 125, 20, Text.literal("Region"),
-                        (button, region) -> this.region = region);
+                        (button, region) -> {
+                            this.region = region;
+                            updateStats();
+                        });
 
         classButton = CyclingButtonWidget.builder(ClassName::getText)
                 .values(ClassName.values())
@@ -194,7 +196,7 @@ public class BuilderGui extends Screen {
             put("perspicacity", false);
         }};
 
-        this.buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent);
+        this.buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region.toString());
         updateButtons();
         updateGuiPositions();
     }
@@ -508,7 +510,7 @@ public class BuilderGui extends Screen {
 
     public void updateStats() {
         updateCheckBoxes();
-        buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent);
+        buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region.toString());
         statsToRender.clear();
         Map<String, String> statFormatter = StatsFormats.getStatFormats();
         Field[] allFields = Stats.class.getFields();
@@ -567,10 +569,10 @@ public class BuilderGui extends Screen {
         nameBar.setText("");
         charms.clear();
         classButton.setValue(ClassName.NO_CLASS);
-        regionButton.setValue(Regions.NO_REGION);
+        regionButton.setValue(Regions.ARCHITECTS_RING);
         specializationButton.setValue(Specializations.NO_SPECIALIZATION);
         itemOnBuildButton = null;
-        buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent);
+        buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region.toString());
         scrollPixels = 0;
         updateStats();
         updateCheckBoxes();
@@ -798,7 +800,7 @@ public class BuilderGui extends Screen {
     }
 
     enum Regions {
-        NO_REGION(Text.literal("No Region")),
+//        NO_REGION(Text.literal("No Region")),
         KINGS_VALLEY(Text.literal("King's Valley")),
         CELSIAN_ISLES(Text.literal("Celsian Isles")),
         ARCHITECTS_RING(Text.literal("Architect's Ring"));
@@ -812,12 +814,16 @@ public class BuilderGui extends Screen {
             return this.text;
         }
 
+        public String toString() {
+            return this.name();
+        }
+
         public Regions getRegion(String region) {
             return switch (region) {
                 case "Valley" -> KINGS_VALLEY;
                 case "Isles" -> CELSIAN_ISLES;
                 case "Ring" -> ARCHITECTS_RING;
-                default -> NO_REGION;
+                default -> ARCHITECTS_RING;
             };
         }
     }
