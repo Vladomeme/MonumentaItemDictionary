@@ -39,11 +39,11 @@ public class CharmButtonWidget extends ButtonWidget {
 
         NbtCompound monumenta = new NbtCompound();
         monumenta.putInt("CharmPower", charm.power);
-        monumenta.putString("Tier", switch(charm.tier) {
-            case "Base": yield "charm";
-            case "Rare": yield "rarecharm";
-            case "Epic": yield "epiccharm";
-            default: yield "";
+        monumenta.putString("Tier", switch (charm.tier) {
+            case "Base" -> "charm";
+            case "Rare" -> "rarecharm";
+            case "Epic" -> "epiccharm";
+            default -> "";
         });
         builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
                 component -> component.apply(nbt -> nbt.put("Monumenta", monumenta)));
