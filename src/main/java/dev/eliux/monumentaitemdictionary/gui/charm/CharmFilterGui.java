@@ -66,14 +66,14 @@ public class CharmFilterGui extends Screen {
                 filter.incrementComparator();
                 b.setMessage(Text.literal(
                         switch (filter.comparator) {
-                            case 0: yield "Matches";
-                            case 1: yield "Excludes";
-                            case 2: yield ">=";
-                            case 3: yield ">";
-                            case 4: yield "=";
-                            case 5: yield "<=";
-                            case 6: yield "<";
-                            default: yield "Error";
+                            case 0 -> "Matches";
+                            case 1 -> "Excludes";
+                            case 2 -> ">=";
+                            case 3 -> ">";
+                            case 4 -> "=";
+                            case 5 -> "<=";
+                            case 6 -> "<";
+                            default -> "Error";
                         }
                 ));
 
