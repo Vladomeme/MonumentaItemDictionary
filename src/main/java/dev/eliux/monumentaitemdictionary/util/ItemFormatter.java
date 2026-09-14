@@ -1,5 +1,8 @@
 package dev.eliux.monumentaitemdictionary.util;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class ItemFormatter {
@@ -13,34 +16,47 @@ public class ItemFormatter {
             "formidable", "brute_force", "defensive_line", "riposte", "toughness", "counter_strike", "frenzy", "shield_bash", "weapon_mastery", "bloodlust", "glorious_battle", "meteor_slam", "rampage", "bodyguard", "challenge", "shield_wall",
             "decay", "inferno", "recoil", "jungle's_nourishment", "rage_of_the_keter", "hex_eater", "sapper", "life_drain", "regicide", "quake", "eruption", "smite", "slayer", "duelist", "regeneration", "thunder_aspect"};
 
+    private static final Set<String> boldTiers = new HashSet<>(List.of("Patron", "Key", "Currency", "Trophy", "Uncommon", "Unique", "Rare", "Artifact", "Epic", "Legendary"));
+
+    private static final Set<String> underlineTiers = new HashSet<>(List.of("Epic", "Legendary"));
+
+    private static final Set<String> singleEnchants = new HashSet<>(List.of("gills", "weightless", "rage_of_the_keter", "jungle's_nourishment",
+            "unbreakable", "adaptability", "multishot", "intuition", "radiant", "resurrection", "two_handed", "curse_of_irreparability", "mending", "silk_touch",
+            "curse_of_corruption", "protection_of_the_depths", "infinity_bow", "infinity_tool", "infinity", "aqua_affinity", "ashes_of_eternity", "void_tether",
+            "excavator", "darksight", "material", "alchemical_utensil", "broomstick", "clucking", "oinking", "throwing_knife", "liquid_courage",
+            "intoxicating_warmth", "temporal_bender", "curse_of_ephemerality", "instant_drink", "divine_aura", "cumbersome", "persistence", "curse_of_instability",
+            "snowy", "spiritshot", "oversized", "kinetic_loading"));
+
+    private static final Set<String> curseEnchants = new HashSet<>(List.of("ineptitude", "curse_of_shrapnel", "curse_of_vanishing", "curse_of_corruption",
+            "curse_of_crippling", "curse_of_irreparability", "two_handed", "fire_fragility", "melee_fragility", "blast_fragility", "projectile_fragility",
+            "magic_fragility", "ailment_fragility", "curse_of_anemia", "cumbersome", "curse_of_ephemerality", "curse_of_instability", "curse_of_the_veil",
+            "oversized", "curse_of_pestilence", "starvation"));
+
+    private static final Set<String> stats = new HashSet<>(List.of("armor", "agility", "spell_power_base", "projectile_speed_percent",
+            "knockback_resistance_flat", "attack_damage_base", "thorns_percent", "max_health_flat", "projectile_damage_base", "throw_rate_percent",
+            "attack_speed_flat", "projectile_speed_base", "attack_damage_percent", "max_health_percent", "projectile_damage_percent", "magic_damage_percent",
+            "attack_speed_percent", "thorns_flat", "speed_flat", "speed_percent", "attack_speed_base", "potion_damage_flat", "potion_radius_flat",
+            "throw_rate_base", "potion_recharge_rate_percent"));
+
+    private static final Set<String> baseStats = new HashSet<>(List.of("projectile_damage_base", "projectile_speed_base", "potion_damage_flat", "potion_radius_flat",
+            "attack_speed_base", "attack_damage_base", "throw_rate_base", "potion_recharge_rate_percent"));
+
+    private static final Set<String> hiddenStats = new HashSet<>(List.of("noglint", "hideenchants", "hideinfo"));
+
     public static boolean shouldBold(String inTier) {
-        return inTier.equals("Patron") ||
-                inTier.equals("Key") ||
-                inTier.equals("Currency") ||
-                inTier.equals("Trophy") ||
-                inTier.equals("Uncommon") ||
-                inTier.equals("Unique") ||
-                inTier.equals("Rare") ||
-                inTier.equals("Artifact") ||
-                inTier.equals("Epic") ||
-                inTier.equals("Legendary");
+        return boldTiers.contains(inTier);
     }
 
     public static boolean shouldUnderline(String inTier) {
-        return inTier.equals("Epic") ||
-                inTier.equals("Legendary");
+        return underlineTiers.contains(inTier);
     }
 
     public static String formatRegion(String inRegion) {
         return switch (inRegion) {
-            case "Valley":
-                yield "King's Valley";
-            case "Isles":
-                yield "Celsian Isles";
-            case "Ring":
-                yield "Architect's Ring";
-            default:
-                yield inRegion;
+            case "Valley" -> "King's Valley";
+            case "Isles" -> "Celsian Isles";
+            case "Ring" -> "Architect's Ring";
+            default -> inRegion;
         };
     }
 
@@ -89,16 +105,13 @@ public class ItemFormatter {
 
     public static int getMasterworkForRarity(String rarity) {
         return switch (rarity) {
-            case "Rare":
-            case "Artifact":
-                yield 4;
-            case "Epic":
-                yield 6;
-            default:
-                yield 0;
+            case "Rare", "Artifact" -> 4;
+            case "Epic" -> 6;
+            default -> 0;
         };
     }
 
+    @SuppressWarnings("SameReturnValue")
     public static int getMaxFishTier() {
         return 5;
     }
@@ -113,66 +126,50 @@ public class ItemFormatter {
 
     public static int getNumberForTier(String inTier) {
         return switch (inTier) {
-            case "Legendary": yield 20;
-            case "Epic": yield 19;
-            case "Artifact": yield 18;
-            case "Rare": yield 17;
-            case "Base": yield 16;
-            case "Unique": yield 15;
-            case "Patron": yield 14;
-            case "Uncommon": yield 13;
-            case "Tier 5": yield 12;
-            case "Tier 4": yield 11;
-            case "Tier 3": yield 10;
-            case "Tier 2": yield 9;
-            case "Tier 1": yield 8;
-            case "Tier 0": yield 7;
-            case "Obfuscated": yield 6;
-            case "Currency": yield 5;
-            case "Event Currency": yield 4;
-            case "Key": yield 3;
-            case "Event": yield 2;
-            case "Trophy": yield 1;
-            default: yield 0;
+            case "Legendary" -> 20;
+            case "Epic" -> 19;
+            case "Artifact" -> 18;
+            case "Rare" -> 17;
+            case "Base" -> 16;
+            case "Unique" -> 15;
+            case "Patron" -> 14;
+            case "Uncommon" -> 13;
+            case "Tier 5" -> 12;
+            case "Tier 4" -> 11;
+            case "Tier 3" -> 10;
+            case "Tier 2" -> 9;
+            case "Tier 1" -> 8;
+            case "Tier 0" -> 7;
+            case "Obfuscated" -> 6;
+            case "Currency" -> 5;
+            case "Event Currency" -> 4;
+            case "Key" -> 3;
+            case "Event" -> 2;
+            case "Trophy" -> 1;
+            default -> 0;
         };
     }
 
     public static int getNumberForRegion(String inRegion) {
         return switch (inRegion) {
-            case "Ring": yield 3;
-            case "Isles": yield 2;
-            case "Valley": yield 1;
-            default: yield 0;
+            case "Ring" -> 3;
+            case "Isles" -> 2;
+            case "Valley" -> 1;
+            default -> 0;
         };
     }
 
     public static String formatUseLine(String inType) {
         return switch (inType) {
-            case "Helmet": yield "When on Head:";
-            case "Chestplate": yield "When on Chest:";
-            case "Leggings": yield "When on Legs:";
-            case "Boots": yield "When on Feet:";
-            case "Wand":
-            case "Axe":
-            case "Pickaxe":
-            case "Mainhand Sword":
-            case "Mainhand Shield":
-            case "Bow":
-            case "Trident":
-            case "Snowball":
-            case "Shovel":
-            case "Mainhand":
-            case "Scythe":
-            case "Crossbow":
-                yield "When in Main Hand:";
-            case "Projectile":
-                yield "When Shot:";
-            case "Offhand":
-            case "Offhand Sword":
-            case "Offhand Shield":
-                yield "When in Offhand";
-            default:
-                yield "When Used:";
+            case "Helmet" -> "When on Head:";
+            case "Chestplate" -> "When on Chest:";
+            case "Leggings" -> "When on Legs:";
+            case "Boots" -> "When on Feet:";
+            case "Wand", "Axe", "Pickaxe", "Mainhand Sword", "Mainhand Shield", "Bow", "Trident", "Snowball", "Shovel",
+                 "Mainhand", "Scythe", "Crossbow" -> "When in Main Hand:";
+            case "Projectile" -> "When Shot:";
+            case "Offhand", "Offhand Sword", "Offhand Shield" -> "When in Offhand";
+            default -> "When Used:";
         };
     }
 
@@ -242,101 +239,15 @@ public class ItemFormatter {
     }
 
     public static boolean isSingleEnchant(String inEnchant) {
-        return inEnchant.equals("gills") ||
-                inEnchant.equals("weightless") ||
-                inEnchant.equals("rage_of_the_keter") ||
-                inEnchant.equals("jungle's_nourishment") ||
-                inEnchant.equals("unbreakable") ||
-                inEnchant.equals("adaptability") ||
-                inEnchant.equals("multishot") ||
-                inEnchant.equals("intuition") ||
-                inEnchant.equals("radiant") ||
-                inEnchant.equals("resurrection") ||
-                inEnchant.equals("two_handed") ||
-                inEnchant.equals("curse_of_irreparability") ||
-                inEnchant.equals("mending") ||
-                inEnchant.equals("silk_touch") ||
-                inEnchant.equals("curse_of_corruption") ||
-                inEnchant.equals("protection_of_the_depths") ||
-                inEnchant.equals("infinity_bow") ||
-                inEnchant.equals("infinity_tool") ||
-                inEnchant.equals("infinity") ||
-                inEnchant.equals("aqua_affinity") ||
-                inEnchant.equals("ashes_of_eternity") ||
-                inEnchant.equals("void_tether") ||
-                inEnchant.equals("excavator") ||
-                inEnchant.equals("darksight") ||
-                inEnchant.equals("material") ||
-                inEnchant.equals("alchemical_utensil") ||
-                inEnchant.equals("broomstick") ||
-                inEnchant.equals("clucking") ||
-                inEnchant.equals("oinking") ||
-                inEnchant.equals("throwing_knife") ||
-                inEnchant.equals("liquid_courage") ||
-                inEnchant.equals("intoxicating_warmth") ||
-                inEnchant.equals("temporal_bender") ||
-                inEnchant.equals("curse_of_ephemerality") ||
-                inEnchant.equals("instant_drink") ||
-                inEnchant.equals("divine_aura") ||
-                inEnchant.equals("cumbersome") ||
-                inEnchant.equals("persistence") ||
-                inEnchant.equals("curse_of_instability") ||
-                inEnchant.equals("snowy") ||
-                inEnchant.equals("spiritshot") ||
-                inEnchant.equals("oversized") ||
-                inEnchant.equals("kinetic_loading");
+        return singleEnchants.contains(inEnchant);
     }
 
     public static boolean isCurseEnchant(String inEnchant) {
-        return inEnchant.equals("ineptitude") ||
-                inEnchant.equals("curse_of_shrapnel") ||
-                inEnchant.equals("curse_of_vanishing") ||
-                inEnchant.equals("curse_of_corruption") ||
-                inEnchant.equals("curse_of_crippling") ||
-                inEnchant.equals("curse_of_irreparability") ||
-                inEnchant.equals("two_handed") ||
-                inEnchant.equals("fire_fragility") ||
-                inEnchant.equals("melee_fragility") ||
-                inEnchant.equals("blast_fragility") ||
-                inEnchant.equals("projectile_fragility") ||
-                inEnchant.equals("magic_fragility") ||
-                inEnchant.equals("ailment_fragility") ||
-                inEnchant.equals("curse_of_anemia") ||
-                inEnchant.equals("cumbersome") ||
-                inEnchant.equals("curse_of_ephemerality") ||
-                inEnchant.equals("curse_of_instability") ||
-                inEnchant.equals("curse_of_the_veil") ||
-                inEnchant.equals("oversized") ||
-                inEnchant.equals("curse_of_pestilence") ||
-                inEnchant.equals("starvation");
+        return curseEnchants.contains(inEnchant);
     }
 
     public static boolean isStat(String inStat) {
-        return inStat.equals("armor") ||
-                inStat.equals("agility") ||
-                inStat.equals("spell_power_base") ||
-                inStat.equals("projectile_speed_percent") ||
-                inStat.equals("knockback_resistance_flat") ||
-                inStat.equals("attack_damage_base") ||
-                inStat.equals("thorns_percent") ||
-                inStat.equals("max_health_flat") ||
-                inStat.equals("projectile_damage_base") ||
-                inStat.equals("throw_rate_percent") ||
-                inStat.equals("attack_speed_flat") ||
-                inStat.equals("projectile_speed_base") ||
-                inStat.equals("attack_damage_percent") ||
-                inStat.equals("max_health_percent") ||
-                inStat.equals("projectile_damage_percent") ||
-                inStat.equals("magic_damage_percent") ||
-                inStat.equals("attack_speed_percent") ||
-                inStat.equals("thorns_flat") ||
-                inStat.equals("speed_flat") ||
-                inStat.equals("speed_percent") ||
-                inStat.equals("attack_speed_base") ||
-                inStat.equals("potion_damage_flat") ||
-                inStat.equals("potion_radius_flat") ||
-                inStat.equals("throw_rate_base") ||
-                inStat.equals("potion_recharge_rate_percent");
+        return stats.contains(inStat);
     }
 
     public static boolean isPercentStat(String inStat) {
@@ -346,19 +257,10 @@ public class ItemFormatter {
     }
 
     public static boolean isBaseStat(String inStat) {
-        return inStat.equals("projectile_damage_base") ||
-                inStat.equals("projectile_speed_base") ||
-                inStat.equals("potion_damage_flat") ||
-                inStat.equals("potion_radius_flat") ||
-                inStat.equals("attack_speed_base") ||
-                inStat.equals("attack_damage_base") ||
-                inStat.equals("throw_rate_base") ||
-                inStat.equals("potion_recharge_rate_percent");
+        return baseStats.contains(inStat);
     }
 
     public static boolean isHiddenStat(String inStat) {
-        return inStat.equals("noglint") ||
-                inStat.equals("hideenchants") ||
-                inStat.equals("hideinfo");
+        return hiddenStats.contains(inStat);
     }
 }

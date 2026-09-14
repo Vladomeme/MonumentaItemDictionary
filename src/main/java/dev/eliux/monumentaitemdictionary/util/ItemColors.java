@@ -150,77 +150,44 @@ public class ItemColors {
 
     public static int getColorForTier(String itemTier) {
         return switch (itemTier) {
-            case "Legendary":
-                yield LEGENDARY_COLOR;
-            case "Epic":
-                yield EPIC_COLOR;
-            case "Artifact":
-                yield ARTIFACT_COLOR;
-            case "Rare":
-                yield RARE_COLOR;
-            case "Base":
-                yield BASE_COLOR;
-            case "Unique":
-                yield UNIQUE_COLOR;
-            case "Event":
-                yield EVENT_COLOR;
-            case "Patron":
-                yield PATRON_COLOR;
-            case "Event Currency":
-                yield CURRENCY_COLOR;
-            case "Currency":
-                yield EVENT_CURRENCY_COLOR;
-            case "Trophy":
-                yield TROPHY_COLOR;
-            case "Key":
-                yield KEY_COLOR;
-            case "Fish":
-                yield FISH_COLOR;
-            case "Legacy":
-                yield LEGACY_COLOR;
-            case "Obfuscated":
-                yield OBFUSCATED_COLOR;
-            case "Uncommon":
-                yield UNCOMMON_COLOR;
-            case "Tier 5":
-                yield TIER5_COLOR;
-            case "Tier 4":
-                yield TIER4_COLOR;
-            case "Tier 3":
-                yield TIER3_COLOR;
-            case "Tier 2":
-                yield TIER2_COLOR;
-            case "Tier 1":
-                yield TIER1_COLOR;
-            case "Tier 0":
-                yield TIER0_COLOR;
-            default:
-                yield DEFAULT_COLOR;
+            case "Legendary" -> LEGENDARY_COLOR;
+            case "Epic" -> EPIC_COLOR;
+            case "Artifact" -> ARTIFACT_COLOR;
+            case "Rare" -> RARE_COLOR;
+            case "Base" -> BASE_COLOR;
+            case "Unique" -> UNIQUE_COLOR;
+            case "Event" -> EVENT_COLOR;
+            case "Patron" -> PATRON_COLOR;
+            case "Event Currency" -> CURRENCY_COLOR;
+            case "Currency" -> EVENT_CURRENCY_COLOR;
+            case "Trophy" -> TROPHY_COLOR;
+            case "Key" -> KEY_COLOR;
+            case "Fish" -> FISH_COLOR;
+            case "Legacy" -> LEGACY_COLOR;
+            case "Obfuscated" -> OBFUSCATED_COLOR;
+            case "Uncommon" -> UNCOMMON_COLOR;
+            case "Tier 5" -> TIER5_COLOR;
+            case "Tier 4" -> TIER4_COLOR;
+            case "Tier 3" -> TIER3_COLOR;
+            case "Tier 2" -> TIER2_COLOR;
+            case "Tier 1" -> TIER1_COLOR;
+            case "Tier 0" -> TIER0_COLOR;
+            default -> DEFAULT_COLOR;
         };
     }
 
     public static int getColorForClass(String charmClass) {
-        return switch(charmClass) {
-            case "Alchemist":
-                yield ALCHEMIST_COLOR;
-            case "Warrior":
-                yield WARRIOR_COLOR;
-            case "Cleric":
-                yield CLERIC_COLOR;
-            case "Rogue":
-                yield ROGUE_COLOR;
-            case "Mage":
-                yield MAGE_COLOR;
-            case "Scout":
-                yield SCOUT_COLOR;
-            case "Warlock":
-                yield WARLOCK_COLOR;
-            case "Shaman":
-                yield SHAMAN_COLOR;
-            case "Generalist":
-                yield GENERALIST_COLOR;
-            default:
-                yield DEFAULT_COLOR;
+        return switch (charmClass) {
+            case "Alchemist" -> ALCHEMIST_COLOR;
+            case "Warrior" -> WARRIOR_COLOR;
+            case "Cleric" -> CLERIC_COLOR;
+            case "Rogue" -> ROGUE_COLOR;
+            case "Mage" -> MAGE_COLOR;
+            case "Scout" -> SCOUT_COLOR;
+            case "Warlock" -> WARLOCK_COLOR;
+            case "Shaman" -> SHAMAN_COLOR;
+            case "Generalist" -> GENERALIST_COLOR;
+            default -> DEFAULT_COLOR;
         };
     }
 
@@ -249,204 +216,105 @@ public class ItemColors {
 
     public static int getColorForLocation(String itemLocation) {
         return switch (itemLocation) {
-            case "White":
-                yield WHITE_COLOR;
-            case "Orange":
-                yield ORANGE_COLOR;
-            case "Magenta":
-                yield MAGENTA_COLOR;
-            case "Light Blue":
-                yield LIGHT_BLUE_COLOR;
-            case "Yellow":
-                yield YELLOW_COLOR;
-            case "Lime":
-                yield LIME_COLOR;
-            case "Pink":
-                yield PINK_COLOR;
-            case "Gray":
-                yield GRAY_COLOR;
-            case "Light Gray":
-                yield LIGHT_GRAY_COLOR;
-            case "Cyan":
-                yield CYAN_COLOR;
-            case "Purple":
-                yield PURPLE_COLOR;
-            case "Teal":
-                yield TEAL_COLOR;
-            case "Shifting":
-                yield SHIFTING_COLOR;
-            case "Forum":
-                yield FORUM_COLOR;
-            case "TOV":
-                yield TOV_COLOR;
-            case "Docks":
-                yield DOCKS_COLOR;
-            case "Carnival":
-                yield CARNIVAL_COLOR;
-            case "Delves":
-                yield DELVES_COLOR;
-            case "Rush":
-                yield RUSH_COLOR;
-            case "Horseman":
-                yield HORSEMAN_COLOR;
-            case "Mist":
-                yield MIST_COLOR;
-            case "Remorse":
-                yield REMORSE_COLOR;
-            case "Remorseful Skin":
-                yield REMORSEFUL_SKIN_COLOR;
-            case "Depths":
-                yield DEPTHS_COLOR;
-            case "Abyssalskin":
-                yield ABYSSAL_SKIN_COLOR;
-            case "Eldrask":
-                yield ELDRASK_COLOR;
-            case "Titanic Skin":
-                yield TITANIC_SKIN_COLOR;
-            case "Hekawt":
-                yield HEKAWT_COLOR;
-            case "Eternity Skin":
-                yield ETERNITY_SKIN_COLOR;
-            case "Isles Casino":
-                yield ISLES_CASINO_COLOR;
-            case "Isles Overworld":
-                yield ISLES_OVERWORLD_COLOR;
-            case "Celsian Isles":
-                yield CELSIAN_ISLES_COLOR;
-            case "Isleexplorer":
-                yield ISLES_EXPLORER_COLOR;
-            case "Royal Armory":
-                yield ROYAL_ARMORY_COLOR;
-            case "Valley Casino":
-                yield VALLEY_CASINO_COLOR;
-            case "Valley Overworld":
-                yield VALLEY_OVERWORLD_COLOR;
-            case "King's Valley":
-                yield KINGS_VALLEY_COLOR;
-            case "Valleyexplorer":
-                yield VALLEY_EXPLORER_COLOR;
-            case "Lowtide Smuggler":
-                yield LOWTIDE_SMUGGLER_COLOR;
-            case "Azacor":
-                yield AZACOR_COLOR;
-            case "Labs":
-                yield LABS_COLOR;
-            case "Willows":
-                yield WILLOWS_COLOR;
-            case "Storied Skin":
-                yield STORIED_SKIN_COLOR;
-            case "Sanctum":
-                yield SANCTUM_COLOR;
-            case "Verdant":
-                yield VERDANT_COLOR;
-            case "Corridors":
-                yield CORRIDORS_COLOR;
-            case "Ephemeral Enhancements":
-                yield EPHEMERAL_ENHANCEMENTS_COLOR;
-            case "Reverie":
-                yield REVERIE_COLOR;
-            case "Kaul":
-                yield KAUL_COLOR;
-            case "SKT":
-                yield SKT_COLOR;
-            case "The Wolfswood":
-                yield THE_WOLFSWOOD_COLOR;
-            case "Blue":
-                yield BLUE_COLOR;
-            case "Brown":
-                yield BROWN_COLOR;
-            case "PORTAL":
-                yield PORTAL_COLOR;
-            case "Pelias' Keep":
-                yield PELIAS_KEEP_COLOR;
-            case "Ruin":
-                yield RUIN_COLOR;
-            case "Sanguine Halls":
-                yield SANGUINE_HALLS_COLOR;
-            case "Marina Noir":
-                yield MARINA_NOIR_COLOR;
-            case "Quest Reward":
-                yield QUEST_REWARD_COLOR;
-            case "Transmogrifier":
-                yield TRANSMOGRIFIER_COLOR;
-            case "Overworld3":
-                yield RING_OVERWORLD_COLOR;
-            case "Architect's Ring":
-                yield ARCHITECTS_RING_COLOR;
-            case "Godspore":
-                yield GODSPORE_COLOR;
-            case "Seasonal Pass":
-                yield SEASONAL_PASS_COLOR;
-            case "Sketched":
-                yield SKETCHED_SKIN_COLOR;
-            case "Mythic Reliquary":
-                yield MYTHIC_RELIQUARY_COLOR;
-            case "Blitz":
-                yield BLITZ_COLOR;
-            case "Ring Casino":
-                yield RING_CASINO_COLOR;
-            case "Uganda":
-                yield UGANDA_COLOR;
-            case "Arena of Terth":
-                yield ARENA_OF_TERTH_COLOR;
-            case "Soulwoven":
-                yield SOULWOVEN_COLOR;
-            case "Valentine's Day":
-                yield VALENTINES_DAY_COLOR;
-            case "Gallery of Fear":
-                yield GALLERY_OF_FEAR_COLOR;
-            case "Threadwarped Skin":
-                yield THREADWARPED_SKIN_COLOR;
-            case "Intellect Crystallizer":
-                yield INTELLECT_CRYSTALLIZER_COLOR;
-            case "The Hoard":
-                yield THE_HOARD_COLOR;
-            case "Greed Skin":
-                yield GREED_SKIN_COLOR;
-            case "Divine Skin":
-                yield DIVINE_SKIN_COLOR;
-            case "April's Fools":
-                yield APRILS_FOOLS_COLOR;
-            case "The Eternal Vigil":
-                yield THE_ETERNAL_VIGIL_COLOR;
-            case "Winter Event":
-                yield WINTER_EVENT_COLOR;
-            case "Holiday Skin":
-                yield HOLIDAY_SKIN_COLOR;
-            case "Koal":
-                yield COALRUPTED_SIERHAVEN_COLOR;
-            case "Halloween Event":
-                yield HALLOWEEN_EVENT_COLOR;
-            case "Halloween Skin":
-                yield HALLOWEEN_SKIN_COLOR;
-            case "Fishing":
-                yield FISHING_COLOR;
-            case "Challenger":
-                yield CHALLENGER_COLOR;
-            case "True North":
-                yield TRUE_NORTH_COLOR;
-            case "Starpoint":
-                yield STARPOINT_COLOR;
-            case "Zenith":
-                yield ZENITH_COLOR;
-            case "Sirius":
-                yield SIRIUS_COLOR;
-            case "Hexfall":
-                yield HEXFALL_COLOR;
-            case "Skr":
-                yield SKR_COLOR;
-            case "Hunts":
-                yield HUNTS_COLOR;
-            case "Twisted":
-                yield TWISTED_COLOR;
-            case "Indigo":
-                yield INDIGO_COLOR;
-            case "Aurora":
-                yield AURORA_COLOR;
-            case "Fortune":
-                yield FORTUNE_COLOR;
-            default:
-                yield DEFAULT_COLOR;
+            case "White" -> WHITE_COLOR;
+            case "Orange" -> ORANGE_COLOR;
+            case "Magenta" -> MAGENTA_COLOR;
+            case "Light Blue" -> LIGHT_BLUE_COLOR;
+            case "Yellow" -> YELLOW_COLOR;
+            case "Lime" -> LIME_COLOR;
+            case "Pink" -> PINK_COLOR;
+            case "Gray" -> GRAY_COLOR;
+            case "Light Gray" -> LIGHT_GRAY_COLOR;
+            case "Cyan" -> CYAN_COLOR;
+            case "Purple" -> PURPLE_COLOR;
+            case "Teal" -> TEAL_COLOR;
+            case "Shifting" -> SHIFTING_COLOR;
+            case "Forum" -> FORUM_COLOR;
+            case "TOV" -> TOV_COLOR;
+            case "Docks" -> DOCKS_COLOR;
+            case "Carnival" -> CARNIVAL_COLOR;
+            case "Delves" -> DELVES_COLOR;
+            case "Rush" -> RUSH_COLOR;
+            case "Horseman" -> HORSEMAN_COLOR;
+            case "Mist" -> MIST_COLOR;
+            case "Remorse" -> REMORSE_COLOR;
+            case "Remorseful Skin" -> REMORSEFUL_SKIN_COLOR;
+            case "Depths" -> DEPTHS_COLOR;
+            case "Abyssalskin" -> ABYSSAL_SKIN_COLOR;
+            case "Eldrask" -> ELDRASK_COLOR;
+            case "Titanic Skin" -> TITANIC_SKIN_COLOR;
+            case "Hekawt" -> HEKAWT_COLOR;
+            case "Eternity Skin" -> ETERNITY_SKIN_COLOR;
+            case "Isles Casino" -> ISLES_CASINO_COLOR;
+            case "Isles Overworld" -> ISLES_OVERWORLD_COLOR;
+            case "Celsian Isles" -> CELSIAN_ISLES_COLOR;
+            case "Isleexplorer" -> ISLES_EXPLORER_COLOR;
+            case "Royal Armory" -> ROYAL_ARMORY_COLOR;
+            case "Valley Casino" -> VALLEY_CASINO_COLOR;
+            case "Valley Overworld" -> VALLEY_OVERWORLD_COLOR;
+            case "King's Valley" -> KINGS_VALLEY_COLOR;
+            case "Valleyexplorer" -> VALLEY_EXPLORER_COLOR;
+            case "Lowtide Smuggler" -> LOWTIDE_SMUGGLER_COLOR;
+            case "Azacor" -> AZACOR_COLOR;
+            case "Labs" -> LABS_COLOR;
+            case "Willows" -> WILLOWS_COLOR;
+            case "Storied Skin" -> STORIED_SKIN_COLOR;
+            case "Sanctum" -> SANCTUM_COLOR;
+            case "Verdant" -> VERDANT_COLOR;
+            case "Corridors" -> CORRIDORS_COLOR;
+            case "Ephemeral Enhancements" -> EPHEMERAL_ENHANCEMENTS_COLOR;
+            case "Reverie" -> REVERIE_COLOR;
+            case "Kaul" -> KAUL_COLOR;
+            case "SKT" -> SKT_COLOR;
+            case "The Wolfswood" -> THE_WOLFSWOOD_COLOR;
+            case "Blue" -> BLUE_COLOR;
+            case "Brown" -> BROWN_COLOR;
+            case "PORTAL" -> PORTAL_COLOR;
+            case "Pelias' Keep" -> PELIAS_KEEP_COLOR;
+            case "Ruin" -> RUIN_COLOR;
+            case "Sanguine Halls" -> SANGUINE_HALLS_COLOR;
+            case "Marina Noir" -> MARINA_NOIR_COLOR;
+            case "Quest Reward" -> QUEST_REWARD_COLOR;
+            case "Transmogrifier" -> TRANSMOGRIFIER_COLOR;
+            case "Overworld3" -> RING_OVERWORLD_COLOR;
+            case "Architect's Ring" -> ARCHITECTS_RING_COLOR;
+            case "Godspore" -> GODSPORE_COLOR;
+            case "Seasonal Pass" -> SEASONAL_PASS_COLOR;
+            case "Sketched" -> SKETCHED_SKIN_COLOR;
+            case "Mythic Reliquary" -> MYTHIC_RELIQUARY_COLOR;
+            case "Blitz" -> BLITZ_COLOR;
+            case "Ring Casino" -> RING_CASINO_COLOR;
+            case "Uganda" -> UGANDA_COLOR;
+            case "Arena of Terth" -> ARENA_OF_TERTH_COLOR;
+            case "Soulwoven" -> SOULWOVEN_COLOR;
+            case "Valentine's Day" -> VALENTINES_DAY_COLOR;
+            case "Gallery of Fear" -> GALLERY_OF_FEAR_COLOR;
+            case "Threadwarped Skin" -> THREADWARPED_SKIN_COLOR;
+            case "Intellect Crystallizer" -> INTELLECT_CRYSTALLIZER_COLOR;
+            case "The Hoard" -> THE_HOARD_COLOR;
+            case "Greed Skin" -> GREED_SKIN_COLOR;
+            case "Divine Skin" -> DIVINE_SKIN_COLOR;
+            case "April's Fools" -> APRILS_FOOLS_COLOR;
+            case "The Eternal Vigil" -> THE_ETERNAL_VIGIL_COLOR;
+            case "Winter Event" -> WINTER_EVENT_COLOR;
+            case "Holiday Skin" -> HOLIDAY_SKIN_COLOR;
+            case "Koal" -> COALRUPTED_SIERHAVEN_COLOR;
+            case "Halloween Event" -> HALLOWEEN_EVENT_COLOR;
+            case "Halloween Skin" -> HALLOWEEN_SKIN_COLOR;
+            case "Fishing" -> FISHING_COLOR;
+            case "Challenger" -> CHALLENGER_COLOR;
+            case "True North" -> TRUE_NORTH_COLOR;
+            case "Starpoint" -> STARPOINT_COLOR;
+            case "Zenith" -> ZENITH_COLOR;
+            case "Sirius" -> SIRIUS_COLOR;
+            case "Hexfall" -> HEXFALL_COLOR;
+            case "Skr" -> SKR_COLOR;
+            case "Hunts" -> HUNTS_COLOR;
+            case "Twisted" -> TWISTED_COLOR;
+            case "Indigo" -> INDIGO_COLOR;
+            case "Aurora" -> AURORA_COLOR;
+            case "Fortune" -> FORTUNE_COLOR;
+            default -> DEFAULT_COLOR;
         };
     }
 
