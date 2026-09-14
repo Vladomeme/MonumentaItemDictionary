@@ -146,6 +146,7 @@ public class ItemColors {
     public static final int TWISTED_COLOR = 0x6B0000;
     public static final int INDIGO_COLOR = 0x6F00FF;
     public static final int AURORA_COLOR = 0xA6CFE3;
+    public static final int FORTUNE_COLOR = 0xFFD700;
 
     public static int getColorForTier(String itemTier) {
         return switch (itemTier) {
@@ -442,6 +443,8 @@ public class ItemColors {
                 yield INDIGO_COLOR;
             case "Aurora":
                 yield AURORA_COLOR;
+            case "Fortune":
+                yield FORTUNE_COLOR;
             default:
                 yield DEFAULT_COLOR;
         };
