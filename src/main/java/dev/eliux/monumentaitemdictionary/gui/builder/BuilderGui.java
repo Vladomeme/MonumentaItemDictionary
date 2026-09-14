@@ -249,6 +249,7 @@ public class BuilderGui extends Screen {
         return itemsWithSameName.size() > 1;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private ArrayList<String> extractRelevantLetters(String charmName, int n) {
         ArrayList<String> parts = new ArrayList<>();
         parts.add(charmName.substring(0, 3).replace(" ", "_"));
@@ -818,6 +819,7 @@ public class BuilderGui extends Screen {
             return this.name();
         }
 
+        @SuppressWarnings("DuplicateBranchesInSwitch")
         public Regions getRegion(String region) {
             return switch (region) {
                 case "Valley" -> KINGS_VALLEY;
