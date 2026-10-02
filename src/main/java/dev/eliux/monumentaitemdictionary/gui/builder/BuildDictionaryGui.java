@@ -261,9 +261,8 @@ public class BuildDictionaryGui extends Screen {
 
         // reset filters shortcut
         if (keyCode == 342 || keyCode == 346) { // left or right alt pressed
-            long lastAltPressed = 0;
             if (System.currentTimeMillis() - lastAltPressed < 1000) {
-                controller.itemFilterGui.clearFilters();
+                controller.buildFilterGui.clearFilters();
                 searchBar.setText("");
                 buildBuildsList();
             }

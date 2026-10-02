@@ -63,8 +63,9 @@ public class ItemDictionaryGui extends Screen {
     public void postInit() {
         buildItemList();
 
-        searchBar = new TextFieldWidget(textRenderer, width / 2 + 90, 7, width / 2 - 100, 15, Text.literal("Search"));
+        searchBar = new TextFieldWidget(textRenderer, width / 2 + 90, 7, Math.max(30, width / 2 - 100), 15, Text.literal("Search"));
         searchBar.setChangedListener(t -> {
+            scrollPixels = 0;
             controller.setItemNameFilter(searchBar.getText());
             if (searchBar.getText().isEmpty())
                 controller.clearItemNameFilter();
@@ -72,6 +73,7 @@ public class ItemDictionaryGui extends Screen {
             buildItemList();
             updateScrollLimits();
         });
+        searchBar.setPlaceholder(Text.literal("Search items..."));
         searchBar.setFocused(true);
 
         reloadItemsButton = new ItemIconButtonWidget(
@@ -155,27 +157,30 @@ public class ItemDictionaryGui extends Screen {
                     Text.literal(""),
                     Text.literal("Click to go to the MID Github page!").setStyle(Style.EMPTY.withUnderline(true).withColor(0xFF5555FF))
             ), "oak_sign", "");
+        updateGuiPositions();
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackground(context, mouseX, mouseY, delta);
 
-        // draw the scroll bar
-        int totalRows = itemButtons.size();
-        int totalPixelHeight = totalRows * itemSize + (totalRows + 1) * itemPadding;
-        double bottomPercent = (double)scrollPixels / totalPixelHeight;
-        double screenPercent = (double)(height - labelMenuHeight) / totalPixelHeight;
-        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
-        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
-        context.drawVerticalLine(width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
-        context.drawVerticalLine(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+        // Keep the scrollbar inside the item viewport, including empty and short lists.
+        int viewportHeight = Math.max(1, height - labelMenuHeight);
+        int totalPixelHeight = itemButtons.size() * (itemSize + itemPadding) + itemPadding;
+        int scrollX = width - sideMenuWidth - 2;
+        context.fill(scrollX, labelMenuHeight, scrollX + 2, height, 0x77AAAAAA);
+        if (totalPixelHeight > viewportHeight) {
+            int thumbHeight = Math.max(8, viewportHeight * viewportHeight / totalPixelHeight);
+            int thumbY = labelMenuHeight + scrollPixels * (viewportHeight - thumbHeight) / (totalPixelHeight - viewportHeight);
+            context.fill(scrollX, thumbY, scrollX + 2, thumbY + thumbHeight, 0xFFC3C3C3);
+        }
 
         // draw the sort menu
         context.drawVerticalLine(width - sideMenuWidth, labelMenuHeight, height, 0xFFFFFFFF);
 
         // draw item buttons
         if (!controller.isRequesting) {
+            context.enableScissor(0, labelMenuHeight, width - sideMenuWidth - 2, height);
             for (List<ItemButtonWidget> row : itemButtons
                     .subMap(labelMenuHeight + scrollPixels - itemSize, true,
                             height + scrollPixels, true)
@@ -183,18 +188,22 @@ public class ItemDictionaryGui extends Screen {
                 row.forEach(b -> b.renderWidget(context, mouseX, mouseY, delta));
             }
 
+            context.disableScissor();
             if (itemButtons.isEmpty()) {
-                context.drawCenteredTextWithShadow(textRenderer, "Found No Items", width / 2, labelMenuHeight + 10, 0xFF2222);
+                context.drawCenteredTextWithShadow(textRenderer, "Found No Items", (width - sideMenuWidth) / 2, labelMenuHeight + 10, 0xFF2222);
 
                 if (controller.anyItems()) {
-                    context.drawCenteredTextWithShadow(textRenderer, "It seems like there were no items to begin with...", width / 2, labelMenuHeight + 30, 0xFF2222);
-                    context.drawCenteredTextWithShadow(textRenderer, "Try clicking the Reload All Data button in the top left", width / 2, labelMenuHeight + 45, 0xFF2222);
+                    context.drawCenteredTextWithShadow(textRenderer, "No item data loaded.", (width - sideMenuWidth) / 2, labelMenuHeight + 30, 0xFF2222);
+                    context.drawCenteredTextWithShadow(textRenderer, "Click Reload All Data in the top left.", (width - sideMenuWidth) / 2, labelMenuHeight + 45, 0xFF2222);
+                } else {
+                    context.drawCenteredTextWithShadow(textRenderer, "Try another search or reset your filters.",
+                            (width - sideMenuWidth) / 2, labelMenuHeight + 30, ItemColors.TEXT_COLOR);
                 }
             }
         }
 
         if (controller.isRequesting) {
-            context.drawCenteredTextWithShadow(textRenderer, "Requesting item data...", width / 2, labelMenuHeight + 10, 0xFF2222);
+            context.drawCenteredTextWithShadow(textRenderer, "Requesting item data...", (width - sideMenuWidth) / 2, labelMenuHeight + 10, 0xFF2222);
         }
 
         // draw the label at the top
@@ -202,7 +211,14 @@ public class ItemDictionaryGui extends Screen {
         context.getMatrices().translate(0, 0, 110);
         context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
         context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Monumenta Item Dictionary").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
+        Text heading = Text.literal("Monumenta Item Dictionary").setStyle(Style.EMPTY.withBold(true));
+        int titleWidth = Math.max(1, 2 * Math.min(width / 2 - 80, searchBar.getX() - width / 2 - 6));
+        float titleScale = Math.min(1.0f, (float) titleWidth / textRenderer.getWidth(heading));
+        context.getMatrices().push();
+        context.getMatrices().translate(width / 2.0f, (labelMenuHeight - textRenderer.fontHeight * titleScale) / 2.0f, 0);
+        context.getMatrices().scale(titleScale, titleScale, 1.0f);
+        context.drawCenteredTextWithShadow(textRenderer, heading, 0, 0, 0xFF2ca9d3);
+        context.getMatrices().pop();
         context.getMatrices().pop();
 
         // draw gui elements
@@ -225,6 +241,13 @@ public class ItemDictionaryGui extends Screen {
 
         context.getMatrices().pop();
 
+        if (!controller.isRequesting && isInItemViewport(mouseX, mouseY)) {
+            for (List<ItemButtonWidget> row : itemButtons.subMap((int) mouseY + scrollPixels - itemSize, true,
+                    (int) mouseY + scrollPixels, true).values()) {
+                row.forEach(b -> b.renderItemTooltip(context, mouseX, mouseY));
+            }
+        }
+
         try {
             children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
         } catch (Exception e) {
@@ -236,12 +259,13 @@ public class ItemDictionaryGui extends Screen {
         controller.refreshItems();
         ArrayList<DictionaryItem> toBuildItems = controller.getItems();
 
+        int columns = Math.max(1, (width - sideMenuWidth - 5) / (itemSize + itemPadding));
         itemButtons.clear();
         widgetByItem.clear();
-        for (DictionaryItem item : toBuildItems) {
-            int index = toBuildItems.indexOf(item);
-            int row = index / ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
-            int col = index % ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
+        for (int index = 0; index < toBuildItems.size(); index++) {
+            DictionaryItem item = toBuildItems.get(index);
+            int row = index / columns;
+            int col = index % columns;
 
             int x = (col + 1) * itemPadding + col * itemSize;
             int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
@@ -272,6 +296,7 @@ public class ItemDictionaryGui extends Screen {
                 row.forEach(ItemButtonWidget::setMaximumMasterwork);
             }
         }
+        updateScrollLimits();
     }
 
     private void returnItem(DictionaryItem item) {
@@ -298,16 +323,13 @@ public class ItemDictionaryGui extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        super.keyPressed(keyCode, scanCode, modifiers);
-
-        searchBar.keyPressed(keyCode, scanCode, modifiers);
         if (keyCode == 258) { // tab key pressed
             searchBar.setFocused(!searchBar.isFocused());
+            return true;
         }
 
         // reset filters shortcut
         if (keyCode == 342 || keyCode == 346) { // left or right alt pressed
-            long lastAltPressed = 0;
             if (System.currentTimeMillis() - lastAltPressed < 1000) {
                 controller.itemFilterGui.clearFilters();
                 searchBar.setText("");
@@ -315,7 +337,7 @@ public class ItemDictionaryGui extends Screen {
             }
         }
 
-        return true;
+        return searchBar.keyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
@@ -331,22 +353,20 @@ public class ItemDictionaryGui extends Screen {
 
     @Override
     public boolean charTyped(char chr, int modifiers) {
-        super.charTyped(chr, modifiers);
-
-        searchBar.charTyped(chr, modifiers);
-
-        return true;
+        return searchBar.charTyped(chr, modifiers) || super.charTyped(chr, modifiers);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         super.mouseClicked(mouseX, mouseY, button);
 
-        for (List<ItemButtonWidget> row : itemButtons
-                .subMap((int) mouseY + scrollPixels - itemSize, true,
-                        (int) mouseY + scrollPixels, true)
-                .values()) {
-            row.forEach(b -> b.mouseClicked(mouseX, mouseY + scrollPixels, button));
+        if (!controller.isRequesting && isInItemViewport(mouseX, mouseY)) {
+            for (List<ItemButtonWidget> row : itemButtons
+                    .subMap((int) mouseY + scrollPixels - itemSize, true,
+                            (int) mouseY + scrollPixels, true)
+                    .values()) {
+                row.forEach(b -> b.mouseClicked(mouseX, mouseY + scrollPixels, button));
+            }
         }
 
         searchBar.mouseClicked(mouseX, mouseY, button);
@@ -376,6 +396,7 @@ public class ItemDictionaryGui extends Screen {
             masterworkTier = itemButton.shownMasterworkTier;
         }
         String itemTier = item.hasMasterwork ? item.getTierFromMasterwork(Math.max(masterworkTier, item.getMinMasterwork())) : item.getTierNoMasterwork();
+        if (itemTier == null) itemTier = item.getTierFromMasterwork(item.getMinMasterwork());
 
         List<Text> lines = new ArrayList<>();
 
@@ -400,6 +421,7 @@ public class ItemDictionaryGui extends Screen {
 
         if (showStats != null) {
             for (ItemStat stat : showStats) {
+                if (stat.statName.equals("alchemical_utensil") || stat.statName.equals("utility_item_for_armory")) continue;
                 Text line = Text.literal(ItemFormatter.buildStatString(stat.statName, stat.statValue)).setStyle(Style.EMPTY
                         .withColor(ItemColors.getColorForStat(stat.statName, stat.statValue)));
                 if (ItemFormatter.isStat(stat.statName)) {
@@ -418,12 +440,18 @@ public class ItemDictionaryGui extends Screen {
             lines.addAll(enchants);
         }
 
+        if (item.type.equals("Wand")) {
+            lines.add(Text.literal("* Magic Wand *").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
+        }
+        if (showStats != null && showStats.stream().anyMatch(stat ->
+                stat.statName.equals("alchemical_utensil") && stat.statValue > 0)) {
+            lines.add(Text.literal("* Alchemical Utensil *").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
+        }
+
         if (item.hasRegion() || item.hasTier()) {
             MutableText regionText = Text.literal(item.hasRegion() ? ItemFormatter.formatRegion(item.region) + (item.hasTier() ? " : " : "") : "")
                     .setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR));
-            MutableText tierText = Text.literal(item.hasTier() ? itemTier : "").setStyle(Style.EMPTY
-                    .withColor(ItemColors.getColorForTier(itemTier))
-                    .withBold(ItemFormatter.shouldUnderline(itemTier)));
+            MutableText tierText = ItemFormatter.getTierText(item.hasTier() ? itemTier : "");
 
             lines.add(regionText.append(tierText));
         }
@@ -453,8 +481,7 @@ public class ItemDictionaryGui extends Screen {
         }
 
         if (item.hasLocation()) {
-            lines.add(Text.literal(item.location).setStyle(Style.EMPTY
-                    .withColor(ItemColors.getColorForLocation(item.location))));
+            lines.add(ItemFormatter.getLocationText(item.location));
         }
 
         if (!item.lore.isEmpty()) {
@@ -504,11 +531,14 @@ public class ItemDictionaryGui extends Screen {
     }
 
     public void updateGuiPositions() {
+        if (searchBar == null) return;
         buildItemList();
         updateScrollLimits();
 
-        searchBar.setX(width / 2 + 90);
-        searchBar.setWidth(width / 2 - 100);
+        int searchX = width - 10 - Math.max(48, width / 2 - 100);
+        searchBar.setX(searchX);
+        searchBar.setY(7);
+        searchBar.setWidth(Math.max(30, width - searchX - 10));
 
         showCharmsButton.setX(width - sideMenuWidth + 10);
         showCharmsButton.setY(labelMenuHeight + 10);
@@ -522,13 +552,20 @@ public class ItemDictionaryGui extends Screen {
         minMasterworkButton.setY(height - 120);
         maxMasterworkButton.setX(width - sideMenuWidth + 10);
         maxMasterworkButton.setY(height - 90);
+        if (minMasterworkButton.getY() < showCharmsButton.getY() + 26) {
+            int spacing = Math.max(21, (height - 30 - showCharmsButton.getY()) / 4);
+            minMasterworkButton.setY(showCharmsButton.getY() + spacing);
+            maxMasterworkButton.setY(showCharmsButton.getY() + 2 * spacing);
+            resetFilterButton.setY(showCharmsButton.getY() + 3 * spacing);
+            filterButton.setY(showCharmsButton.getY() + 4 * spacing);
+        }
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
         super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
-        if (Screen.hasControlDown() && !isGettingBuildItem) {
+        if (Screen.hasControlDown() && !isGettingBuildItem && isInItemViewport(mouseX, mouseY)) {
             for (List<ItemButtonWidget> row : itemButtons
                     .subMap(labelMenuHeight + scrollPixels - itemSize, true,
                             height + scrollPixels, true)
@@ -536,7 +573,7 @@ public class ItemDictionaryGui extends Screen {
                 row.forEach(b -> b.scrolled(mouseX, mouseY, vAmount));
             }
         } else {
-            if (mouseX >= 0 && mouseX < width - sideMenuWidth && mouseY >= labelMenuHeight && mouseY < height) {
+            if (isInItemViewport(mouseX, mouseY)) {
                 scrollPixels += (int) (-vAmount * 22); // scaled
 
                 updateScrollLimits();
@@ -544,6 +581,10 @@ public class ItemDictionaryGui extends Screen {
         }
 
         return true;
+    }
+
+    public boolean isInItemViewport(double mouseX, double mouseY) {
+        return mouseX >= 0 && mouseX < width - sideMenuWidth - 2 && mouseY >= labelMenuHeight && mouseY < height;
     }
 
     private void updateScrollLimits() {

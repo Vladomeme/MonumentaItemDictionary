@@ -34,8 +34,8 @@ public class BuildItemButtonWidget extends ButtonWidget {
         this.gui = gui;
         this.scale = (float) width/18;
 
-        builtItem = ItemFactory.fromEncoding(item != null ? (item.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_")) : "barrier");
 
+        builtItem = item != null ? ItemFactory.fromItemIcon(item) : ItemFactory.fromEncoding("barrier");
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();
         display.putString("Name", item != null ? (item.name.split("\\(")[0].trim()) : "No Item");
@@ -51,6 +51,14 @@ public class BuildItemButtonWidget extends ButtonWidget {
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (!active || !visible || !isValidClickButton(button) || !gui.isEquipmentRowHovered(this, mouseX, mouseY)) return false;
+        playDownSound(MinecraftClient.getInstance().getSoundManager());
+        onClick(mouseX, mouseY);
+        return true;
+    }
+
+    @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         RenderSystem.enableDepthTest();
 
@@ -60,7 +68,7 @@ public class BuildItemButtonWidget extends ButtonWidget {
         int maxY = minY + height;
         int itemSize = (int) (16*scale);
 
-        boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
+        boolean hovered = gui.isEquipmentRowHovered(this, mouseX, mouseY);
 
         int outlineColor = hovered ?  0xFFC6C6C6 : 0xFFFFFFFF;
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
@@ -77,7 +85,10 @@ public class BuildItemButtonWidget extends ButtonWidget {
                 (double) itemSize/2))/scale), (int) ceil((minY + (double) height/2 - ceil((double) itemSize/2))/scale));
         context.getMatrices().pop();
 
-        if (hovered) {
+    }
+
+    public void renderItemTooltip(DrawContext context, int mouseX, int mouseY) {
+        if (gui.isEquipmentRowHovered(this, mouseX, mouseY)) {
             List<Text> lines = new ArrayList<>();
             lines.add(Text.literal("Click to add an item."));
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, (item != null ? lore.get() : lines), mouseX, mouseY);

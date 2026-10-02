@@ -52,7 +52,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
 
             return builtItem;
         }
-        ItemStack builtItem = ItemFactory.fromEncoding(charm.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"));
+        ItemStack builtItem = ItemFactory.fromIcon(charm.baseItem, charm.nbt);
 
         NbtCompound monumenta = new NbtCompound();
         monumenta.putInt("CharmPower", charm.power);
@@ -93,7 +93,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
         int maxY = minY + height;
         int itemSize = (int) (16*scale);
 
-        boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
+        boolean hovered = gui.isInContentViewport(mouseX, mouseY) && isMouseOver(mouseX, mouseY);
 
         int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
@@ -110,9 +110,12 @@ public class BuildCharmButtonWidget extends ButtonWidget {
                 (double) itemSize/2))/scale), (int) ceil((minY + (double) height/2 - ceil((double) itemSize/2))/scale));
         context.getMatrices().pop();
 
-        if (hovered) {
+    }
+
+    public void renderCharmTooltip(DrawContext context, int mouseX, int mouseY) {
+        if (gui.isInContentViewport(mouseX, mouseY) && isMouseOver(mouseX, mouseY)) {
             List<Text> lines = new ArrayList<>();
-            lines.add(Text.literal("Click to add an item."));
+            lines.add(Text.literal("Click to add a charm."));
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, (charm != null ? loreSupplier.get() : lines), mouseX, mouseY);
         }
     }

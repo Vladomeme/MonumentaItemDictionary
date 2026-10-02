@@ -15,10 +15,10 @@ public class StatsFormats {
        put("currentHealth", "Current Health: ");
        put("effHealingRate", "Eff. Healing Rate: ");
        put("healingRate", "Healing Rate: ");
-       put("regenPerSec", "Regen/Sec: ");
-       put("regenPerSecPercent", "%HP Regen/Sec: ");
+       put("regenPerSec", "Regen / Sec: ");
+       put("regenPerSecPercent", "% HP Regen / Sec: ");
        put("lifeDrainOnCrit", "Life Drain Crit: ");
-       put("lifeDrainOnCritPercent", "Life Drain %HP Crit: ");
+       put("lifeDrainOnCritPercent", "Life Drain % HP Crit: ");
        put("attackSpeedPercent", "Attack Speed: ");
        put("attackSpeed", "Weapon Attack Speed: ");
        put("attackDamagePercent", "Damage: ");
@@ -36,6 +36,7 @@ public class StatsFormats {
        put("spellPowerPercent", "Spell Power: ");
        put("spellDamage", "Total Magic Damage: ");
        put("spellCooldownPercent", "Cooldown Duration: ");
+       put("potionDamage", "Potion Damage: ");
        put("melee", "Melee: ");
        put("projectile", "Projectile: ");
        put("magic", "Magic: ");

@@ -132,6 +132,18 @@ public class BuildFilterGui extends Screen {
 
     private void updateFilterOutput() {controller.updateBuildFilters(buildFilters);}
 
+    public void clearFilters() {
+        filterListOption.clear();
+        filterListValue.clear();
+        filterListComparator.clear();
+        filterListConstant.clear();
+        filterListDelete.clear();
+        buildFilters.clear();
+        removeIndex = -1;
+        if (addFilterButton != null) updateFilterListPositions();
+        updateFilterOutput();
+    }
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackground(context, mouseX, mouseY, delta);

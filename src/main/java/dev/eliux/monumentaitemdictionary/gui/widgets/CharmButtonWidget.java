@@ -35,7 +35,7 @@ public class CharmButtonWidget extends ButtonWidget {
         this.gui = gui;
 
         // dummy itemstack for rendering item icon
-        builtItem = ItemFactory.fromEncoding(charm.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"));
+        builtItem = ItemFactory.fromIcon(charm.baseItem, charm.nbt);
 
         NbtCompound monumenta = new NbtCompound();
         monumenta.putInt("CharmPower", charm.power);
@@ -79,7 +79,7 @@ public class CharmButtonWidget extends ButtonWidget {
         // rendering breaks if I do not use this, what is this, why do I have to use this, I don't know
         RenderSystem.enableDepthTest();
 
-        boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
+        boolean hovered = isCharmHovered(mouseX, mouseY);
 
         int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
@@ -92,7 +92,16 @@ public class CharmButtonWidget extends ButtonWidget {
 
         context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);
 
-        if (hovered) {
+    }
+
+    private boolean isCharmHovered(int mouseX, int mouseY) {
+        int y = getY() - gui.getScrollPixels();
+        return gui.isInItemViewport(mouseX, mouseY) && mouseX >= getX() && mouseX < getX() + width
+                && mouseY >= y && mouseY < y + height;
+    }
+
+    public void renderCharmTooltip(DrawContext context, int mouseX, int mouseY) {
+        if (isCharmHovered(mouseX, mouseY)) {
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltipTextSupplier.get(), mouseX, mouseY);
         }
     }

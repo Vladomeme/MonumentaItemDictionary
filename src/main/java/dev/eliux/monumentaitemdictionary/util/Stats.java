@@ -5,7 +5,6 @@ import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import java.util.*;
 
 import static java.lang.Math.*;
-
 public class Stats {
     // Misc Stats
     public double armor;
@@ -14,6 +13,7 @@ public class Stats {
     public Percentage knockbackRes;
     public int thorns;
     public double fireTickDamage;
+    public Percentage spellCooldownPercent;
     // Health Stats
     public double healthFinal;
     public double currentHealth;
@@ -66,7 +66,7 @@ public class Stats {
     public Percentage magicDamagePercent;
     public Percentage spellPowerPercent;
     public Percentage spellDamage;
-    public Percentage spellCooldownPercent;
+    public double potionDamage;
     private final Percentage currentHealthPercent;
     private double speedFlat;
     private Percentage healthPercent;
@@ -78,11 +78,14 @@ public class Stats {
     private double blastProt;
     private double fireProt;
     private double fallProt;
+    private double ailmentProt;
     private double meleeFragility;
     private double projectileFragility;
     private double magicFragility;
     private double blastFragility;
     private double fireFragility;
+    private double fallFragility;
+    private double ailmentFragility;
     private double worldlyProtection;
     private Percentage thornsPercent;
     private double aptitude;
@@ -97,6 +100,19 @@ public class Stats {
     private final Map<String, Boolean> enabledSituationals;
     private final Map<String, List<ItemStat>> allItemStats = new HashMap<>();
     private final String currentRegion;
+
+    public Stats(List<DictionaryItem> items, Map<String, Boolean> enabledSituationals, Map<String, Boolean> infusions, double currentHealthPercent) {
+        this(items, enabledSituationals, infusions, currentHealthPercent, 3);
+    }
+
+    public Stats(List<DictionaryItem> items, Map<String, Boolean> enabledSituationals, Map<String, Boolean> infusions, double currentHealthPercent, int region) {
+        this(items, enabledSituationals, infusions, currentHealthPercent, switch (region) {
+            case 1 -> "KINGS_VALLEY";
+            case 2 -> "CELSIAN_ISLES";
+            case 3 -> "ARCHITECTS_RING";
+            default -> throw new IllegalArgumentException("Region must be 1, 2, or 3");
+        });
+    }
 
     public Stats(List<DictionaryItem> items, Map<String, Boolean> enabledSituationals, Map<String, Boolean> infusions, double currentHealthPercent, String currentRegion) {
         this.enabledSituationals = enabledSituationals;
@@ -166,6 +182,7 @@ public class Stats {
         projectileSpeed = sumNumberStat(mainhand, "projectile_speed_base", projectileSpeed) * projectileDamagePercent.val;
         throwRate = sumNumberStat(mainhand, "throw_rate_base", throwRate) * throwRatePercent.val;
 
+        potionDamage *= magicDamagePercent.val;
         spellPowerPercent.add(sumNumberStat(mainhand, "spell_power_base", 0), true);
         spellDamage = (
                 spellPowerPercent.duplicate()
@@ -221,7 +238,8 @@ public class Stats {
         double agilityMulti = 1;
 
         armorMulti += enabledSituationals.get("shielding") ? regionMulti * situationalsLevels.get("shielding") * situationalArmorRatio : 0;
-        armorMulti += enabledSituationals.get("poise") ? regionMulti * situationalsLevels.get("poise") * situationalArmorRatio : 0;
+        double poiseEffective = currentHealthPercent.val >= 0.9 ? 1 : currentHealthPercent.val >= 0.7 ? 0.5 : 0;
+        armorMulti += enabledSituationals.get("poise") ? regionMulti * situationalsLevels.get("poise") * situationalArmorRatio * poiseEffective : 0;
         armorMulti += enabledSituationals.get("inure") ? regionMulti * situationalsLevels.get("inure") * situationalArmorRatio : 0;
         armorMulti += enabledSituationals.get("guard") ? regionMulti * situationalsLevels.get("guard") * situationalArmorRatio : 0;
 
@@ -243,8 +261,9 @@ public class Stats {
         Map<String, Double> magicDamageReduct = calculateDamageReduction(hasNothing, magicProt, magicFragility, 2, armor + bonusArmor, agility + bonusAgility);
         Map<String, Double> blastDamageReduct = calculateDamageReduction(hasNothing, blastProt, blastFragility, 2, armor + bonusArmor, agility + bonusAgility);
         Map<String, Double> fireDamageReduct = calculateDamageReduction(hasNothing, fireProt, fireFragility, 2, (armor + bonusArmor) / 2, (agility + bonusAgility) / 2);
-        Map<String, Double> fallDamageReduct = calculateDamageReduction(hasNothing, fallProt, 0, 3, (armor + bonusArmor) / 2, (agility + bonusAgility) / 2);
-        Map<String, Double> ailmentDamageReduct = calculateDamageReduction(true, 0, 0, 0, 0, 0);
+        Map<String, Double> fallDamageReduct = calculateDamageReduction(hasNothing, fallProt, fallFragility, 3, (armor + bonusArmor) / 2, (agility + bonusAgility) / 2);
+        fallDamageReduct.put("second_wind", fallDamageReduct.get("base"));
+        Map<String, Double> ailmentDamageReduct = calculateDamageReduction(true, ailmentProt, ailmentFragility, 2, 0, 0);
 
 
         if (!enabledSituationals.get("second_wind") || situationalsLevels.get("second_wind") == 0) {
@@ -268,30 +287,29 @@ public class Stats {
             ailmentEHP = (hpNoSecondWind / (1 - ailmentDamageReduct.get("base")) + hpSecondWind / (1 - ailmentDamageReduct.get("second_wind")));
         }
 
-        meleeDR = new Percentage(1 - healthFinal / meleeEHP, false);
-        projectileDR = new Percentage(1 - healthFinal / projectileEHP, false);
-        magicDR = new Percentage(1 - healthFinal / magicEHP, false);
-        blastDR = new Percentage(1 - healthFinal / blastEHP, false);
-        fireDR = new Percentage(1 - healthFinal / fireEHP, false);
-        fallDR = new Percentage(1 - healthFinal / fallEHP, false);
-        ailmentDR = new Percentage(1 - healthFinal / ailmentEHP, false);
-
-        meleeHNDR = new Percentage(1 - (healthFinal / meleeEHP) / (healthFinal / 20), false);
-        projectileHNDR = new Percentage(1 - (healthFinal / projectileEHP) / (healthFinal / 20), false);
-        magicHNDR = new Percentage(1 - (healthFinal / magicEHP) / (healthFinal / 20), false);
-        blastHNDR = new Percentage(1 - (healthFinal / blastEHP) / (healthFinal / 20), false);
-        fireHNDR = new Percentage(1 - (healthFinal / fireEHP) / (healthFinal / 20), false);
-        fallHNDR = new Percentage(1 - (healthFinal / fallEHP) / (healthFinal / 20), false);
-        ailmentHNDR = new Percentage(1 - (healthFinal / ailmentEHP) / (healthFinal / 20 ), false);
+        String drType = enabledSituationals.get("second_wind") && currentHealthPercent.val <= 0.5 ? "second_wind" : "base";
+        meleeDR = new Percentage(meleeDamageReduct.get(drType), false);
+        meleeHNDR = new Percentage(1 - (1 - meleeDR.val) / (healthFinal / 20), false);
+        projectileDR = new Percentage(projectileDamageReduct.get(drType), false);
+        projectileHNDR = new Percentage(1 - (1 - projectileDR.val) / (healthFinal / 20), false);
+        magicDR = new Percentage(magicDamageReduct.get(drType), false);
+        magicHNDR = new Percentage(1 - (1 - magicDR.val) / (healthFinal / 20), false);
+        blastDR = new Percentage(blastDamageReduct.get(drType), false);
+        blastHNDR = new Percentage(1 - (1 - blastDR.val) / (healthFinal / 20), false);
+        fireDR = new Percentage(fireDamageReduct.get(drType), false);
+        fireHNDR = new Percentage(1 - (1 - fireDR.val) / (healthFinal / 20), false);
+        fallDR = new Percentage(fallDamageReduct.get(drType), false);
+        fallHNDR = new Percentage(1 - (1 - fallDR.val) / (healthFinal / 20), false);
+        ailmentDR = new Percentage(ailmentDamageReduct.get(drType), false);
+        ailmentHNDR = new Percentage(1 - (1 - ailmentDR.val) / (healthFinal / 20), false);
     }
 
     private Map<String, Double> calculateDamageReduction(boolean noArmor, double prot, double fragility, double protModifier, double earmor, double eagility) {
         Map<String, Double> damageTaken = new HashMap<>();
 
-        double baseDmg = (noArmor) ? (1 - worldlyProtection * 0.1) * pow(0.96, (prot * protModifier - fragility * protModifier)) :
-                (1 - worldlyProtection * 0.1) * pow(0.96, ((prot * protModifier - fragility * protModifier) + earmor + eagility) - (0.5 * earmor * eagility / (earmor + eagility))) * (1 - (tenacity * 0.005));
-        double secondwindDmg = baseDmg * pow(0.9, situationalsLevels.get("second_wind")) * (1 - (tenacity * 0.005));
-
+        double defense = noArmor || earmor + eagility == 0 ? 0 : earmor + eagility - 0.5 * earmor * eagility / (earmor + eagility);
+        double baseDmg = (1 - worldlyProtection * 0.1) * pow(0.96, (prot - fragility) * protModifier + defense) * (1 - tenacity * 0.005);
+        double secondwindDmg = baseDmg * pow(0.9, situationalsLevels.get("second_wind"));
         double baseDmgReduct = 1 - baseDmg;
         double secondwindDmgReduct = 1 - secondwindDmg;
 
@@ -307,7 +325,7 @@ public class Stats {
         speedPercent = speedPercent
                 .mul((speedFlat) / 0.1, false)
                 .mul(((currentHealthPercent.perc <= 50) ? 1 - 0.1 * crippling : 1), false);
-        knockbackRes = ((knockbackRes.val > 10) ? new Percentage(10, false): knockbackRes).mul(0.1, false);
+        knockbackRes = new Percentage(Math.min(knockbackRes.val, 10) * 10, true);
 
         effHealingRate = new Percentage(((20 / healthFinal) * healingRate.val), false);
         regenPerSec = 0.33 * sqrt(regenPerSec) * healingRate.val;
@@ -340,7 +358,7 @@ public class Stats {
                 break;
             }
         }
-        return (enchLevel != 0.0) ? enchLevel * perLevelMultiplier : 0;
+        return (enchLevel != 0.0) ? enchLevel * perLevelMultiplier : perLevelMultiplier;
     }
 
     private void sumAllStats() {
@@ -369,16 +387,20 @@ public class Stats {
             blastProt += sumNumberStat(itemStats, "blast_protection", 0);
             fireProt += sumNumberStat(itemStats, "fire_protection", 0);
             fallProt += sumNumberStat(itemStats, "feather_falling", 0);
+            ailmentProt += sumNumberStat(itemStats, "ailment_protection", 0);
 
             meleeFragility += sumNumberStat(itemStats, "melee_fragility", 0);
             projectileFragility += sumNumberStat(itemStats, "projectile_fragility", 0);
             magicFragility += sumNumberStat(itemStats, "magic_fragility", 0);
             blastFragility += sumNumberStat(itemStats, "blast_fragility", 0);
             fireFragility += sumNumberStat(itemStats, "fire_fragility", 0);
+            fallFragility += sumNumberStat(itemStats, "fall_fragility", 0);
+            ailmentFragility += sumNumberStat(itemStats, "ailment_fragility", 0);
 
             attackDamagePercent.add(sumNumberStat(itemStats, "attack_damage_percent", 0), true);
             attackSpeedPercent.add(sumNumberStat(itemStats, "attack_speed_percent", 0), true);
             attackSpeedFlatBonus += sumNumberStat(itemStats, "attack_speed_flat", 0);
+            potionDamage += sumNumberStat(itemStats, "potion_damage_flat", 0);
 
             projectileDamagePercent.add(sumNumberStat(itemStats, "projectile_damage_percent", 0), true);
             projectileSpeedPercent.add(sumNumberStat(itemStats, "projectile_speed_percent", 0), true);
@@ -434,12 +456,15 @@ public class Stats {
         blastProt = 0;
         fireProt = 0;
         fallProt = 0;
+        ailmentProt = 0;
 
         meleeFragility = 0;
         projectileFragility = 0;
         magicFragility = 0;
         blastFragility = 0;
         fireFragility = 0;
+        fallFragility = 0;
+        ailmentFragility = 0;
 
         meleeHNDR = new Percentage(0, true);
         projectileHNDR = new Percentage(0, true);
@@ -487,6 +512,7 @@ public class Stats {
         spellPowerPercent = new Percentage(100, true);
         spellDamage = new Percentage(100, true);
         spellCooldownPercent = new Percentage(100, true);
+        potionDamage = 0;
 
         aptitude = 0;
         ineptitude = 0;

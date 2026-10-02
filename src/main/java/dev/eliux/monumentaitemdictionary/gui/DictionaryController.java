@@ -960,6 +960,10 @@ public class DictionaryController {
         return validItems;
     }
 
+    public List<DictionaryItem> getAllItems() {
+        return Collections.unmodifiableList(items);
+    }
+
     public ArrayList<DictionaryCharm> getCharms() {
         return validCharms;
     }
