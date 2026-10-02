@@ -38,7 +38,7 @@ public class ItemButtonWidget extends ButtonWidget {
         this.gui = gui;
 
         // dummy itemstack for rendering item icon
-        builtItem = ItemFactory.fromEncoding(item.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"));
+        builtItem = ItemFactory.fromItemIcon(item);
         NbtCompound baseNbt = builtItem.getOrCreateNbt();
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();
@@ -71,9 +71,9 @@ public class ItemButtonWidget extends ButtonWidget {
     }
 
     public void scrolled(double mouseX, double mouseY, double amount) {
-        if (mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() - gui.getScrollPixels() && mouseY <= getY() + height - gui.getScrollPixels() && item.hasMasterwork) {
+        if (gui.isInItemViewport(mouseX, mouseY) && mouseX >= getX() && mouseX < getX() + width && mouseY >= getY() - gui.getScrollPixels() && mouseY < getY() + height - gui.getScrollPixels() && item.hasMasterwork) {
             shownMasterworkTier += amount;
-            if (shownMasterworkTier < 0) shownMasterworkTier = 0;
+            if (shownMasterworkTier < item.getMinMasterwork()) shownMasterworkTier = item.getMinMasterwork();
             if (shownMasterworkTier > item.getMaxMasterwork() - 1) shownMasterworkTier = item.getMaxMasterwork() - 1;
         }
     }
@@ -90,7 +90,7 @@ public class ItemButtonWidget extends ButtonWidget {
         // rendering breaks if I do not use this, what is this, why do I have to use this, I don't know
         RenderSystem.enableDepthTest();
 
-        boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
+        boolean hovered = isItemHovered(mouseX, mouseY);
 
         int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
@@ -103,7 +103,16 @@ public class ItemButtonWidget extends ButtonWidget {
 
         context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);
 
-        if (hovered) {
+    }
+
+    private boolean isItemHovered(int mouseX, int mouseY) {
+        int y = getY() - gui.getScrollPixels();
+        return gui.isInItemViewport(mouseX, mouseY) && mouseX >= getX() && mouseX < getX() + width
+                && mouseY >= y && mouseY < y + height;
+    }
+
+    public void renderItemTooltip(DrawContext context, int mouseX, int mouseY) {
+        if (isItemHovered(mouseX, mouseY)) {
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltipTextSupplier.get(), mouseX, mouseY);
         }
     }

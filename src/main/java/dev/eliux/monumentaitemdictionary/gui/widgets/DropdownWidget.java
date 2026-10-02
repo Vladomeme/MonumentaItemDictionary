@@ -57,21 +57,20 @@ public class DropdownWidget extends TextFieldWidget {
     }
 
     public void setChoices(List<String> newChoices) {
-        choices = newChoices;
-        visualChoices = newChoices;
-        lastChoice = "";
-        visualLastChoice = "";
-        setText(visualLastChoice);
-        // crashes when changing after a value is selected
+        setChoices(newChoices, newChoices);
     }
 
     public void setChoices(List<String> newChoices, List<String> newVisualChoices) {
-        choices = newChoices;
-        visualChoices = newVisualChoices;
+        if (newChoices.size() != newVisualChoices.size()) throw new IllegalArgumentException("Dropdown labels must match choices");
+        choices = List.copyOf(newChoices);
+        visualChoices = List.copyOf(newVisualChoices);
         lastChoice = "";
         visualLastChoice = "";
-        setText(visualLastChoice);
-        // crashes when changing after a value is selected
+        setText("");
+        validChoices = new ArrayList<>(choices);
+        visualValidChoices = new ArrayList<>(visualChoices);
+        scrollAmount = 0;
+        updateMaxShown();
     }
 
     public void setDefaultText(String newDefaultText) {
@@ -90,9 +89,10 @@ public class DropdownWidget extends TextFieldWidget {
                 validChoices = new ArrayList<>(choices);
                 visualValidChoices = new ArrayList<>(visualChoices);
             } else {
-                for (String choice : visualChoices) {
-                    if (choice.toLowerCase().contains(getText().toLowerCase())) {
-                        validChoices.add(choices.get(visualChoices.indexOf(choice)));
+                for (int i = 0; i < visualChoices.size(); i++) {
+                    String choice = visualChoices.get(i);
+                    if (choice.toLowerCase(java.util.Locale.ROOT).contains(getText().toLowerCase(java.util.Locale.ROOT))) {
+                        validChoices.add(choices.get(i));
                         visualValidChoices.add(choice);
                     }
                 }
@@ -103,7 +103,7 @@ public class DropdownWidget extends TextFieldWidget {
 
     private void updateMaxShown() {
         if (MinecraftClient.getInstance().currentScreen == null) return;
-        maxShown = (int) ((double) (MinecraftClient.getInstance().currentScreen.height - (this.getY() + this.height)) / (double) (this.height + 1));
+        maxShown = Math.max(0, (MinecraftClient.getInstance().currentScreen.height - getY() - height - 1) / (height + 1));
     }
 
     private void updateScrollLimits() {
@@ -114,39 +114,37 @@ public class DropdownWidget extends TextFieldWidget {
     // must be called manually
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (isMouseOver(mouseX, mouseY) || isFocused()) {
-            setFocused(true);
-            for (int i = 0; i < Math.min(validChoices.size(), maxShown); i ++) {
-                if (mouseX >= this.getX() && mouseX <= this.getX() + this.width && mouseY >= this.getY() + this.height + ((this.height + 1) * i) && mouseY < this.getY() + this.height + ((this.height + 1) * (i + 1))) {
-                    lastChoice = validChoices.get(i + scrollAmount);
-                    visualLastChoice = visualValidChoices.get(i + scrollAmount);
-                    onUpdate.accept(lastChoice);
-                    setFocused(false);
-
-                    this.playDownSound(MinecraftClient.getInstance().getSoundManager());
-                }
-            }
-        }
-
-        if (isFocused()) {
-            setText("");
-            validChoices = new ArrayList<>(choices);
-            visualValidChoices = new ArrayList<>(visualChoices);
-        } else {
+        if (button != 0) return false;
+        updateMaxShown();
+        updateScrollLimits();
+        if (willClick(mouseX, mouseY)) {
+            int index = (int) ((mouseY - getY() - height) / (height + 1)) + scrollAmount;
+            lastChoice = validChoices.get(index);
+            visualLastChoice = visualValidChoices.get(index);
+            setFocused(false);
             setText(visualLastChoice);
+            this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+            onUpdate.accept(lastChoice);
+            return true;
         }
-
-        if (isFocused() && mouseX >= this.getX() && mouseX <= this.getX() + this.width && mouseY >= this.getY() && mouseY <= this.getY() + this.height) {
-            //setFocused(false);
-        } else {
-            super.mouseClicked(mouseX, mouseY, button);
+        if (isMouseOver(mouseX, mouseY)) {
+            if (!isFocused()) {
+                setFocused(true);
+                setText("");
+                scrollAmount = 0;
+                updateShownChoices();
+            }
+            return super.mouseClicked(mouseX, mouseY, button);
         }
-
-        return true;
+        setFocused(false);
+        setText(visualLastChoice);
+        return false;
     }
 
     public boolean willClick(double mouseX, double mouseY) {
-        return isFocused() && (mouseX >= this.getX() && mouseX <= this.getX() + this.width && mouseY >= this.getX() + this.height) && mouseY < this.getY() + this.height + ((this.height + 1) * (validChoices.size() + 1));
+        return isFocused() && mouseX >= getX() && mouseX < getX() + width
+                && mouseY >= getY() + height
+                && mouseY < getY() + height + (height + 1) * Math.min(validChoices.size(), maxShown);
     }
 
     // must be called manually
@@ -199,9 +197,11 @@ public class DropdownWidget extends TextFieldWidget {
     // must be called manually
     // called after other render calls
     public void renderDropdown(DrawContext context, int mouseX, int mouseY, float delta) {
+        updateMaxShown();
+        updateScrollLimits();
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 200);
-        if (this.isFocused() && !validChoices.isEmpty()) {
+        if (this.isFocused() && !validChoices.isEmpty() && maxShown > 0) {
             context.fill(this.getX() - 1, this.getY() + this.height, this.getX() + this.width + 1, this.getY() + this.height + ((this.height + 1) * Math.min(validChoices.size(), maxShown)) + 1, 0xFFA0A0A0);
             context.fill(this.getX(), this.getY() + this.height + 1, this.getX() + this.width, this.getY() + this.height + ((this.height + 1) * Math.min(validChoices.size(), maxShown)), 0xFF000000);
 

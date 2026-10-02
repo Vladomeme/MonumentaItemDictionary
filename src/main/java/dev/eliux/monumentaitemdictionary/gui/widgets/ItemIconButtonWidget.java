@@ -40,7 +40,7 @@ public class ItemIconButtonWidget extends ButtonWidget {
 
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 120);
-        context.drawItem(iconItem, getX() + (width - 16) / 2, getY() + (width - 16) / 2);
+        context.drawItem(iconItem, getX() + (width - 16) / 2, getY() + (height - 16) / 2);
         context.getMatrices().pop();
 
         if (isHovered() && MinecraftClient.getInstance().currentScreen != null) {

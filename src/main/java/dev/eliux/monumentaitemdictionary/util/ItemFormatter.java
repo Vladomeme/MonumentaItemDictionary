@@ -1,5 +1,9 @@
 package dev.eliux.monumentaitemdictionary.util;
 
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,7 +20,7 @@ public class ItemFormatter {
             "formidable", "brute_force", "defensive_line", "riposte", "toughness", "counter_strike", "frenzy", "shield_bash", "weapon_mastery", "bloodlust", "glorious_battle", "meteor_slam", "rampage", "bodyguard", "challenge", "shield_wall",
             "decay", "inferno", "recoil", "jungle's_nourishment", "rage_of_the_keter", "hex_eater", "sapper", "life_drain", "regicide", "quake", "eruption", "smite", "slayer", "duelist", "regeneration", "thunder_aspect"};
 
-    private static final Set<String> boldTiers = new HashSet<>(List.of("Patron", "Key", "Currency", "Trophy", "Uncommon", "Unique", "Rare", "Artifact", "Epic", "Legendary"));
+    private static final Set<String> boldTiers = new HashSet<>(List.of("Patron", "Key", "Currency", "Trophy", "Uncommon", "Unique", "Rare", "Artifact", "Epic", "Legendary", "Event", "Event Currency", "Legacy", "Obfuscated"));
 
     private static final Set<String> underlineTiers = new HashSet<>(List.of("Epic", "Legendary"));
 
@@ -158,6 +162,25 @@ public class ItemFormatter {
             default -> 0;
         };
     }
+
+    public static MutableText getTierText(String tier) {
+        return Text.literal(tier).setStyle(Style.EMPTY
+                .withColor(ItemColors.getColorForTier(tier))
+                .withBold(shouldUnderline(tier))
+                .withObfuscated(tier.equals("Obfuscated")));
+    }
+
+    public static MutableText getLocationText(String location) {
+        MutableText text;
+        if (location.equals("Twisted lxxxxxxx") || location.equals("Twisted Ixxxxxxx")) {
+            text = Text.literal("Twisted ").append(Text.literal(location.substring(8))
+                    .setStyle(Style.EMPTY.withObfuscated(true)));
+        } else {
+            text = Text.literal(location);
+        }
+        return text.setStyle(Style.EMPTY.withColor(ItemColors.getColorForLocation(location)));
+    }
+
 
     public static String formatUseLine(String inType) {
         return switch (inType) {
