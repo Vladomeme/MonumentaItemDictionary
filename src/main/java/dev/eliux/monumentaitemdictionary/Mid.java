@@ -25,7 +25,7 @@ public class Mid implements ModInitializer {
 
 	private HashMap<String, Object> data = new HashMap<>();
 
-	public DictionaryController controller = null;
+	public static DictionaryController controller = null;
 
 	@Override
 	public void onInitialize() {

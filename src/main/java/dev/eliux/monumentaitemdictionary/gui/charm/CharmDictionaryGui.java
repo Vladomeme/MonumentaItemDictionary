@@ -1,5 +1,6 @@
 package dev.eliux.monumentaitemdictionary.gui.charm;
 
+import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.widgets.CharmButtonWidget;
@@ -7,6 +8,7 @@ import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.CharmStat;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
+import dev.eliux.monumentaitemdictionary.util.Location;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -308,7 +310,7 @@ public class CharmDictionaryGui extends Screen {
         List<Text> lines = new ArrayList<>();
 
         lines.add(Text.literal(charm.name).setStyle(Style.EMPTY
-                .withColor(0xFF000000 + ItemColors.getColorForLocation(charm.location))
+                .withColor(0xFF000000 + ItemColors.getColorForLocation(charm.locationId))
                 .withBold(ItemFormatter.shouldBold(charm.tier))
                 .withUnderline(ItemFormatter.shouldUnderline(charm.tier))));
 
@@ -330,7 +332,8 @@ public class CharmDictionaryGui extends Screen {
                         .withColor(ItemColors.getColorForClass(charm.className)));
         lines.add(charmPowerDesc.append(charmPower).append(divider).append(classText));
 
-        lines.add(Text.literal(charm.location).setStyle(Style.EMPTY.withColor(ItemColors.getColorForLocation(charm.location))));
+        Location location = Mid.controller.locationData.get(charm.locationId);
+        if (location != null) lines.add(Text.literal(location.displayName()).setStyle(Style.EMPTY.withColor(location.color())));
 
         lines.add(Text.literal(""));
 

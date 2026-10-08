@@ -1,5 +1,6 @@
 package dev.eliux.monumentaitemdictionary.gui.item;
 
+import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.CharmDictionaryGui;
@@ -10,6 +11,8 @@ import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
 import dev.eliux.monumentaitemdictionary.util.ItemStat;
 import java.util.HashMap;
 import java.util.TreeMap;
+
+import dev.eliux.monumentaitemdictionary.util.Location;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -380,7 +383,7 @@ public class ItemDictionaryGui extends Screen {
         List<Text> lines = new ArrayList<>();
 
         lines.add(Text.literal(item.name).setStyle(Style.EMPTY
-                .withColor(0xFF000000 + ItemColors.getColorForLocation(item.location))
+                .withColor(0xFF000000 + ItemColors.getColorForLocation(item.locationId))
                 .withBold(!item.isFish ? ItemFormatter.shouldBold(itemTier) : ItemFormatter.shouldBoldFish(item.fishTier))
                 .withUnderline(!item.isFish ? ItemFormatter.shouldUnderline(itemTier) : ItemFormatter.shouldUnderlineFish(item.fishTier))));
 
@@ -453,14 +456,14 @@ public class ItemDictionaryGui extends Screen {
         }
 
         if (item.hasLocation()) {
-            lines.add(Text.literal(item.location).setStyle(Style.EMPTY
-                    .withColor(ItemColors.getColorForLocation(item.location))));
+            Location location = Mid.controller.locationData.get(item.locationId);
+            if (location != null) lines.add(Text.literal(location.displayName()).setStyle(Style.EMPTY.withColor(location.color())));
         }
 
         if (!item.lore.isEmpty()) {
             if (hasShiftDown()) {
                 for (String line : item.lore.split("\n")) {
-                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(ItemColors.mixHexes(ItemColors.TEXT_COLOR, ItemColors.getColorForLocation(item.location), 0.67))));
+                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(ItemColors.mixHexes(ItemColors.TEXT_COLOR, ItemColors.getColorForLocation(item.locationId), 0.67))));
                 }
             } else {
                 lines.add(Text.literal("Press [SHIFT] to show lore.").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
