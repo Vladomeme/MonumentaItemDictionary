@@ -598,7 +598,7 @@ public class BuilderGui extends Screen {
                         Text.literal(itemText).setStyle(Style.EMPTY.withBold(true).withUnderline(true)),
                         x,
                         y,
-                        0xFF000000 + ItemColors.getColorForLocation(item.location));
+                        0xFF000000 + ItemColors.getColorForLocation(item.locationId));
             }
         }
 

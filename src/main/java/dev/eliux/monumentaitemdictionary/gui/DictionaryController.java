@@ -1,9 +1,6 @@
 package dev.eliux.monumentaitemdictionary.gui;
 
 import com.google.gson.*;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.Dynamic;
 import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuildDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuildFilterGui;
@@ -22,19 +19,11 @@ import dev.eliux.monumentaitemdictionary.web.WebManager;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import dev.eliux.monumentaitemdictionary.web.WebRequest;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.component.ComponentChanges;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.datafixer.fix.ItemStackComponentizationFix;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.text.Text;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -55,13 +44,13 @@ public class DictionaryController {
     private ArrayList<String> allItemTypes;
     private ArrayList<String> allItemRegions;
     private ArrayList<String> allItemTiers;
-    private ArrayList<String> allItemLocations;
+    private Map<String, String> allItemLocations;
     private ArrayList<String> allItemStats;
     private ArrayList<String> allItemBaseItems;
 
     private ArrayList<String> allCharmRegions;
     private ArrayList<String> allCharmTiers;
-    private ArrayList<String> allCharmLocations;
+    private Map<String, String> allCharmLocations;
     private ArrayList<String> allCharmSkillMods;
     private ArrayList<String> allCharmClasses;
     private ArrayList<String> allCharmStats;
@@ -75,6 +64,8 @@ public class DictionaryController {
     private ArrayList<DictionaryBuild> validBuilds;
 
     // private @Nullable CompletableFuture<ItemApiResponse> itemResponseFuture = null;
+
+    public Map<String, Location> locationData;
 
     public boolean itemLoadFailed = false;
     public boolean charmLoadFailed = false;
@@ -108,6 +99,7 @@ public class DictionaryController {
         builds = new ArrayList<>();
         validBuilds = new ArrayList<>();
 
+        loadLocations();
         loadItems();
         loadCharms();
         loadBuilds();
@@ -241,25 +233,26 @@ public class DictionaryController {
         charmGui.isInBuilderGui = true;
     }
 
-    private String readItemData() {
+    private String readStringData(String path) {
         try {
-            return Files.readString(Path.of("config/mid/items.json"), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            e.printStackTrace();
+            return Files.readString(Path.of(path), StandardCharsets.UTF_8);
         }
-
+        catch (IOException e) {
+            Mid.LOGGER.warn("Monumenta Item Dictionary file not found: {}", path);
+        }
         return "{}";
     }
 
-    private void writeItemData(String writeData) {
+    private void writeStringData(String writeData, String path) {
         try {
-            File targetFile = new File("config/mid/items.json");
+            File targetFile = new File(path);
 
             targetFile.getParentFile().mkdirs();
             targetFile.createNewFile();
 
             FileUtils.writeStringToFile(targetFile, writeData, StandardCharsets.UTF_8);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -294,20 +287,29 @@ public class DictionaryController {
 
         if (isRequesting) return;
         isRequesting = true;
-        WebManager.manageRequestAsynchronous("https://api.playmonumenta.com/itemswithnbt", (data) -> {
-            writeItemData(data);
-            loadItems();
-            itemGui.buildItemList();
-            loadCharms();
-            charmGui.buildCharmList();
-            isRequesting = false;
 
-            Mid.LOGGER.info("Finished Data Request - Success");
+        WebRequest locationsRequest = new WebRequest("https://api.playmonumenta.com/locations");
+        WebRequest itemsRequest = new WebRequest("https://api.playmonumenta.com/itemswithnbt");
+
+        WebManager.manageRequestsAsynchronous(() -> {
+            if (locationsRequest.isSuccess()) {
+                writeStringData(locationsRequest.result(), "config/mid/locations.json");
+            }
+            if (itemsRequest.isSuccess() && (locationsRequest.isSuccess() || new File("config/mid/locations.json").exists())) {
+                writeStringData(itemsRequest.result(), "config/mid/items.json");
+                loadLocations();
+                loadItems();
+                itemGui.buildItemList();
+                loadCharms();
+                charmGui.buildCharmList();
+
+                isRequesting = false;
+                Mid.LOGGER.info("Finished Data Request - Success");
+            }
         }, () -> {
             isRequesting = false;
-
             Mid.LOGGER.info("Finished Data Request - Failure");
-        });
+        }, locationsRequest, itemsRequest);
     }
 
     public void loadBuilds() {
@@ -360,16 +362,44 @@ public class DictionaryController {
         }
     }
 
+    private void loadLocations() {
+        locationData = new HashMap<>();
+
+        JsonObject data = new Gson().fromJson(readStringData("config/mid/locations.json"), JsonObject.class);
+
+        if (!data.has("locations")) return;
+        JsonArray jsonArray = data.getAsJsonArray("locations");
+
+        for (JsonElement jsonElement : jsonArray) {
+            JsonObject jsonObject = (JsonObject) jsonElement;
+
+            if (!jsonObject.has("name")) continue;
+            if (!jsonObject.has("displayName")) continue;
+            if (!jsonObject.has("color")) continue;
+
+            String name = jsonObject.get("name").getAsString();
+            String displayName = jsonObject.get("displayName").getAsString();
+            String color = jsonObject.get("color").getAsString();
+
+            try {
+                locationData.put(name, new Location(displayName, Integer.decode(color)));
+            }
+            catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void loadItems() {
         allItemTypes = new ArrayList<>();
         allItemRegions = new ArrayList<>();
         allItemTiers = new ArrayList<>();
-        allItemLocations = new ArrayList<>();
+        allItemLocations = new HashMap<>();
         allItemStats = new ArrayList<>();
         allItemBaseItems = new ArrayList<>();
 
         try {
-            String rawData = readItemData();
+            String rawData = readStringData("config/mid/items.json");
 
             items.clear();
             JsonObject data = new Gson().fromJson(rawData, JsonObject.class);
@@ -416,13 +446,12 @@ public class DictionaryController {
                         allItemTiers.add(itemTier);
                 }
 
-                String itemLocation = "";
-                JsonPrimitive locationPrimitive = itemData.getAsJsonPrimitive("location");
-                if (locationPrimitive != null) {
-                    itemLocation = locationPrimitive.getAsString();
-
-                    if (!allItemLocations.contains(itemLocation))
-                        allItemLocations.add(itemLocation);
+                String itemLocationId = "";
+                JsonPrimitive locationIdPrimitive = itemData.getAsJsonPrimitive("locationId");
+                if (locationIdPrimitive != null) {
+                    itemLocationId = locationIdPrimitive.getAsString();
+                    Location location = locationData.get(itemLocationId);
+                    if (location != null) allItemLocations.put(itemLocationId, location.displayName());
                 }
 
                 int fishTier = -1;
@@ -491,7 +520,7 @@ public class DictionaryController {
                             totalTierList.set(level, itemTier);
                             totalStatsList.set(level, itemStats);
                             totalNbtList.set(level, itemNbt);
-                            items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocation, fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, true));
+                            items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId, fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, true));
                         }
                     }
                 } else {
@@ -502,7 +531,7 @@ public class DictionaryController {
                     totalStatsList.add(itemStats);
                     ArrayList<String> totalNbtList = new ArrayList<>();
                     totalNbtList.add(itemNbt);
-                    items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocation, fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, false));
+                    items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId, fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, false));
                 }
             }
         } catch (Exception e) {
@@ -516,14 +545,14 @@ public class DictionaryController {
     public void loadCharms() {
         allCharmRegions = new ArrayList<>();
         allCharmTiers = new ArrayList<>();
-        allCharmLocations = new ArrayList<>();
+        allCharmLocations = new HashMap<>();
         allCharmSkillMods = new ArrayList<>();
         allCharmClasses = new ArrayList<>();
         allCharmStats = new ArrayList<>();
         allCharmBaseItems = new ArrayList<>();
 
         try {
-            String rawData = readItemData();
+            String rawData = readStringData("config/mid/items.json");
 
             charms.clear();
             JsonObject data = new Gson().fromJson(rawData, JsonObject.class);
@@ -542,10 +571,10 @@ public class DictionaryController {
                 if (!allCharmRegions.contains(charmRegion))
                     allCharmRegions.add(charmRegion);
 
-                if (!charmData.has("location")) continue; // if this element is not present, skip this item
-                String charmLocation = charmData.get("location").getAsString();
-                if (!allCharmLocations.contains(charmLocation))
-                    allCharmLocations.add(charmLocation);
+                if (!charmData.has("locationId")) continue; // if this element is not present, skip this item
+                String charmLocationId = charmData.get("locationId").getAsString();
+                Location location = locationData.get(charmLocationId);
+                if (location != null) allCharmLocations.put(charmLocationId, location.displayName());
 
                 if (!charmData.has("tier")) continue; // if this element is not present, skip this item
                 String charmTier = charmData.get("tier").getAsString().replace("_", " ");
@@ -592,7 +621,7 @@ public class DictionaryController {
                     }
                 }
 
-                charms.add(new DictionaryCharm(charmName, charmRegion, charmLocation, charmTier, charmPower, charmClass, charmBaseItem, charmNbt, charmStats));
+                charms.add(new DictionaryCharm(charmName, charmRegion, charmLocationId, charmTier, charmPower, charmClass, charmBaseItem, charmNbt, charmStats));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -619,7 +648,7 @@ public class DictionaryController {
         return allItemTiers;
     }
 
-    public ArrayList<String> getAllItemLocations() {
+    public Map<String, String> getAllItemLocations() {
         return allItemLocations;
     }
 
@@ -650,6 +679,7 @@ public class DictionaryController {
     public void updateItemFilters(ArrayList<Filter> filters) {
         itemFilters = new ArrayList<>(filters);
     }
+
     public void updateBuildFilters(ArrayList<Filter> filters){
         buildFilters = new ArrayList<>(filters);
     }
@@ -658,7 +688,7 @@ public class DictionaryController {
         return allCharmTiers;
     }
 
-    public ArrayList<String> getAllCharmLocations() {
+    public Map<String, String> getAllCharmLocations() {
         return allCharmLocations;
     }
 
@@ -763,9 +793,11 @@ public class DictionaryController {
                         if (!filter.value.isEmpty()) {
                             switch (filter.comparator) {
                                 case 0 ->
-                                        filteredItems.removeIf(i -> !i.hasLocation() || !i.location.equals(filter.value));
+                                        filteredItems.removeIf(i -> !i.hasLocation()
+                                                || !locationData.containsKey(i.locationId) || !locationData.get(i.locationId).displayName().equals(filter.value));
                                 case 1 ->
-                                        filteredItems.removeIf(i -> i.hasLocation() && i.location.equals(filter.value));
+                                        filteredItems.removeIf(i -> i.hasLocation()
+                                                && locationData.containsKey(i.locationId) && locationData.get(i.locationId).displayName().equals(filter.value));
                             }
                         }
                     }
@@ -873,8 +905,8 @@ public class DictionaryController {
                     case "Location" -> {
                         if (!filter.value.isEmpty()) {
                             switch (filter.comparator) {
-                                case 0 -> filteredCharms.removeIf(i -> !i.location.equals(filter.value));
-                                case 1 -> filteredCharms.removeIf(i -> i.location.equals(filter.value));
+                                case 0 -> filteredCharms.removeIf(i -> !locationData.containsKey(i.locationId) || !locationData.get(i.locationId).displayName().equals(filter.value));
+                                case 1 -> filteredCharms.removeIf(i -> locationData.containsKey(i.locationId) && locationData.get(i.locationId).displayName().equals(filter.value));
                             }
                         }
                     }
@@ -988,7 +1020,7 @@ public class DictionaryController {
         }
 
         if (possibleItems.size() == 1) {
-            return possibleItems.get(0);
+            return possibleItems.getFirst();
         } else if (possibleItems.size() > 1) {
             for (DictionaryItem item : possibleItems) {
                 if (isExalted && item.region.equals("Ring")) {

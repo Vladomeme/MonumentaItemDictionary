@@ -84,7 +84,7 @@ public class BuildButtonWidget extends ButtonWidget {
                 if (item == null) continue;
                 String itemTier = item.hasMasterwork ? item.getTierFromMasterwork(item.getMaxMasterwork() - 1) : item.getTierNoMasterwork();
                 lines.add(Text.literal(item.name).setStyle(Style.EMPTY
-                        .withColor(0xFF000000 + ItemColors.getColorForLocation(item.location))
+                        .withColor(0xFF000000 + ItemColors.getColorForLocation(item.locationId))
                         .withBold(ItemFormatter.shouldBold(itemTier))
                         .withUnderline(ItemFormatter.shouldUnderline(itemTier))));
             }

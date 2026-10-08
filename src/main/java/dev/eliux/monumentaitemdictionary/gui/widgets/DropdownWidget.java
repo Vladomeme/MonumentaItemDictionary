@@ -2,6 +2,7 @@ package dev.eliux.monumentaitemdictionary.gui.widgets;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -12,7 +13,7 @@ import net.minecraft.text.Text;
 public class DropdownWidget extends TextFieldWidget {
     private final TextRenderer textRenderer;
 
-    private List<String> choices;
+    private ChoiceProvider choiceProvider;
     private List<String> visualChoices;
     private ArrayList<String> validChoices;
     private ArrayList<String> visualValidChoices;
@@ -29,49 +30,28 @@ public class DropdownWidget extends TextFieldWidget {
         this.textRenderer = textRenderer;
         this.onUpdate = onUpdate;
 
-        this.choices = choices;
-        this.visualChoices = choices;
+        this.choiceProvider = new ListBasedChoiceProvider(choices);
         this.defaultText = defaultText;
-        lastChoice = "";
-        visualLastChoice = "";
-        setText(visualLastChoice);
-        validChoices = new ArrayList<>(choices);
-        visualValidChoices = new ArrayList<>(visualChoices);
         updateMaxShown();
     }
 
-    public DropdownWidget(TextRenderer textRenderer, int x, int y, int width, Text text, String defaultText, List<String> choices, List<String> visualChoices, Consumer<String> onUpdate) {
-        super(textRenderer, x, y, width, 14, text);
-        this.textRenderer = textRenderer;
-        this.onUpdate = onUpdate;
-
-        this.choices = choices;
-        this.visualChoices = visualChoices;
-        this.defaultText = defaultText;
-        lastChoice = "";
-        visualLastChoice = "";
-        setText(visualLastChoice);
-        validChoices = new ArrayList<>(choices);
-        visualValidChoices = new ArrayList<>(visualChoices);
-        updateMaxShown();
-    }
-
-    public void setChoices(List<String> newChoices) {
-        choices = newChoices;
-        visualChoices = newChoices;
-        lastChoice = "";
-        visualLastChoice = "";
-        setText(visualLastChoice);
-        // crashes when changing after a value is selected
+    public void setChoices(Object newChoices) {
+        if (newChoices instanceof List) {
+            if (choiceProvider instanceof MapBasedChoiceProvider)
+                choiceProvider = new ListBasedChoiceProvider((List<String>) newChoices);
+            else
+                choiceProvider.setChoices(newChoices);
+        }
+        else if (newChoices instanceof Map) {
+            if (choiceProvider instanceof ListBasedChoiceProvider)
+                choiceProvider = new MapBasedChoiceProvider((Map<String, String>) newChoices);
+            else
+                choiceProvider.setChoices(newChoices);
+        }
     }
 
     public void setChoices(List<String> newChoices, List<String> newVisualChoices) {
-        choices = newChoices;
-        visualChoices = newVisualChoices;
-        lastChoice = "";
-        visualLastChoice = "";
-        setText(visualLastChoice);
-        // crashes when changing after a value is selected
+        choiceProvider.setChoices(newChoices, newVisualChoices);
     }
 
     public void setDefaultText(String newDefaultText) {
@@ -80,25 +60,6 @@ public class DropdownWidget extends TextFieldWidget {
 
     public String getLastChoice() {
         return lastChoice;
-    }
-
-    private void updateShownChoices() {
-        validChoices.clear();
-        visualValidChoices.clear();
-        if (isFocused()) {
-            if (getText().isEmpty()) {
-                validChoices = new ArrayList<>(choices);
-                visualValidChoices = new ArrayList<>(visualChoices);
-            } else {
-                for (String choice : visualChoices) {
-                    if (choice.toLowerCase().contains(getText().toLowerCase())) {
-                        validChoices.add(choices.get(visualChoices.indexOf(choice)));
-                        visualValidChoices.add(choice);
-                    }
-                }
-            }
-        }
-        updateScrollLimits();
     }
 
     private void updateMaxShown() {
@@ -130,7 +91,7 @@ public class DropdownWidget extends TextFieldWidget {
 
         if (isFocused()) {
             setText("");
-            validChoices = new ArrayList<>(choices);
+            choiceProvider.resetValidChoices();
             visualValidChoices = new ArrayList<>(visualChoices);
         } else {
             setText(visualLastChoice);
@@ -153,7 +114,7 @@ public class DropdownWidget extends TextFieldWidget {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         super.keyPressed(keyCode, scanCode, modifiers);
-        updateShownChoices();
+        choiceProvider.updateShownChoices();
         return true;
     }
 
@@ -161,7 +122,7 @@ public class DropdownWidget extends TextFieldWidget {
     @Override
     public boolean charTyped(char chr, int modifiers) {
         super.charTyped(chr, modifiers);
-        updateShownChoices();
+        choiceProvider.updateShownChoices();
         return true;
     }
 
@@ -174,7 +135,7 @@ public class DropdownWidget extends TextFieldWidget {
             // mouse is in scroll area
             if (validChoices.size() > maxShown) {
                 // should be able to scroll
-                scrollAmount -= vAmount;
+                scrollAmount -= (int) vAmount;
                 updateScrollLimits();
             }
         }
@@ -237,5 +198,123 @@ public class DropdownWidget extends TextFieldWidget {
             }
         }
         context.getMatrices().pop();
+    }
+
+    interface ChoiceProvider {
+        void setChoices(Object source);
+        void setChoices(List<String> newChoices, List<String> newVisualChoices);
+        void resetValidChoices();
+        void updateShownChoices();
+    }
+
+    class ListBasedChoiceProvider implements ChoiceProvider {
+
+        List<String> choices;
+
+        ListBasedChoiceProvider(List<String> source) {
+            choices = source;
+            visualChoices = source;
+            lastChoice = "";
+            visualLastChoice = "";
+            validChoices = new ArrayList<>(choices);
+            visualValidChoices = new ArrayList<>(visualChoices);
+            setText(visualLastChoice);
+        }
+
+        @Override
+        public void setChoices(Object source) {
+            List<String> newChoices = (List<String>) source;
+            setChoices(newChoices, newChoices);
+        }
+
+        @Override
+        public void setChoices(List<String> newChoices, List<String> newVisualChoices) {
+            choices = newChoices;
+            visualChoices = newVisualChoices;
+            lastChoice = "";
+            visualLastChoice = "";
+            setText(visualLastChoice);
+        }
+
+        @Override
+        public void resetValidChoices() {
+            validChoices = new ArrayList<>(choices);
+        }
+
+        @Override
+        public void updateShownChoices() {
+            validChoices.clear();
+            visualValidChoices.clear();
+            if (isFocused()) {
+                if (getText().isEmpty()) {
+                    validChoices = new ArrayList<>(choices);
+                    visualValidChoices = new ArrayList<>(visualChoices);
+                } else {
+                    for (String choice : visualChoices) {
+                        if (choice.toLowerCase().contains(getText().toLowerCase())) {
+                            validChoices.add(choices.get(visualChoices.indexOf(choice)));
+                            visualValidChoices.add(choice);
+                        }
+                    }
+                }
+            }
+            updateScrollLimits();
+        }
+    }
+
+    class MapBasedChoiceProvider implements ChoiceProvider {
+
+        Map<String, String> choices;
+
+        MapBasedChoiceProvider(Map<String, String> source) {
+            choices = source;
+            visualChoices = new ArrayList<>(source.values());
+            lastChoice = "";
+            visualLastChoice = "";
+            validChoices = new ArrayList<>(source.values());
+            visualValidChoices = new ArrayList<>(visualChoices);
+        }
+
+        @Override
+        public void setChoices(Object source) {
+            Map<String, String> newChoices = (Map<String, String>) source;
+            choices = newChoices;
+            visualChoices = new ArrayList<>(newChoices.values());
+            lastChoice = "";
+            visualLastChoice = "";
+            setText(visualLastChoice);
+        }
+
+        //never used
+        @Override
+        public void setChoices(List<String> newChoices, List<String> newVisualChoices) {
+
+        }
+
+        @Override
+        public void resetValidChoices() {
+            validChoices = new ArrayList<>(choices.values());
+        }
+
+        @Override
+        public void updateShownChoices() {
+            validChoices.clear();
+            visualValidChoices.clear();
+            if (isFocused()) {
+                if (getText().isEmpty()) {
+                    validChoices = new ArrayList<>(choices.values());
+                    visualValidChoices = new ArrayList<>(visualChoices);
+                } else {
+                    for (Map.Entry<String, String> entry : choices.entrySet()) {
+                        String input = getText().toLowerCase();
+                        if (entry.getKey().toLowerCase().contains(input) || entry.getValue().toLowerCase().contains(input)) {
+                            validChoices.add(entry.getValue());
+                            visualValidChoices.add(entry.getValue());
+                        }
+                    }
+                }
+            }
+            updateScrollLimits();
+        }
     }
 }

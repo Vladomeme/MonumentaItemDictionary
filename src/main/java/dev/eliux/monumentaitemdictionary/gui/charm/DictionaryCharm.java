@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class DictionaryCharm {
     public String name; // will exist
     public String region; // will exist
-    public String location; // will exist
+    public String locationId; // will exist
     public String tier; // will exist
     public int power; // will exist
     public String className; // will exist
@@ -15,11 +15,11 @@ public class DictionaryCharm {
     public String nbt; // will exist
     public ArrayList<CharmStat> stats; // will exist
 
-    public DictionaryCharm(String name, String region, String location, String tier, int power,
+    public DictionaryCharm(String name, String region, String locationId, String tier, int power,
                            String className, String baseItem, String nbt, ArrayList<CharmStat> stats) {
         this.name = name;
         this.region = region;
-        this.location = location;
+        this.locationId = locationId;
         this.tier = tier;
         this.power = power;
         this.className = className;

@@ -11,7 +11,7 @@ public class DictionaryItem implements Comparable<DictionaryItem> {
     public String type; // will exist
     public String region;
     public ArrayList<String> tier;
-    public String location;
+    public String locationId;
     public int fishTier;
     public boolean isFish;
     public String baseItem; // will exist
@@ -21,13 +21,13 @@ public class DictionaryItem implements Comparable<DictionaryItem> {
 
     public boolean hasMasterwork;
 
-    public DictionaryItem(String name, String type, String region, ArrayList<String> tier, String location, int fishTier, boolean isFish,
+    public DictionaryItem(String name, String type, String region, ArrayList<String> tier, String locationId, int fishTier, boolean isFish,
                           String baseItem, String lore, ArrayList<String> nbt, ArrayList<ArrayList<ItemStat>> stats, boolean hasMasterwork) {
         this.name = name;
         this.type = type;
         this.region = region;
         this.tier = tier;
-        this.location = location;
+        this.locationId = locationId;
         this.fishTier = fishTier;
         this.isFish = isFish;
         this.baseItem = baseItem;
@@ -46,7 +46,7 @@ public class DictionaryItem implements Comparable<DictionaryItem> {
     }
 
     public boolean hasLocation() {
-        return !location.isEmpty();
+        return !locationId.isEmpty();
     }
 
     public void addMasterworkTier(String newTier, ArrayList<ItemStat> newStats, String newNbt, int level) {
