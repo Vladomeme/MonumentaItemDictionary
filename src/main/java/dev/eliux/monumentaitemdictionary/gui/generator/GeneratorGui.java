@@ -59,12 +59,11 @@ public class GeneratorGui extends Screen {
     }
 
     public void postInit() {
-        backButton = new ItemIconButtonWidget(5, 5, 20, 20, Text.literal(""), (button) -> {
-            if (controller.lastOpenedScreen instanceof ItemDictionaryGui) {
+        backButton = new ItemIconButtonWidget(5, 5, 20, 20, (button) -> {
+            if (controller.lastOpenedScreen instanceof ItemDictionaryGui)
                 controller.setItemDictionaryScreen();
-            } else if (controller.lastOpenedScreen instanceof CharmDictionaryGui) {
+            else if (controller.lastOpenedScreen instanceof CharmDictionaryGui)
                 controller.setCharmDictionaryScreen();
-            }
         }, Text.literal("Go Back"), "arrow", "");
 
         giveButton = ButtonWidget.builder(Text.literal("Generate Item"), (button) -> {
@@ -79,6 +78,7 @@ public class GeneratorGui extends Screen {
 
             updateGeneratedItem();
         }).dimensions(10, labelMenuHeight + 60, 20, 20).tooltip(Tooltip.of(Text.literal(""))).build();
+
         increaseMasterworkButton = ButtonWidget.builder(Text.literal(">"), (button) -> {
             masterworkLevel++;
             if (masterworkLevel > focusedItem.getMaxMasterwork() - 1) masterworkLevel = focusedItem.getMaxMasterwork() - 1;
@@ -88,36 +88,35 @@ public class GeneratorGui extends Screen {
         }).dimensions(40, labelMenuHeight + 60, 20, 20).tooltip(Tooltip.of(Text.literal(""))).build();
 
         ArrayList<String> possibleColors = new ArrayList<>(Arrays.asList("Default", "Undyed", "Custom"));
-        for (DyeColor color : DyeColor.values()) {
-            possibleColors.add(color.asString());
-        }
+        for (DyeColor color : DyeColor.values()) possibleColors.add(color.asString());
+
         colorSelectDropdown = new DropdownWidget(textRenderer, 10, 134, 90, Text.literal(""), "Default", possibleColors, (e) -> {
             customColorTextField.visible = e.equals("Custom");
             colorPicker.visible = e.equals("Custom");
 
-            if (e.equals("Default")) {
-                dyeColor = -1;
-            } else if (e.equals("Undyed")) {
-                dyeColor = DyedColorComponent.DEFAULT_COLOR;
-            } else if (!e.equals("Custom")) {
+            if (e.equals("Default")) dyeColor = -1;
+            else if (e.equals("Undyed")) dyeColor = DyedColorComponent.DEFAULT_COLOR;
+            else if (!e.equals("Custom")) //noinspection DataFlowIssue
                 dyeColor = Objects.requireNonNullElse(Formatting.byName(e), Formatting.WHITE).getColorValue();
-            }
 
             updateGeneratedItem();
         });
+
         customColorTextField = new TextFieldWidget(textRenderer, 10, 154, 70, 14, Text.literal(""));
         customColorTextField.setText("FF0000");
         customColorTextField.setChangedListener((t) -> {
             long parsed;
             try {
                 parsed = Long.parseLong(t.replace("#", ""), 16);
-            } catch (NumberFormatException e) {
+            }
+            catch (NumberFormatException e) {
                 parsed = 0;
             }
             dyeColor = Math.min((int)parsed, 0xFFFFFF);
 
             updateGeneratedItem();
         });
+
         customColorTextField.visible = false;
         colorPicker = new ColorPickerWidget(86, 154, 14, 14, 120, 80, (i) -> {
             dyeColor = i;
@@ -129,7 +128,7 @@ public class GeneratorGui extends Screen {
     }
 
     private void updateMasterworkDisabled() {
-        if (lastFocused == DictionaryItem.class && focusedItem.hasMasterwork) {
+        if (lastFocused == DictionaryItem.class && focusedItem.hasMasterwork()) {
             decreaseMasterworkButton.active = masterworkLevel != focusedItem.getMinMasterwork();
             increaseMasterworkButton.active = masterworkLevel != focusedItem.getMaxMasterwork() - 1;
         }
@@ -155,15 +154,13 @@ public class GeneratorGui extends Screen {
 
     private void updateGeneratedItem() {
         if (lastFocused == DictionaryItem.class) {
-            String nbt = focusedItem.hasMasterwork ? focusedItem.getNbtFromMasterwork(masterworkLevel) : focusedItem.getNbtNoMasterwork();
-            generatedItem = ItemFactory.fromEncodingWithStringNbt(focusedItem.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"), nbt);
-        } else {
-            generatedItem = ItemFactory.fromEncodingWithStringNbt(focusedCharm.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"), focusedCharm.nbt);
+            String nbt = focusedItem.hasMasterwork() ? focusedItem.getNbtFromMasterwork(masterworkLevel) : focusedItem.getNbtNoMasterwork();
+            generatedItem = ItemFactory.fromEncodingWithStringNbt(focusedItem.baseItem().split("/")[0].trim().toLowerCase().replace(" ", "_"), nbt);
         }
+        else generatedItem = ItemFactory.fromEncodingWithStringNbt(focusedCharm.baseItem().split("/")[0].trim().toLowerCase().replace(" ", "_"), focusedCharm.nbt());
 
-        if (generatedItem.contains(DataComponentTypes.DYED_COLOR) && dyeColor != -1) {
+        if (generatedItem.contains(DataComponentTypes.DYED_COLOR) && dyeColor != -1)
             generatedItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(dyeColor, true));
-        }
     }
 
     @Override
@@ -187,7 +184,8 @@ public class GeneratorGui extends Screen {
 
             context.drawItem(generatedItem, 180, labelMenuHeight + 18);
 
-            context.drawTooltip(textRenderer, generatedItem.getTooltip(Item.TooltipContext.DEFAULT, MinecraftClient.getInstance().player, MinecraftClient.getInstance().options.advancedItemTooltips ? TooltipType.ADVANCED : TooltipType.BASIC), 118, labelMenuHeight + 61);
+            context.drawTooltip(textRenderer, generatedItem.getTooltip(Item.TooltipContext.DEFAULT, MinecraftClient.getInstance().player,
+                    MinecraftClient.getInstance().options.advancedItemTooltips ? TooltipType.ADVANCED : TooltipType.BASIC), 118, labelMenuHeight + 61);
         }
 
         // draw vertical line
@@ -198,7 +196,7 @@ public class GeneratorGui extends Screen {
 
         giveButton.render(context, mouseX, mouseY, delta);
 
-        if (lastFocused == DictionaryItem.class && focusedItem.hasMasterwork) {
+        if (lastFocused == DictionaryItem.class && focusedItem.hasMasterwork()) {
             context.getMatrices().push();
             context.getMatrices().translate(0, 0, 500);
             context.drawTextWrapped(textRenderer, StringVisitable.plain("Change Masterwork Level"), 10, labelMenuHeight + 40, 100, 0xFFFFFFFF);
@@ -213,9 +211,9 @@ public class GeneratorGui extends Screen {
             context.drawTextWrapped(textRenderer, StringVisitable.plain("Set Dye Color"), 10, labelMenuHeight + 92, 100, 0xFFFFFFFF);
             colorSelectDropdown.renderMain(context, mouseX, mouseY, delta);
             customColorTextField.render(context, mouseX, mouseY, delta);
-            colorPicker.renderMain(context, mouseX, mouseY, delta);
-            colorSelectDropdown.renderDropdown(context, mouseX, mouseY, delta);
-            colorPicker.renderPopup(context, mouseX, mouseY, delta);
+            colorPicker.renderMain(context);
+            colorSelectDropdown.renderDropdown(context, mouseX, mouseY);
+            colorPicker.renderPopup(context);
             context.getMatrices().pop();
         }
 
@@ -224,7 +222,8 @@ public class GeneratorGui extends Screen {
         context.getMatrices().translate(0, 0, 100);
         context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
         context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Monumenta Item Generator").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFeb4034);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Monumenta Item Generator").setStyle(Style.EMPTY.withBold(true)),
+                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFeb4034);
         context.getMatrices().pop();
 
         context.getMatrices().push();
@@ -240,7 +239,7 @@ public class GeneratorGui extends Screen {
         backButton.mouseClicked(mouseX, mouseY, button);
         giveButton.mouseClicked(mouseX, mouseY, button);
 
-        if (lastFocused == DictionaryItem.class && focusedItem.hasMasterwork) {
+        if (lastFocused == DictionaryItem.class && focusedItem.hasMasterwork()) {
             decreaseMasterworkButton.mouseClicked(mouseX, mouseY, button);
             increaseMasterworkButton.mouseClicked(mouseX, mouseY, button);
         }
@@ -264,36 +263,23 @@ public class GeneratorGui extends Screen {
     @Override
     public boolean charTyped(char chr, int modifiers) {
         super.charTyped(chr, modifiers);
-
         colorSelectDropdown.charTyped(chr, modifiers);
         customColorTextField.charTyped(chr, modifiers);
-
         return true;
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         super.keyPressed(keyCode, scanCode, modifiers);
-
         colorSelectDropdown.keyPressed(keyCode, scanCode, modifiers);
         customColorTextField.keyPressed(keyCode, scanCode, modifiers);
-
         return true;
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
         super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
-
         colorSelectDropdown.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
-
         return true;
-    }
-
-    @Override
-    public void resize(MinecraftClient client, int width, int height) {
-        super.resize(client, width, height);
-
-
     }
 }

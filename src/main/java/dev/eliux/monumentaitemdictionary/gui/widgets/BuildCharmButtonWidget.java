@@ -30,12 +30,13 @@ public class BuildCharmButtonWidget extends ButtonWidget {
     private final ItemStack builtItem;
     private final float scale;
 
-    public BuildCharmButtonWidget(int x, int y, int itemSize, Text message, PressAction onPress, @Nullable DictionaryCharm charm, Supplier<List<Text>> loreSupplier, BuilderGui gui) {
+    public BuildCharmButtonWidget(int x, int y, int itemSize, Text message, PressAction onPress,
+                                  @Nullable DictionaryCharm charm, Supplier<List<Text>> loreSupplier, BuilderGui gui) {
         super(x, y, itemSize, itemSize, message, onPress, DEFAULT_NARRATION_SUPPLIER);
         this.loreSupplier = loreSupplier;
         this.charm = charm;
         this.gui = gui;
-        this.scale = (float) width/18;
+        this.scale = (float) width / 18;
 
         builtItem = getItemStack(charm);
     }
@@ -52,11 +53,11 @@ public class BuildCharmButtonWidget extends ButtonWidget {
 
             return builtItem;
         }
-        ItemStack builtItem = ItemFactory.fromEncoding(charm.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"));
+        ItemStack builtItem = ItemFactory.fromEncoding(charm.baseItem().split("/")[0].trim().toLowerCase().replace(" ", "_"));
 
         NbtCompound monumenta = new NbtCompound();
-        monumenta.putInt("CharmPower", charm.power);
-        monumenta.putString("Tier", switch (charm.tier) {
+        monumenta.putInt("CharmPower", charm.power());
+        monumenta.putString("Tier", switch (charm.tier()) {
             case "Base" -> "charm";
             case "Rare" -> "rarecharm";
             case "Epic" -> "epiccharm";
@@ -68,8 +69,8 @@ public class BuildCharmButtonWidget extends ButtonWidget {
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();
         NbtList lore = new NbtList();
-        lore.add(0, NbtString.of("Charm Power :  - " + charm.className));
-        display.putString("Name", charm.name.split("\\(")[0].trim());
+        lore.add(0, NbtString.of("Charm Power :  - " + charm.className()));
+        display.putString("Name", charm.name().split("\\(")[0].trim());
         display.put("Lore", lore);
         plain.put("display", display);
 
@@ -91,14 +92,14 @@ public class BuildCharmButtonWidget extends ButtonWidget {
         int minY = getY();
         int maxX = minX + width;
         int maxY = minY + height;
-        int itemSize = (int) (16*scale);
+        int itemSize = (int) (16 * scale);
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
         int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
 
-        context.fill(minX, minY, maxX, maxY, fillOpacity + (charm != null ? ItemColors.getColorForTier(charm.tier) : 0x00000000));
+        context.fill(minX, minY, maxX, maxY, fillOpacity + (charm != null ? ItemColors.getColorForTier(charm.tier()) : 0x00000000));
         context.drawHorizontalLine(minX, maxX, minY, outlineColor);
         context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
         context.drawVerticalLine(minX, minY, maxY, outlineColor);
@@ -106,8 +107,8 @@ public class BuildCharmButtonWidget extends ButtonWidget {
 
         context.getMatrices().push();
         context.getMatrices().scale(scale, scale, scale);
-        context.drawItem(builtItem, (int) ceil((minX + (double) width/2 - ceil(
-                (double) itemSize/2))/scale), (int) ceil((minY + (double) height/2 - ceil((double) itemSize/2))/scale));
+        context.drawItem(builtItem, (int) ceil((minX + (double) width / 2 - ceil(
+                (double) itemSize / 2)) / scale), (int) ceil((minY + (double) height / 2 - ceil((double) itemSize / 2))/scale));
         context.getMatrices().pop();
 
         if (hovered) {

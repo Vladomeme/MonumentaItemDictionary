@@ -16,7 +16,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.HashMap;
 
 public class Mid implements ModInitializer {
@@ -30,37 +29,21 @@ public class Mid implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		System.setProperty("java.awt.headless", "false");
-		openMenuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.monumentaitemdictionary.openitemdictionary", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_H, "category.monumentaitemdictionary"));
-
-		loadData();
+		openMenuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.monumentaitemdictionary.openitemdictionary",
+				InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_H, "category.monumentaitemdictionary"));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			if (controller == null) {
-				controller = new DictionaryController();
-			}
+			if (controller == null) controller = new DictionaryController();
 
-			controller.tick();
-
-			if (openMenuKey.wasPressed()) {
-				controller.open();
-			}
+			if (openMenuKey.wasPressed()) controller.open();
 		});
 
 		Runtime.getRuntime().addShutdownHook(new Thread(this::saveData));
+
+		loadData();
 	}
 
-	public void setKey(String key, Object value) {
-		if (data.containsKey(key)) {
-			data.replace(key, value);
-		} else {
-			data.put(key, value);
-		}
-	}
-
-	public <T extends Serializable> T getKey(String key, Class<T> type) {
-		return type.cast(data.get(key));
-	}
-
+	@SuppressWarnings("ResultOfMethodCallIgnored") //mkdirs(), createNewFile()
 	private void saveData() {
 		try {
 			File target = new File("config/mid/data.txt");
@@ -71,18 +54,21 @@ public class Mid implements ModInitializer {
 
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
 			objectOutputStream.writeObject(data);
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void loadData() {
+	@SuppressWarnings("unchecked")
+    private void loadData() {
 		try {
 			FileInputStream fileInputStream = new FileInputStream("config/mid/data.txt");
 			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 
-			data = (HashMap<String, Object>)objectInputStream.readObject();
-		} catch (IOException | ClassNotFoundException e) {
+			data = (HashMap<String, Object>) objectInputStream.readObject();
+		}
+		catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}

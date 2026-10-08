@@ -28,15 +28,7 @@ public class ColorPickerWidget extends ButtonWidget {
         this.popupHeight = popupHeight;
     }
 
-    public void setColor(int newColor) {
-        displayColor = newColor;
-        float[] hsb = Color.RGBtoHSB((newColor >> 16)&0xFF, (newColor >> 8)&0xFF, newColor&0xFF, null);
-        hue = hsb[0];
-        saturation = hsb[1];
-        brightness = hsb[2];
-    }
-
-    public void renderMain(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderMain(DrawContext context) {
         if (!visible) return;
 
         int borderColor = isOpen ? 0xFFFFFFFF : 0xFFAAAAAA;
@@ -48,13 +40,13 @@ public class ColorPickerWidget extends ButtonWidget {
         context.drawVerticalLine(getX() + getWidth(), getY() - 1, getY() + getHeight(), borderColor);
     }
 
-    public void renderPopup(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderPopup(DrawContext context) {
         if (!visible || !isOpen) return;
 
         // main box
         for (int x = 0; x < popupWidth; x++) {
             for (int y = 0; y < popupHeight; y++) {
-                int color = Color.HSBtoRGB(hue, (float)x / popupWidth, 1f - ((float)y / popupHeight));
+                int color = Color.HSBtoRGB(hue, (float) x / popupWidth, 1f - ((float) y / popupHeight));
                 context.fill(getX() + x, getY() + getHeight() + y, getX() + x + 1, getY() + getHeight() + y + 1, color);
             }
         }
@@ -66,7 +58,7 @@ public class ColorPickerWidget extends ButtonWidget {
 
         // hue box
         for (int x = 0; x < popupWidth; x++) {
-            int color = Color.HSBtoRGB((float)x / popupWidth, 1, 1);
+            int color = Color.HSBtoRGB((float) x / popupWidth, 1, 1);
             context.fill(getX() + x, getY() + getHeight() + popupHeight + 4, getX() + x + 1, getY() + getHeight() + popupHeight + 10, color);
         }
 
@@ -87,37 +79,34 @@ public class ColorPickerWidget extends ButtonWidget {
 
         if (isOpen) {
             if (mouseX >= getX() && mouseX <= getX() + popupWidth && mouseY >= getY() + getHeight() && mouseY <= getY() + getHeight() + popupHeight) {
-                saturation = (float)(mouseX - getX()) / popupWidth;
-                brightness = 1f - (float)(mouseY - getY() - getHeight()) / popupHeight;
+                saturation = (float) (mouseX - getX()) / popupWidth;
+                brightness = 1f - (float) (mouseY - getY() - getHeight()) / popupHeight;
 
                 this.playDownSound(MinecraftClient.getInstance().getSoundManager());
 
                 int newColor = 0xFF000000 + Color.HSBtoRGB(hue, saturation, brightness);
                 onSelect.accept(newColor);
                 displayColor = newColor;
-            } else if (mouseX >= getX() && mouseX <= getX() + popupWidth && mouseY >= getY() + getHeight() + popupHeight + 4 && mouseY <= getY() + getHeight() + popupHeight + 11) {
-                hue = (float)(mouseX - getX()) / popupWidth;
-
-                this.playDownSound(MinecraftClient.getInstance().getSoundManager());
-
+            }
+            else if (mouseX >= getX() && mouseX <= getX() + popupWidth && mouseY >= getY() + getHeight() + popupHeight + 4 && mouseY <= getY() + getHeight() + popupHeight + 11) {
+                hue = (float) (mouseX - getX()) / popupWidth;
                 int newColor = 0xFF000000 + Color.HSBtoRGB(hue, saturation, brightness);
                 onSelect.accept(newColor);
                 displayColor = newColor;
-            } else if (mouseX < getX() || mouseX > getX() + getWidth() || mouseY < getY() || mouseY > getY() + getHeight()) {
-                isOpen = false;
 
                 this.playDownSound(MinecraftClient.getInstance().getSoundManager());
             }
-
+            else if (mouseX < getX() || mouseX > getX() + getWidth() || mouseY < getY() || mouseY > getY() + getHeight()) {
+                isOpen = false;
+                this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+            }
         }
-
         return true;
     }
 
     @Override
     public void onPress() {
         super.onPress();
-
         isOpen = !isOpen;
     }
 }

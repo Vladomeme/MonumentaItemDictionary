@@ -32,10 +32,10 @@ public class CharmFilterGui extends Screen {
     private final ArrayList<ButtonWidget> filterListComparator;
     private final ArrayList<TextFieldWidget> filterListConstant;
     private final ArrayList<ItemIconButtonWidget> filterListDelete;
-    //private ArrayList<ItemIconButtonWidget> filterListDuplicate;
     private final ArrayList<Filter> charmFilters = new ArrayList<>();
     private int removeIndex = -1;
     public final DictionaryController controller;
+
     public CharmFilterGui(Text title, DictionaryController controller) {
         super(title);
         this.controller = controller;
@@ -45,16 +45,12 @@ public class CharmFilterGui extends Screen {
         filterListComparator = new ArrayList<>();
         filterListConstant = new ArrayList<>();
         filterListDelete = new ArrayList<>();
-        //filterListDuplicate = new ArrayList<>();
     }
 
     public void postInit() {
-        backButton = new ItemIconButtonWidget(
-                5, 5, 20, 20,
-                Text.literal(""),
+        backButton = new ItemIconButtonWidget(5, 5, 20, 20,
                 (button) -> controller.setCharmDictionaryScreen(),
-                Text.literal("Go Back"),
-                "arrow", "");
+                Text.literal("Go Back"), "arrow", "");
 
         addFilterButton = ButtonWidget.builder(Text.literal("Add New Filter"), (button) -> {
             int index = filterListOption.size();
@@ -80,24 +76,26 @@ public class CharmFilterGui extends Screen {
                 updateFilterOutput();
             }).position(310, labelMenuHeight + 5 + index * 25).size(60, 20).tooltip(Tooltip.of(Text.literal("Click to cycle"))).build();
 
-            DropdownWidget value = new DropdownWidget(
-                    textRenderer, 125, labelMenuHeight + 7 + index * 25, 180,
+            DropdownWidget value = new DropdownWidget(textRenderer, 125, labelMenuHeight + 7 + index * 25, 180,
                     Text.literal(""), "", List.of(),
                     (v) -> {
-                filter.value = v;
-                updateFilterOutput();
+                        filter.value = v;
+                        updateFilterOutput();
             });
             TextFieldWidget constant = new TextFieldWidget(textRenderer, 375, labelMenuHeight + 8 + index * 25, 30, 14, Text.literal(""));
             constant.setText("0");
             constant.setChangedListener(c -> {
                 try {
                     filter.constant = Double.parseDouble(c);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     // error handling is stupid
                 }
                 updateFilterOutput();
             });
-            DropdownWidget options = new DropdownWidget(textRenderer, 30, labelMenuHeight + 7 + index * 25, 90, Text.literal(""), "Select Sort Type", Arrays.asList("Tier", "Location", "Skill Modifier", "Class", "Charm Power", "Stat", "Base Item"), (v) -> {
+            DropdownWidget options = new DropdownWidget(textRenderer, 30, labelMenuHeight + 7 + index * 25, 90,
+                    Text.literal(""), "Select Sort Type",
+                    Arrays.asList("Tier", "Location", "Skill Modifier", "Class", "Charm Power", "Stat", "Base Item"), (v) -> {
                 filter.setOption(v);
 
                 switch (v) {
@@ -140,21 +138,16 @@ public class CharmFilterGui extends Screen {
 
                 updateFilterOutput();
             });
-            ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25, 20, 20, Text.literal(""), b -> removeIndex = filterListOption.indexOf(options), Text.literal("Delete").setStyle(Style.EMPTY.withColor(0xFF0000)), "orange_stained_glass_pane", "Cancel");
-            /*
-            ItemIconButtonWidget duplicate = new ItemIconButtonWidget(30, labelMenuHeight + 5 + index * 25, 20, 20, Text.literal(""), b -> {
-
-            }, ((button1, matrices, mouseX, mouseY) -> {
-                renderTooltip(matrices, Text.literal("Duplicate").setStyle(Style.EMPTY.withColor(0x4444FF)), mouseX, mouseY);
-            }), "blue_stained_glass_pane", "");
-             */
+            ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25, 20, 20,
+                    b -> removeIndex = filterListOption.indexOf(options),
+                    Text.literal("Delete").setStyle(Style.EMPTY.withColor(0xFF0000)),
+                    "orange_stained_glass_pane", "Cancel");
 
             filterListOption.add(options);
             filterListValue.add(value);
             filterListComparator.add(comparator);
             filterListConstant.add(constant);
             filterListDelete.add(delete);
-            //filterListDuplicate.add(duplicate);
 
             updateFilterListPositions();
         }).position(5, labelMenuHeight + 5).size(80, 20).build();
@@ -166,7 +159,6 @@ public class CharmFilterGui extends Screen {
         filterListComparator.clear();
         filterListConstant.clear();
         filterListDelete.clear();
-        //filterListDuplicate.clear();
         charmFilters.clear();
 
         updateFilterOutput();
@@ -182,7 +174,6 @@ public class CharmFilterGui extends Screen {
             filterListComparator.forEach(i -> i.setY(labelMenuHeight + 5 + filterListComparator.indexOf(i) * 25));
             filterListConstant.forEach(i -> i.setY(labelMenuHeight + 8 + filterListConstant.indexOf(i) * 25));
             filterListDelete.forEach(i -> i.setY(labelMenuHeight + 5 + filterListDelete.indexOf(i) * 25));
-            //filterListDuplicate.forEach(i -> i.y = labelMenuHeight + 5 + filterListDuplicate.indexOf(i) * 25);
         }
     }
 
@@ -197,21 +188,21 @@ public class CharmFilterGui extends Screen {
         // draw filter buttons and stuff
         boolean anyOpen = false;
         for (DropdownWidget o : filterListOption) if (o.willClick(mouseX, mouseY)) anyOpen = true;
-        if (anyOpen) {
-            addFilterButton.render(context, 0, 0, delta); // funny band-aid fix for rendering white outline while in dropdown menu
-        } else {
-            addFilterButton.render(context, mouseX, mouseY, delta);
-        }
 
-        for (DropdownWidget o : filterListOption) {
-            o.renderMain(context, mouseX, mouseY, delta);
-        }
+        if (anyOpen) addFilterButton.render(context, 0, 0, delta); // funny band-aid fix for rendering white outline while in dropdown menu
+        else addFilterButton.render(context, mouseX, mouseY, delta);
+
+
+        for (DropdownWidget o : filterListOption) o.renderMain(context, mouseX, mouseY, delta);
         for (DropdownWidget v : filterListValue) {
-            if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty() && !filterListOption.get(filterListValue.indexOf(v)).getLastChoice().equals("Charm Power"))
+            if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty()
+                    && !filterListOption.get(filterListValue.indexOf(v)).getLastChoice().equals("Charm Power"))
                 v.renderMain(context, mouseX, mouseY, delta);
         }
         for (TextFieldWidget c : filterListConstant) {
-            if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat") && !(charmFilters.get(filterListConstant.indexOf(c)).comparator < 2) || filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Charm Power"))
+            if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat")
+                    && !(charmFilters.get(filterListConstant.indexOf(c)).comparator < 2)
+                    || filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Charm Power"))
                 c.render(context, mouseX, mouseY, delta);
         }
         for (ButtonWidget c : filterListComparator) {
@@ -219,14 +210,11 @@ public class CharmFilterGui extends Screen {
                 c.render(context, mouseX, mouseY, delta);
         }
         filterListDelete.forEach(i -> i.render(context, mouseX, mouseY, delta));
-        //filterListDuplicate.forEach(i -> i.render(matrices, mouseX, mouseY, delta));
 
-        for (DropdownWidget o : filterListOption) {
-            o.renderDropdown(context, mouseX, mouseY, delta);
-        }
+        for (DropdownWidget o : filterListOption) o.renderDropdown(context, mouseX, mouseY);
         for (DropdownWidget v : filterListValue) {
             if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty())
-                v.renderDropdown(context, mouseX, mouseY, delta);
+                v.renderDropdown(context, mouseX, mouseY);
         }
 
         // draw the label at the top
@@ -234,7 +222,8 @@ public class CharmFilterGui extends Screen {
         context.getMatrices().translate(0, 0, 110);
         context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
         context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Charm Filters").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFFFAA00);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Charm Filters").setStyle(Style.EMPTY.withBold(true)),
+                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFFFAA00);
         context.getMatrices().pop();
 
         // draw gui elements
@@ -245,7 +234,8 @@ public class CharmFilterGui extends Screen {
 
         try {
             children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -265,7 +255,8 @@ public class CharmFilterGui extends Screen {
         }
         for (DropdownWidget v : filterListValue) {
             if (v.willClick(mouseX, mouseY)) {
-                if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty() && !filterListOption.get(filterListValue.indexOf(v)).getLastChoice().equals("Charm Power"))
+                if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty()
+                        && !filterListOption.get(filterListValue.indexOf(v)).getLastChoice().equals("Charm Power"))
                     v.mouseClicked(mouseX, mouseY, button);
                 return false;
             }
@@ -277,11 +268,12 @@ public class CharmFilterGui extends Screen {
                 c.mouseClicked(mouseX, mouseY, button);
         }
         for (TextFieldWidget c : filterListConstant) {
-            if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat") && !(charmFilters.get(filterListConstant.indexOf(c)).comparator < 2) || filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Charm Power"))
+            if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat")
+                    && !(charmFilters.get(filterListConstant.indexOf(c)).comparator < 2)
+                    || filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Charm Power"))
                 c.setFocused(c.mouseClicked(mouseX, mouseY, button));
         }
         filterListDelete.forEach(i -> i.mouseClicked(mouseX, mouseY, button));
-        //filterListDuplicate.forEach(i -> i.mouseClicked(mouseX, mouseY, button));
 
         addFilterButton.mouseClicked(mouseX, mouseY, button);
 
@@ -291,7 +283,6 @@ public class CharmFilterGui extends Screen {
             filterListComparator.remove(removeIndex);
             filterListConstant.remove(removeIndex);
             filterListDelete.remove(removeIndex);
-            //filterListDuplicate.remove(removeIndex);
             charmFilters.remove(removeIndex);
             removeIndex = -1;
 
@@ -322,13 +313,6 @@ public class CharmFilterGui extends Screen {
         filterListConstant.forEach(i -> i.keyPressed(keyCode, scanCode, modifiers));
 
         return true;
-    }
-
-    @Override
-    public void resize(MinecraftClient client, int width, int height) {
-        super.resize(client, width, height);
-
-
     }
 
     @Override

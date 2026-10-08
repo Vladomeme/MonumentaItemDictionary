@@ -16,12 +16,12 @@ public class ItemIconButtonWidget extends ButtonWidget {
     private final ItemStack iconItem;
     private final List<Text> tooltipText;
 
-    public ItemIconButtonWidget(int x, int y, int width, int height, Text message, PressAction onPress, Text tooltipText, String itemEncoding, String displayInfo) {
-        this(x, y, width, height, message, onPress, List.of(tooltipText), itemEncoding, displayInfo);
+    public ItemIconButtonWidget(int x, int y, int width, int height, PressAction onPress, Text tooltipText, String itemEncoding, String displayInfo) {
+        this(x, y, width, height, onPress, List.of(tooltipText), itemEncoding, displayInfo);
     }
 
-    public ItemIconButtonWidget(int x, int y, int width, int height, Text message, PressAction onPress, List<Text> tooltipText, String itemEncoding, String displayInfo) {
-        super(x, y, width, height, message, onPress, DEFAULT_NARRATION_SUPPLIER);
+    public ItemIconButtonWidget(int x, int y, int width, int height, PressAction onPress, List<Text> tooltipText, String itemEncoding, String displayInfo) {
+        super(x, y, width, height, Text.empty(), onPress, DEFAULT_NARRATION_SUPPLIER);
         this.tooltipText = tooltipText;
 
         iconItem = ItemFactory.fromEncoding(itemEncoding);
@@ -44,8 +44,7 @@ public class ItemIconButtonWidget extends ButtonWidget {
         context.drawItem(iconItem, getX() + (width - 16) / 2, getY() + (width - 16) / 2);
         context.getMatrices().pop();
 
-        if (isHovered() && MinecraftClient.getInstance().currentScreen != null) {
+        if (isHovered() && MinecraftClient.getInstance().currentScreen != null)
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltipText, mouseX, mouseY);
-        }
     }
 }

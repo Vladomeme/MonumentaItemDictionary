@@ -33,7 +33,6 @@ public class ItemFilterGui extends Screen {
     private final ArrayList<ButtonWidget> filterListComparator;
     private final ArrayList<TextFieldWidget> filterListConstant;
     private final ArrayList<ItemIconButtonWidget> filterListDelete;
-    //private ArrayList<ItemIconButtonWidget> filterListDuplicate;
 
     private final ArrayList<Filter> itemFilters = new ArrayList<>();
 
@@ -52,11 +51,11 @@ public class ItemFilterGui extends Screen {
         filterListComparator = new ArrayList<>();
         filterListConstant = new ArrayList<>();
         filterListDelete = new ArrayList<>();
-        //filterListDuplicate = new ArrayList<>();
     }
 
     public void postInit() {
-        backButton = new ItemIconButtonWidget(5, 5, 20, 20, Text.literal(""), (button) -> controller.setItemDictionaryScreen(), Text.literal("Go Back"), "arrow", "");
+        backButton = new ItemIconButtonWidget(5, 5, 20, 20,
+                (button) -> controller.setItemDictionaryScreen(), Text.literal("Go Back"), "arrow", "");
 
         addFilterButton = ButtonWidget.builder(Text.literal("Add New Filter"), (button) -> {
             int index = filterListOption.size();
@@ -82,7 +81,8 @@ public class ItemFilterGui extends Screen {
                 updateFilterOutput();
             }).position(280, labelMenuHeight + 5 + index * 25).size(60, 20).tooltip(Tooltip.of(Text.literal("Click to cycle"))).build();
 
-            DropdownWidget value = new DropdownWidget(textRenderer, 125, labelMenuHeight + 7 + index * 25, 150, Text.literal(""), "", List.of(), (v) -> {
+            DropdownWidget value = new DropdownWidget(textRenderer, 125, labelMenuHeight + 7 + index * 25, 150,
+                    Text.literal(""), "", List.of(), (v) -> {
                 filter.value = v;
                 updateFilterOutput();
             });
@@ -96,7 +96,8 @@ public class ItemFilterGui extends Screen {
                 }
                 updateFilterOutput();
             });
-            DropdownWidget options = new DropdownWidget(textRenderer, 30, labelMenuHeight + 7 + index * 25, 90, Text.literal(""), "Select Sort Type", Arrays.asList("Tier", "Region", "Location", "Type", "Stat", "Base Item"), (v) -> {
+            DropdownWidget options = new DropdownWidget(textRenderer, 30, labelMenuHeight + 7 + index * 25, 90,
+                    Text.literal(""), "Select Sort Type", Arrays.asList("Tier", "Region", "Location", "Type", "Stat", "Base Item"), (v) -> {
                 filter.setOption(v);
                     switch (v) {
                     case "Tier" -> {
@@ -131,8 +132,7 @@ public class ItemFilterGui extends Screen {
                         ArrayList<String> mainhandTypes = new ArrayList<>(Arrays.asList("Mainhand",
                                 "Mainhand Sword", "Mainhand Shield", "Wand", "Axe", "Pickaxe", "Trident",
                                 "Snowball", "Shovel", "Scythe", "Bow", "Crossbow"));
-                        ArrayList<String> offhandTypes = new ArrayList<>(Arrays.asList("Offhand",
-                                "Offhand Sword", "Offhand Shield"));
+                        ArrayList<String> offhandTypes = new ArrayList<>(Arrays.asList("Offhand", "Offhand Sword", "Offhand Shield"));
                         ArrayList<String> oneType = new ArrayList<>(Collections.singletonList(itemGui.itemTypeLookingFor));
                         if (itemGui.isGettingBuildItem && itemGui.itemTypeLookingFor.equals("Mainhand")) value.setChoices(mainhandTypes);
                         else if (itemGui.isGettingBuildItem && itemGui.itemTypeLookingFor.equals("Offhand")) value.setChoices(offhandTypes);
@@ -145,21 +145,19 @@ public class ItemFilterGui extends Screen {
 
                 updateFilterOutput();
             });
-            ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25, 20, 20, Text.literal(""), b -> removeIndex = filterListOption.indexOf(options), Text.literal("Delete").setStyle(Style.EMPTY.withColor(0xFF0000)), "orange_stained_glass_pane", "Cancel");
-            /*
-            ItemIconButtonWidget duplicate = new ItemIconButtonWidget(30, labelMenuHeight + 5 + index * 25, 20, 20, Text.literal(""), b -> {
+            ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25, 20, 20,
+                    b -> removeIndex = filterListOption.indexOf(options), Text.literal("Delete").setStyle(Style.EMPTY.withColor(0xFF0000)),
+                    "orange_stained_glass_pane", "Cancel");
 
-            }, ((button1, matrices, mouseX, mouseY) -> {
-                renderTooltip(matrices, Text.literal("Duplicate").setStyle(Style.EMPTY.withColor(0x4444FF)), mouseX, mouseY);
-            }), "blue_stained_glass_pane", "");
-             */
-            if (itemGui.isGettingBuildItem && !(itemGui.itemTypeLookingFor.equals("Mainhand") || itemGui.itemTypeLookingFor.equals("Offhand"))) options.setChoices(Arrays.asList("Tier", "Region", "Location", "Stat", "Base Item"));
+            if (itemGui.isGettingBuildItem && !(itemGui.itemTypeLookingFor.equals("Mainhand")
+                    || itemGui.itemTypeLookingFor.equals("Offhand")))
+                options.setChoices(Arrays.asList("Tier", "Region", "Location", "Stat", "Base Item"));
+
             filterListOption.add(options);
             filterListValue.add(value);
             filterListComparator.add(comparator);
             filterListConstant.add(constant);
             filterListDelete.add(delete);
-            //filterListDuplicate.add(duplicate);
 
             updateFilterListPositions();
         }).position(5, labelMenuHeight + 5).size(80, 20).build();
@@ -171,7 +169,6 @@ public class ItemFilterGui extends Screen {
         filterListComparator.clear();
         filterListConstant.clear();
         filterListDelete.clear();
-        //filterListDuplicate.clear();
         itemFilters.clear();
 
         updateFilterOutput();
@@ -187,7 +184,6 @@ public class ItemFilterGui extends Screen {
             filterListComparator.forEach(i -> i.setY(labelMenuHeight + 5 + filterListComparator.indexOf(i) * 25));
             filterListConstant.forEach(i -> i.setY(labelMenuHeight + 8 + filterListConstant.indexOf(i) * 25));
             filterListDelete.forEach(i -> i.setY(labelMenuHeight + 5 + filterListDelete.indexOf(i) * 25));
-            //filterListDuplicate.forEach(i -> i.y = labelMenuHeight + 5 + filterListDuplicate.indexOf(i) * 25);
         }
     }
 
@@ -202,15 +198,11 @@ public class ItemFilterGui extends Screen {
         // draw filter buttons and stuff
         boolean anyOpen = false;
         for (DropdownWidget o : filterListOption) if (o.willClick(mouseX, mouseY)) anyOpen = true;
-        if (anyOpen) {
-            addFilterButton.render(context, 0, 0, delta); // funny band-aid fix for rendering white outline while in dropdown menu
-        } else {
-            addFilterButton.render(context, mouseX, mouseY, delta);
-        }
 
-        for (DropdownWidget o : filterListOption) {
-            o.renderMain(context, mouseX, mouseY, delta);
-        }
+        if (anyOpen) addFilterButton.render(context, 0, 0, delta); // funny band-aid fix for rendering white outline while in dropdown menu
+        else addFilterButton.render(context, mouseX, mouseY, delta);
+
+        for (DropdownWidget o : filterListOption) o.renderMain(context, mouseX, mouseY, delta);
         for (DropdownWidget v : filterListValue) {
             if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty())
                 v.renderMain(context, mouseX, mouseY, delta);
@@ -224,14 +216,11 @@ public class ItemFilterGui extends Screen {
                 c.render(context, mouseX, mouseY, delta);
         }
         filterListDelete.forEach(i -> i.render(context, mouseX, mouseY, delta));
-        //filterListDuplicate.forEach(i -> i.render(matrices, mouseX, mouseY, delta));
 
-        for (DropdownWidget o : filterListOption) {
-            o.renderDropdown(context, mouseX, mouseY, delta);
-        }
+        for (DropdownWidget o : filterListOption) o.renderDropdown(context, mouseX, mouseY);
         for (DropdownWidget v : filterListValue) {
             if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty())
-                v.renderDropdown(context, mouseX, mouseY, delta);
+                v.renderDropdown(context, mouseX, mouseY);
         }
 
         // draw the label at the top
@@ -239,7 +228,8 @@ public class ItemFilterGui extends Screen {
         context.getMatrices().translate(0, 0, 110);
         context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
         context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Item Filters").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFFFAA00);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Item Filters").setStyle(Style.EMPTY.withBold(true)),
+                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFFFAA00);
         context.getMatrices().pop();
 
         // draw gui elements
@@ -250,7 +240,8 @@ public class ItemFilterGui extends Screen {
 
         try {
             children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -286,7 +277,6 @@ public class ItemFilterGui extends Screen {
                 c.setFocused(c.mouseClicked(mouseX, mouseY, button));
         }
         filterListDelete.forEach(i -> i.mouseClicked(mouseX, mouseY, button));
-        //filterListDuplicate.forEach(i -> i.mouseClicked(mouseX, mouseY, button));
 
         addFilterButton.mouseClicked(mouseX, mouseY, button);
 
@@ -296,7 +286,6 @@ public class ItemFilterGui extends Screen {
             filterListComparator.remove(removeIndex);
             filterListConstant.remove(removeIndex);
             filterListDelete.remove(removeIndex);
-            //filterListDuplicate.remove(removeIndex);
             itemFilters.remove(removeIndex);
             removeIndex = -1;
 
@@ -327,13 +316,6 @@ public class ItemFilterGui extends Screen {
         filterListConstant.forEach(i -> i.keyPressed(keyCode, scanCode, modifiers));
 
         return true;
-    }
-
-    @Override
-    public void resize(MinecraftClient client, int width, int height) {
-        super.resize(client, width, height);
-
-
     }
 
     @Override

@@ -4,7 +4,6 @@ import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
 import dev.eliux.monumentaitemdictionary.gui.widgets.DropdownWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.Filter;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
@@ -43,7 +42,8 @@ public class BuildFilterGui extends Screen {
     }
 
     public void postInit() {
-        backButton = new ItemIconButtonWidget(5, 5, 20, 20, Text.literal(""), button -> controller.setBuildDictionaryScreen(), Text.literal("Go back"), "arrow", "");
+        backButton = new ItemIconButtonWidget(5, 5, 20, 20, button -> controller.setBuildDictionaryScreen(),
+                Text.literal("Go back"), "arrow", "");
 
         addFilterButton = ButtonWidget.builder(Text.literal("Add New Filter"), button -> {
             int index = filterListOption.size();
@@ -106,7 +106,7 @@ public class BuildFilterGui extends Screen {
 
                 updateFilterOutput();
             });
-            ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25, 20, 20, Text.literal(""), b -> removeIndex = filterListOption.indexOf(options), Text.literal("Delete").setStyle(
+            ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25, 20, 20, b -> removeIndex = filterListOption.indexOf(options), Text.literal("Delete").setStyle(
                     Style.EMPTY.withColor(0xFF0000)), "orange_stained_glass_pane", "Cancel");
             filterListOption.add(options);
             filterListValue.add(value);
@@ -138,15 +138,11 @@ public class BuildFilterGui extends Screen {
 
         boolean anyOpen = false;
         for (DropdownWidget o : filterListOption) if (o.willClick(mouseX, mouseY)) anyOpen = true;
-        if (anyOpen) {
-            addFilterButton.render(context, 0, 0, delta);
-        } else {
-            addFilterButton.render(context, mouseX, mouseY, delta);
-        }
 
-        for (DropdownWidget o : filterListOption) {
-            o.renderMain(context, mouseX, mouseY, delta);
-        }
+        if (anyOpen) addFilterButton.render(context, 0, 0, delta);
+        else addFilterButton.render(context, mouseX, mouseY, delta);
+
+        for (DropdownWidget o : filterListOption) o.renderMain(context, mouseX, mouseY, delta);
         for (DropdownWidget v : filterListValue) {
             if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty())
                 v.renderMain(context, mouseX, mouseY, delta);
@@ -161,19 +157,18 @@ public class BuildFilterGui extends Screen {
         }
         filterListDelete.forEach(i -> i.render(context, mouseX, mouseY, delta));
 
-        for (DropdownWidget o : filterListOption) {
-            o.renderDropdown(context, mouseX, mouseY, delta);
-        }
+        for (DropdownWidget o : filterListOption) o.renderDropdown(context, mouseX, mouseY);
         for (DropdownWidget v : filterListValue) {
             if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty())
-                v.renderDropdown(context, mouseX, mouseY, delta);
+                v.renderDropdown(context, mouseX, mouseY);
         }
 
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 110);
         context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
         context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Build Filters").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFFFAA00);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Build Filters").setStyle(Style.EMPTY.withBold(true)),
+                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFFFAA00);
         context.getMatrices().pop();
 
         context.getMatrices().push();
@@ -183,7 +178,8 @@ public class BuildFilterGui extends Screen {
 
         try {
             children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -258,13 +254,6 @@ public class BuildFilterGui extends Screen {
         filterListConstant.forEach(i -> i.keyPressed(keyCode, scanCode, modifiers));
 
         return true;
-    }
-
-    @Override
-    public void resize(MinecraftClient client, int width, int height) {
-        super.resize(client, width, height);
-
-
     }
 
     @Override

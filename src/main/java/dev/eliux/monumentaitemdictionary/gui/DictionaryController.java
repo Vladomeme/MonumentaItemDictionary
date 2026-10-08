@@ -29,7 +29,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@SuppressWarnings("CallToPrintStackTrace")
+@SuppressWarnings({"CallToPrintStackTrace", "unused"})
 public class DictionaryController {
     private String itemNameFilter;
     private boolean hasItemNameFilter = false;
@@ -48,6 +48,7 @@ public class DictionaryController {
     private ArrayList<String> allItemStats;
     private ArrayList<String> allItemBaseItems;
 
+    @SuppressWarnings("FieldCanBeLocal")
     private ArrayList<String> allCharmRegions;
     private ArrayList<String> allCharmTiers;
     private Map<String, String> allCharmLocations;
@@ -63,33 +64,29 @@ public class DictionaryController {
     private ArrayList<DictionaryBuild> builds;
     private ArrayList<DictionaryBuild> validBuilds;
 
-    // private @Nullable CompletableFuture<ItemApiResponse> itemResponseFuture = null;
-
     public Map<String, Location> locationData;
-
-    public boolean itemLoadFailed = false;
-    public boolean charmLoadFailed = false;
 
     public boolean isRequesting = false;
 
-    public ItemDictionaryGui itemGui;
+    public final ItemDictionaryGui itemGui;
+    public final ItemFilterGui itemFilterGui;
+    public final CharmDictionaryGui charmGui;
+    public final CharmFilterGui charmFilterGui;
+    public final BuildDictionaryGui buildDictionaryGui;
+    public final BuildFilterGui buildFilterGui;
+    public final BuilderGui builderGui;
+
     public boolean itemGuiPreviouslyOpened = false;
-    public ItemFilterGui itemFilterGui;
     public boolean itemFilterGuiPreviouslyOpened = false;
-    public CharmDictionaryGui charmGui;
     public boolean charmGuiPreviouslyOpened = false;
-    public CharmFilterGui charmFilterGui;
     public boolean charmFilterGuiPreviouslyOpened = false;
-    public BuildDictionaryGui buildDictionaryGui;
     public boolean buildFilterGuiPreviouslyOpened = false;
-    public BuildFilterGui buildFilterGui;
     public boolean buildDictionaryGuiPreviouslyOpened = false;
-    public BuilderGui builderGui;
     public boolean builderGuiPreviouslyOpened = false;
 
     public Screen lastOpenedScreen = null;
 
-    public GeneratorGui generatorGui;
+    public final GeneratorGui generatorGui;
 
     public DictionaryController() {
         items = new ArrayList<>();
@@ -115,31 +112,16 @@ public class DictionaryController {
         generatorGui = new GeneratorGui(Text.literal("Item Generator Options"), this);
     }
 
-    public void tick() {
-        /*if (itemResponseFuture != null) {
-            try {
-                // Process remaining item API response code on main thread
-                ItemApiResponse response = itemResponseFuture.join();
-                itemResponseFuture = null;
-
-                loadItems();
-                itemGui.buildItemList();
-                loadCharms();
-                charmGui.buildCharmList();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }*/
-    }
-
     public void open() {
         if (lastOpenedScreen == null || lastOpenedScreen instanceof ItemDictionaryGui) {
             itemGui.isGettingBuildItem = false;
             setItemDictionaryScreen();
-        } else if (lastOpenedScreen instanceof CharmDictionaryGui) {
+        }
+        else if (lastOpenedScreen instanceof CharmDictionaryGui) {
             itemGui.isGettingBuildItem = false;
             setCharmDictionaryScreen();
-        } else {
+        }
+        else {
             itemGui.isGettingBuildItem = false;
             setItemDictionaryScreen();
         }
@@ -152,9 +134,8 @@ public class DictionaryController {
         if (!itemGuiPreviouslyOpened) {
             itemGui.postInit();
             itemGuiPreviouslyOpened = true;
-        } else {
-            itemGui.updateGuiPositions();
         }
+        else itemGui.updateGuiPositions();
     }
 
     public void setItemFilterScreen() {
@@ -174,9 +155,8 @@ public class DictionaryController {
         if (!charmGuiPreviouslyOpened) {
             charmGui.postInit();
             charmGuiPreviouslyOpened = true;
-        } else {
-            charmGui.updateGuiPositions();
         }
+        else charmGui.updateGuiPositions();
     }
 
     public void setCharmFilterScreen() {
@@ -204,9 +184,8 @@ public class DictionaryController {
         if (!buildDictionaryGuiPreviouslyOpened) {
             buildDictionaryGui.postInit();
             buildDictionaryGuiPreviouslyOpened = true;
-        } else {
-            buildDictionaryGui.updateGuiPositions();
         }
+        else buildDictionaryGui.updateGuiPositions();
     }
 
     public void setBuildFilterScreen() {
@@ -226,9 +205,8 @@ public class DictionaryController {
         if (!builderGuiPreviouslyOpened) {
             builderGui.postInit();
             builderGuiPreviouslyOpened = true;
-        } else {
-            builderGui.updateGuiPositions();
         }
+        else builderGui.updateGuiPositions();
     }
 
     private String readStringData(String path) {
@@ -241,6 +219,7 @@ public class DictionaryController {
         return "{}";
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored") //mkdirs(), createNewFile()
     private void writeStringData(String writeData, String path) {
         try {
             File targetFile = new File(path);
@@ -255,12 +234,14 @@ public class DictionaryController {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored") //createNewFile()
     public String readJsonBuild() {
         try {
             File buildsFile = new File("config/mid/builds.json");
             buildsFile.createNewFile();
             return Files.readString(buildsFile.toPath(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -275,7 +256,8 @@ public class DictionaryController {
             fileBuilds.add(String.valueOf(id), jsonBuild);
 
             FileUtils.writeStringToFile(file, fileBuilds.toString(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -316,7 +298,9 @@ public class DictionaryController {
 
             JsonElement jsonBuilds = JsonParser.parseString(readJsonBuild());
             if (jsonBuilds instanceof JsonNull) return;
+
             JsonObject data = new Gson().fromJson(jsonBuilds, JsonObject.class);
+
             for (Map.Entry<String, JsonElement> buildElement : data.asMap().entrySet()) {
                 int id = Integer.parseInt(buildElement.getKey());
                 JsonObject buildData = (JsonObject) buildElement.getValue();
@@ -335,6 +319,7 @@ public class DictionaryController {
 
                 ArrayList<DictionaryItem> buildItems = new ArrayList<>();
                 JsonObject rawItems = buildData.get("items").getAsJsonObject();
+
                 for (String item : rawItems.asMap().keySet()) {
                     JsonObject itemJsonObject = rawItems.get(item).getAsJsonObject();
                     if (!itemJsonObject.has("name")) {
@@ -352,10 +337,11 @@ public class DictionaryController {
                 for (JsonElement charm : rawCharms.asList()) {
                     buildCharms.add(getCharmByName(charm.getAsString()));
                 }
-                 buildsInFile.add(new DictionaryBuild(buildName, buildItems, buildCharms, buildItemToShow, buildRegion, buildClass, buildSpecialization, buildFavorite, id));
+                buildsInFile.add(new DictionaryBuild(buildName, buildItems, buildCharms, buildItemToShow, buildRegion, buildClass, buildSpecialization, buildFavorite, id));
             }
             builds = buildsInFile;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -413,18 +399,15 @@ public class DictionaryController {
 
                 if (!itemData.has("type")) continue; // if this element is not present, skip this item
                 String itemType = itemData.get("type").getAsString();
-                if (itemType.equals("Charm"))
-                    continue;
-                if (!allItemTypes.contains(itemType))
-                    allItemTypes.add(itemType);
+                if (itemType.equals("Charm")) continue;
+                if (!allItemTypes.contains(itemType)) allItemTypes.add(itemType);
 
                 String itemRegion = "";
                 JsonPrimitive regionPrimitive = itemData.getAsJsonPrimitive("region");
                 if (regionPrimitive != null) {
                     itemRegion = regionPrimitive.getAsString();
 
-                    if (!allItemRegions.contains(itemRegion))
-                        allItemRegions.add(itemRegion);
+                    if (!allItemRegions.contains(itemRegion)) allItemRegions.add(itemRegion);
                 }
 
                 String itemTier = "";
@@ -440,8 +423,7 @@ public class DictionaryController {
                     }
                     itemTier = formattedSplit.toString();
 
-                    if (!allItemTiers.contains(itemTier))
-                        allItemTiers.add(itemTier);
+                    if (!allItemTiers.contains(itemTier)) allItemTiers.add(itemTier);
                 }
 
                 String itemLocationId = "";
@@ -462,8 +444,7 @@ public class DictionaryController {
 
                 if (!itemData.has("base_item")) continue; // if this element is not present, skip this item
                 String itemBaseItem = itemData.get("base_item").getAsString();
-                if (!allItemBaseItems.contains(itemBaseItem))
-                    allItemBaseItems.add(itemBaseItem);
+                if (!allItemBaseItems.contains(itemBaseItem)) allItemBaseItems.add(itemBaseItem);
 
                 String itemLore = "";
                 JsonPrimitive lorePrimitive = itemData.getAsJsonPrimitive("lore");
@@ -479,15 +460,12 @@ public class DictionaryController {
 
                     itemStats.add(new ItemStat(statKey, statEntry.getValue().getAsDouble()));
 
-                    if (!allItemStats.contains(statKey))
-                        allItemStats.add(statKey);
+                    if (!allItemStats.contains(statKey)) allItemStats.add(statKey);
                 }
 
                 String itemNbt = "{}";
                 JsonPrimitive nbtPrimitive = itemData.getAsJsonPrimitive("nbt");
-                if (nbtPrimitive != null) {
-                    itemNbt = nbtPrimitive.getAsString();
-                }
+                if (nbtPrimitive != null) itemNbt = nbtPrimitive.getAsString();
 
                 // Build the item
                 JsonPrimitive masterworkPrimitive = itemData.getAsJsonPrimitive("masterwork");
@@ -496,8 +474,9 @@ public class DictionaryController {
                     // attempt to add a tier to the item
                     boolean hasItem = false;
                     for (DictionaryItem dictionaryItem : items) {
-                        if (!dictionaryItem.hasMasterwork) continue;
-                        if (dictionaryItem.name.equals(itemName) && masterworkPrimitive.getAsInt() <= ItemFormatter.getMasterworkForRarity(itemTier)) {
+                        if (!dictionaryItem.hasMasterwork()) continue;
+
+                        if (dictionaryItem.name().equals(itemName) && masterworkPrimitive.getAsInt() <= ItemFormatter.getMasterworkForRarity(itemTier)) {
                             // if the item already exists
                             hasItem = true;
                             dictionaryItem.addMasterworkTier(itemTier, itemStats, itemNbt, masterworkPrimitive.getAsInt());
@@ -508,35 +487,42 @@ public class DictionaryController {
                         ArrayList<String> totalTierList = new ArrayList<>();
                         ArrayList<ArrayList<ItemStat>> totalStatsList = new ArrayList<>();
                         ArrayList<String> totalNbtList = new ArrayList<>();
+
                         for (int i = 0; i < ItemFormatter.getMasterworkForRarity(itemTier) + 1; i++) {
                             totalTierList.add(null);
                             totalStatsList.add(null);
                             totalNbtList.add(null);
                         }
+
                         int level = masterworkPrimitive.getAsInt();
                         if (level <= ItemFormatter.getMasterworkForRarity(itemTier)) { // prevent adding a tier above the believed cap
                             totalTierList.set(level, itemTier);
                             totalStatsList.set(level, itemStats);
                             totalNbtList.set(level, itemNbt);
-                            items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId, fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, true));
+
+                            items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId,
+                                    fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, true));
                         }
                     }
-                } else {
+                }
+                else {
                     // if the item does not have masterwork
                     ArrayList<String> totalTierList = new ArrayList<>();
-                    totalTierList.add(itemTier);
                     ArrayList<ArrayList<ItemStat>> totalStatsList = new ArrayList<>();
-                    totalStatsList.add(itemStats);
                     ArrayList<String> totalNbtList = new ArrayList<>();
+
+                    totalTierList.add(itemTier);
+                    totalStatsList.add(itemStats);
                     totalNbtList.add(itemNbt);
-                    items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId, fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, false));
+
+                    items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId,
+                            fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, false));
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            itemLoadFailed = true;
         }
-
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         items.sort(DictionaryItem::compareTo);
     }
 
@@ -566,8 +552,7 @@ public class DictionaryController {
 
                 // only one region for charms, for now
                 String charmRegion = "Architect's Ring";
-                if (!allCharmRegions.contains(charmRegion))
-                    allCharmRegions.add(charmRegion);
+                if (!allCharmRegions.contains(charmRegion)) allCharmRegions.add(charmRegion);
 
                 if (!charmData.has("locationId")) continue; // if this element is not present, skip this item
                 String charmLocationId = charmData.get("locationId").getAsString();
@@ -576,27 +561,21 @@ public class DictionaryController {
 
                 if (!charmData.has("tier")) continue; // if this element is not present, skip this item
                 String charmTier = charmData.get("tier").getAsString().replace("_", " ");
-                if (!allCharmTiers.contains(charmTier))
-                    allCharmTiers.add(charmTier);
+                if (!allCharmTiers.contains(charmTier)) allCharmTiers.add(charmTier);
 
                 if (!charmData.has("power")) continue; // if this element is not present, skip this item
                 int charmPower = charmData.get("power").getAsInt();
 
-
                 if (!charmData.has("class_name")) continue; // if this element is not present, skip this item
                 String charmClass = charmData.get("class_name").getAsString();
-                if (!allCharmClasses.contains(charmClass))
-                    allCharmClasses.add(charmClass);
+                if (!allCharmClasses.contains(charmClass)) allCharmClasses.add(charmClass);
 
                 if (!charmData.has("base_item")) continue; // if this element is not present, skip this item
                 String charmBaseItem = charmData.get("base_item").getAsString();
-                if (!allCharmBaseItems.contains(charmBaseItem))
-                    allCharmBaseItems.add(charmBaseItem);
+                if (!allCharmBaseItems.contains(charmBaseItem)) allCharmBaseItems.add(charmBaseItem);
 
                 String charmNbt = "{}";
-                if (charmData.has("nbt")) {
-                    charmNbt = charmData.get("nbt").getAsString();
-                }
+                if (charmData.has("nbt")) charmNbt = charmData.get("nbt").getAsString();
 
                 ArrayList<CharmStat> charmStats = new ArrayList<>();
                 JsonObject statsObject = charmData.get("stats").getAsJsonObject();
@@ -605,14 +584,11 @@ public class DictionaryController {
 
                     String statKey = statEntry.getKey();
                     String skillMod = ItemFormatter.getSkillFromCharmStat(statKey);
-                    if (!allCharmSkillMods.contains(skillMod))
-                        allCharmSkillMods.add(skillMod);
-                    if (!allCharmStats.contains(statKey))
-                        allCharmStats.add(statKey);
+                    if (!allCharmSkillMods.contains(skillMod)) allCharmSkillMods.add(skillMod);
+                    if (!allCharmStats.contains(statKey)) allCharmStats.add(statKey);
 
-                    if (statElement instanceof JsonPrimitive) {
+                    if (statElement instanceof JsonPrimitive)
                         charmStats.add(new CharmStat(statKey, skillMod, false, statElement.getAsDouble()));
-                    }
                     else {
                         JsonObject statObject = (JsonObject) statElement;
                         charmStats.add(new CharmStat(statKey, skillMod, statObject.get("locked").getAsBoolean(), statObject.get("value").getAsDouble()));
@@ -621,15 +597,14 @@ public class DictionaryController {
 
                 charms.add(new DictionaryCharm(charmName, charmRegion, charmLocationId, charmTier, charmPower, charmClass, charmBaseItem, charmNbt, charmStats));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
-            charmLoadFailed = true;
         }
 
         charms.sort((o1, o2) -> {
-            if (!o1.tier.equals(o2.tier)) {
-                return -(ItemFormatter.getNumberForTier(o1.tier) - ItemFormatter.getNumberForTier(o2.tier));
-            }
+            if (!o1.tier().equals(o2.tier()))
+                return -(ItemFormatter.getNumberForTier(o1.tier()) - ItemFormatter.getNumberForTier(o2.tier()));
             return 0;
         });
     }
@@ -750,60 +725,53 @@ public class DictionaryController {
                             switch (filter.comparator) {
                                 case 0 -> filteredItems.removeIf(i -> !i.hasStat(filter.value));
                                 case 1 -> filteredItems.removeIf(i -> i.hasStat(filter.value));
-                                case 2 ->
-                                        filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) >= filter.constant));
-                                case 3 ->
-                                        filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) > filter.constant));
-                                case 4 ->
-                                        filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) == filter.constant));
-                                case 5 ->
-                                        filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) <= filter.constant));
-                                case 6 ->
-                                        filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) < filter.constant));
+                                case 2 -> filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) >= filter.constant));
+                                case 3 -> filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) > filter.constant));
+                                case 4 -> filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) == filter.constant));
+                                case 5 -> filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) <= filter.constant));
+                                case 6 -> filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) < filter.constant));
                             }
                         }
                     }
                     case "Tier" -> {
                         if (!filter.value.isEmpty()) {
                             switch (filter.comparator) {
-                                case 0 -> filteredItems.removeIf(i -> !i.hasTier() || !i.tier.contains(filter.value));
-                                case 1 -> filteredItems.removeIf(i -> i.hasTier() && i.tier.contains(filter.value));
+                                case 0 -> filteredItems.removeIf(i -> !i.hasTier() || !i.tier().contains(filter.value));
+                                case 1 -> filteredItems.removeIf(i -> i.hasTier() && i.tier().contains(filter.value));
                             }
                         }
                     }
                     case "Region" -> {
                         if (!filter.value.isEmpty()) {
                             switch (filter.comparator) {
-                                case 0 -> filteredItems.removeIf(i -> !i.hasRegion() || !i.region.equals(filter.value));
-                                case 1 -> filteredItems.removeIf(i -> i.hasRegion() && i.region.equals(filter.value));
+                                case 0 -> filteredItems.removeIf(i -> !i.hasRegion() || !i.region().equals(filter.value));
+                                case 1 -> filteredItems.removeIf(i -> i.hasRegion() && i.region().equals(filter.value));
                             }
                         }
                     }
                     case "Type" -> {
                         if (!filter.value.isEmpty()) {
                             switch (filter.comparator) {
-                                case 0 -> filteredItems.removeIf(i -> !i.type.equals(filter.value));
-                                case 1 -> filteredItems.removeIf(i -> i.type.equals(filter.value));
+                                case 0 -> filteredItems.removeIf(i -> !i.type().equals(filter.value));
+                                case 1 -> filteredItems.removeIf(i -> i.type().equals(filter.value));
                             }
                         }
                     }
                     case "Location" -> {
                         if (!filter.value.isEmpty()) {
                             switch (filter.comparator) {
-                                case 0 ->
-                                        filteredItems.removeIf(i -> !i.hasLocation()
-                                                || !locationData.containsKey(i.locationId) || !locationData.get(i.locationId).displayName().equals(filter.value));
-                                case 1 ->
-                                        filteredItems.removeIf(i -> i.hasLocation()
-                                                && locationData.containsKey(i.locationId) && locationData.get(i.locationId).displayName().equals(filter.value));
+                                case 0 -> filteredItems.removeIf(i -> !i.hasLocation()
+                                                || !locationData.containsKey(i.locationId()) || !locationData.get(i.locationId()).displayName().equals(filter.value));
+                                case 1 -> filteredItems.removeIf(i -> i.hasLocation()
+                                                && locationData.containsKey(i.locationId()) && locationData.get(i.locationId()).displayName().equals(filter.value));
                             }
                         }
                     }
                     case "Base Item" -> {
                         if (!filter.value.isEmpty()) {
                             switch (filter.comparator) {
-                                case 0 -> filteredItems.removeIf(i -> !i.baseItem.equals(filter.value));
-                                case 1 -> filteredItems.removeIf(i -> i.baseItem.equals(filter.value));
+                                case 0 -> filteredItems.removeIf(i -> !i.baseItem().equals(filter.value));
+                                case 1 -> filteredItems.removeIf(i -> i.baseItem().equals(filter.value));
                             }
                         }
                     }
@@ -812,17 +780,19 @@ public class DictionaryController {
         }
 
         if (hasItemNameFilter)
-            filteredItems.removeIf(i -> !i.name.toLowerCase().contains(itemNameFilter.toLowerCase()));
+            filteredItems.removeIf(i -> !i.name().toLowerCase().contains(itemNameFilter.toLowerCase()));
 
 
         if (itemGui.isGettingBuildItem) {
-            if (itemGui.itemTypeLookingFor.equals("Mainhand")) {
-                filteredItems.removeIf(i -> !i.type.equals("Mainhand") && !i.type.equals("Mainhand Sword") && !i.type.equals("Mainhand Shield") && !i.type.equals("Wand") && !i.type.equals("Axe") && !i.type.equals("Pickaxe") && !i.type.equals("Trident") && !i.type.equals("Snowball") && !i.type.equals("Shovel") && !i.type.equals("Scythe") && !i.type.equals("Bow") && !i.type.equals("Crossbow"));
-            } else if (itemGui.itemTypeLookingFor.equals("Offhand")) {
-                filteredItems.removeIf(i -> !i.type.equals("Offhand") && !i.type.equals("Offhand Sword") && !i.type.equals("Offhand Shield"));
-            } else {
-                filteredItems.removeIf(i -> !i.type.equals(itemGui.itemTypeLookingFor));
-            }
+            if (itemGui.itemTypeLookingFor.equals("Mainhand"))
+                filteredItems.removeIf(i -> !i.type().equals("Mainhand") && !i.type().equals("Mainhand Sword")
+                        && !i.type().equals("Mainhand Shield") && !i.type().equals("Wand") && !i.type().equals("Axe")
+                        && !i.type().equals("Pickaxe") && !i.type().equals("Trident") && !i.type().equals("Snowball")
+                        && !i.type().equals("Shovel") && !i.type().equals("Scythe") && !i.type().equals("Bow") && !i.type().equals("Crossbow"));
+            else if (itemGui.itemTypeLookingFor.equals("Offhand"))
+                filteredItems.removeIf(i -> !i.type().equals("Offhand") && !i.type().equals("Offhand Sword") && !i.type().equals("Offhand Shield"));
+            else
+                filteredItems.removeIf(i -> !i.type().equals(itemGui.itemTypeLookingFor));
         }
 
         filteredItems.sort((o1, o2) -> {
@@ -830,9 +800,7 @@ public class DictionaryController {
                 if (f.getOption().equals("Stat")) {
                     double val = o2.getStat(f.value) - o1.getStat(f.value);
 
-                    if (val == 0)
-                        continue;
-
+                    if (val == 0) continue;
                     if (val > 0) return 1;
                     if (val < 0) return -1;
                 }
@@ -854,32 +822,27 @@ public class DictionaryController {
                             switch (filter.comparator) {
                                 case 0 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value));
                                 case 1 -> filteredCharms.removeIf(i -> i.hasStat(filter.value));
-                                case 2 ->
-                                        filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) >= filter.constant));
-                                case 3 ->
-                                        filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) > filter.constant));
-                                case 4 ->
-                                        filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) == filter.constant));
-                                case 5 ->
-                                        filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) <= filter.constant));
-                                case 6 ->
-                                        filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) < filter.constant));
+                                case 2 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) >= filter.constant));
+                                case 3 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) > filter.constant));
+                                case 4 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) == filter.constant));
+                                case 5 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) <= filter.constant));
+                                case 6 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) < filter.constant));
                             }
                         }
                     }
                     case "Tier" -> {
                         if (!filter.value.isEmpty()) {
                             switch (filter.comparator) {
-                                case 0 -> filteredCharms.removeIf(i -> !i.tier.equals(filter.value));
-                                case 1 -> filteredCharms.removeIf(i -> i.tier.equals(filter.value));
+                                case 0 -> filteredCharms.removeIf(i -> !i.tier().equals(filter.value));
+                                case 1 -> filteredCharms.removeIf(i -> i.tier().equals(filter.value));
                             }
                         }
                     }
                     case "Class" -> {
                         if (!filter.value.isEmpty()) {
                             switch (filter.comparator) {
-                                case 0 -> filteredCharms.removeIf(i -> !i.className.equals(filter.value));
-                                case 1 -> filteredCharms.removeIf(i -> i.className.equals(filter.value));
+                                case 0 -> filteredCharms.removeIf(i -> !i.className().equals(filter.value));
+                                case 1 -> filteredCharms.removeIf(i -> i.className().equals(filter.value));
                             }
                         }
                     }
@@ -893,26 +856,28 @@ public class DictionaryController {
                     }
                     case "Charm Power" -> {
                         switch (filter.comparator) {
-                            case 2 -> filteredCharms.removeIf(i -> !(i.power >= filter.constant));
-                            case 3 -> filteredCharms.removeIf(i -> !(i.power > filter.constant));
-                            case 4 -> filteredCharms.removeIf(i -> !(i.power == filter.constant));
-                            case 5 -> filteredCharms.removeIf(i -> !(i.power <= filter.constant));
-                            case 6 -> filteredCharms.removeIf(i -> !(i.power < filter.constant));
+                            case 2 -> filteredCharms.removeIf(i -> !(i.power() >= filter.constant));
+                            case 3 -> filteredCharms.removeIf(i -> !(i.power() > filter.constant));
+                            case 4 -> filteredCharms.removeIf(i -> !(i.power() == filter.constant));
+                            case 5 -> filteredCharms.removeIf(i -> !(i.power() <= filter.constant));
+                            case 6 -> filteredCharms.removeIf(i -> !(i.power() < filter.constant));
                         }
                     }
                     case "Location" -> {
                         if (!filter.value.isEmpty()) {
                             switch (filter.comparator) {
-                                case 0 -> filteredCharms.removeIf(i -> !locationData.containsKey(i.locationId) || !locationData.get(i.locationId).displayName().equals(filter.value));
-                                case 1 -> filteredCharms.removeIf(i -> locationData.containsKey(i.locationId) && locationData.get(i.locationId).displayName().equals(filter.value));
+                                case 0 -> filteredCharms.removeIf(i -> !locationData.containsKey(i.locationId())
+                                        || !locationData.get(i.locationId()).displayName().equals(filter.value));
+                                case 1 -> filteredCharms.removeIf(i -> locationData.containsKey(i.locationId())
+                                        && locationData.get(i.locationId()).displayName().equals(filter.value));
                             }
                         }
                     }
                     case "Base Item" -> {
                         if (!filter.value.isEmpty()) {
                             switch (filter.comparator) {
-                                case 0 -> filteredCharms.removeIf(i -> !i.baseItem.equals(filter.value));
-                                case 1 -> filteredCharms.removeIf(i -> i.baseItem.equals(filter.value));
+                                case 0 -> filteredCharms.removeIf(i -> !i.baseItem().equals(filter.value));
+                                case 1 -> filteredCharms.removeIf(i -> i.baseItem().equals(filter.value));
                             }
                         }
                     }
@@ -921,16 +886,14 @@ public class DictionaryController {
         }
 
         if (hasCharmNameFilter)
-            filteredCharms.removeIf(i -> !i.name.toLowerCase().contains(charmNameFilter.toLowerCase()));
+            filteredCharms.removeIf(i -> !i.name().toLowerCase().contains(charmNameFilter.toLowerCase()));
 
         filteredCharms.sort((o1, o2) -> {
             for (Filter f : charmFilters) {
                 if (f.getOption().equals("Stat")) {
                     double val = o2.getStat(f.value) - o1.getStat(f.value);
 
-                    if (val == 0)
-                        continue;
-
+                    if (val == 0) continue;
                     if (val < 0) return -1;
                     if (val > 0) return 1;
                 }
@@ -1012,20 +975,13 @@ public class DictionaryController {
     public DictionaryItem getItemByName(String itemName, boolean isExalted) {
         List<DictionaryItem> possibleItems = new ArrayList<>();
         for (DictionaryItem item : items) {
-            if (item.name.equals(itemName)) {
-                possibleItems.add(item);
-            }
+            if (item.name().equals(itemName)) possibleItems.add(item);
         }
 
-        if (possibleItems.size() == 1) {
-            return possibleItems.getFirst();
-        } else if (possibleItems.size() > 1) {
+        if (possibleItems.size() == 1) return possibleItems.getFirst();
+        else if (possibleItems.size() > 1) {
             for (DictionaryItem item : possibleItems) {
-                if (isExalted && item.region.equals("Ring")) {
-                    return item;
-                } else if (!isExalted && !item.region.equals("Ring")) {
-                    return item;
-                }
+                if (isExalted && item.region().equals("Ring") || (!isExalted && !item.region().equals("Ring"))) return item;
             }
         }
         return null;
@@ -1039,20 +995,16 @@ public class DictionaryController {
         String classLetter = rawCharmParts[3];
 
         for (DictionaryCharm charm : charms) {
-            String name = charm.name;
-            if (name.substring(0, 3).equals(prefix) && name.contains(suffix) && charm.power == power && charm.className.startsWith(classLetter)) {
+            String name = charm.name();
+            if (name.substring(0, 3).equals(prefix) && name.contains(suffix) && charm.power() == power && charm.className().startsWith(classLetter))
                 return charm;
-            }
         }
         return null;
     }
 
     public DictionaryCharm getCharmByName(String charmName) {
         for (DictionaryCharm charm : charms) {
-            String name = charm.name;
-            if (name.equals(charmName)) {
-                return charm;
-            }
+            if (charm.name().equals(charmName)) return charm;
         }
         return null;
     }
@@ -1096,7 +1048,8 @@ public class DictionaryController {
             }
 
             FileUtils.writeStringToFile(file, fileBuilds.toString(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -1106,7 +1059,9 @@ public class DictionaryController {
         if (fileBuildsElement instanceof JsonNull) return false;
         JsonObject fileBuilds = fileBuildsElement.getAsJsonObject();
 
-        for (String buildIdString : fileBuilds.asMap().keySet()) if (Integer.parseInt(buildIdString) == id) return true;
+        for (String buildIdString : fileBuilds.asMap().keySet()) {
+            if (Integer.parseInt(buildIdString) == id) return true;
+        }
         return false;
     }
 
@@ -1120,18 +1075,18 @@ public class DictionaryController {
 
             FileUtils.writeStringToFile(file, fileBuilds.toString(), StandardCharsets.UTF_8);
             builds.removeIf(build -> build.id == id);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public int generateNewId() {
         Random rand = new Random();
-        int id = rand.nextInt(10000);
 
-        while (idExists(id)) {
-            id = rand.nextInt(10000);
-        }
+        int id = rand.nextInt(10000);
+        while (idExists(id)) id = rand.nextInt(10000);
+
         return id;
     }
 }

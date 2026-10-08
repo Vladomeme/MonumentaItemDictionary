@@ -21,25 +21,24 @@ import net.minecraft.text.Text;
 public class CharmButtonWidget extends ButtonWidget {
     private final DictionaryCharm charm;
     private final ItemStack builtItem;
-    public final int index;
     private final Supplier<List<Text>> tooltipTextSupplier;
 
     private final CharmDictionaryGui gui;
 
-    public CharmButtonWidget(int x, int y, int charmSize, int index, Text message, PressAction onPress, DictionaryCharm charm, Supplier<List<Text>> tooltipTextSupplier, CharmDictionaryGui gui) {
+    public CharmButtonWidget(int x, int y, int charmSize, Text message, PressAction onPress, DictionaryCharm charm,
+                             Supplier<List<Text>> tooltipTextSupplier, CharmDictionaryGui gui) {
         super(x, y, charmSize, charmSize, message, onPress, DEFAULT_NARRATION_SUPPLIER);
         this.tooltipTextSupplier = tooltipTextSupplier;
         this.charm = charm;
-        this.index = index;
 
         this.gui = gui;
 
         // dummy itemstack for rendering item icon
-        builtItem = ItemFactory.fromEncoding(charm.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"));
+        builtItem = ItemFactory.fromEncoding(charm.baseItem().split("/")[0].trim().toLowerCase().replace(" ", "_"));
 
         NbtCompound monumenta = new NbtCompound();
-        monumenta.putInt("CharmPower", charm.power);
-        monumenta.putString("Tier", switch (charm.tier) {
+        monumenta.putInt("CharmPower", charm.power());
+        monumenta.putString("Tier", switch (charm.tier()) {
             case "Base" -> "charm";
             case "Rare" -> "rarecharm";
             case "Epic" -> "epiccharm";
@@ -51,22 +50,14 @@ public class CharmButtonWidget extends ButtonWidget {
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();
         NbtList lore = new NbtList();
-        lore.add(0, NbtString.of("Charm Power :  - " + charm.className));
-        display.putString("Name", charm.name.split("\\(")[0].trim());
+        lore.add(0, NbtString.of("Charm Power :  - " + charm.className()));
+        display.putString("Name", charm.name().split("\\(")[0].trim());
         display.put("Lore", lore);
         plain.put("display", display);
         builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
                 component -> component.apply(nbt -> nbt.put("plain", plain)));
     }
 
-    @Override
-    public void onClick(double mouseX, double mouseY) {
-        super.onClick(mouseX, mouseY);
-
-
-    }
-     public void scrolled (double mouseX, double mouseY, double amount) {
-     }
     @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         int yPixelOffset = -gui.getScrollPixels();
@@ -84,7 +75,7 @@ public class CharmButtonWidget extends ButtonWidget {
         int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
 
-        context.fill(minX, minY, maxX, maxY, fillOpacity + ItemColors.getColorForTier(charm.tier));
+        context.fill(minX, minY, maxX, maxY, fillOpacity + ItemColors.getColorForTier(charm.tier()));
         context.drawHorizontalLine(minX, maxX, minY, outlineColor);
         context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
         context.drawVerticalLine(minX, minY, maxY, outlineColor);

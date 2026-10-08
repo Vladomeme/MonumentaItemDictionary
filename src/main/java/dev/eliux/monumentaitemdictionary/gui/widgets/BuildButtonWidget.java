@@ -36,10 +36,10 @@ public class BuildButtonWidget extends ButtonWidget {
         DictionaryItem displayingItem = build.itemOnButton;
 
         if (displayingItem != null) {
-            builtItem = ItemFactory.fromEncoding(displayingItem.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"));
+            builtItem = ItemFactory.fromEncoding(displayingItem.baseItem().split("/")[0].trim().toLowerCase().replace(" ", "_"));
             NbtCompound plain = new NbtCompound();
             NbtCompound display = new NbtCompound();
-            display.putString("Name", displayingItem.name.split("\\(")[0].trim());
+            display.putString("Name", displayingItem.name().split("\\(")[0].trim());
             plain.put("display", display);
             builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
                     component -> component.apply(nbt -> nbt.put("plain", plain)));
@@ -68,7 +68,9 @@ public class BuildButtonWidget extends ButtonWidget {
         int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
 
-        context.fill(minX, minY, maxX, maxY, favorite ? 0x88FFFF00 : fillOpacity | (!Objects.equals(build.className, "No Class") ? ItemColors.getColorForClass(build.className) : 0x00000000));
+        context.fill(minX, minY, maxX, maxY, favorite ? 0x88FFFF00
+                : fillOpacity | (!Objects.equals(build.className, "No Class") ? ItemColors.getColorForClass(build.className) : 0x00000000));
+
         context.drawHorizontalLine(minX, maxX, minY, outlineColor);
         context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
         context.drawVerticalLine(minX, minY, maxY, outlineColor);
@@ -82,9 +84,9 @@ public class BuildButtonWidget extends ButtonWidget {
 
             for (DictionaryItem item : build.allItems) {
                 if (item == null) continue;
-                String itemTier = item.hasMasterwork ? item.getTierFromMasterwork(item.getMaxMasterwork() - 1) : item.getTierNoMasterwork();
-                lines.add(Text.literal(item.name).setStyle(Style.EMPTY
-                        .withColor(0xFF000000 + ItemColors.getColorForLocation(item.locationId))
+                String itemTier = item.hasMasterwork() ? item.getTierFromMasterwork(item.getMaxMasterwork() - 1) : item.getTierNoMasterwork();
+                lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
+                        .withColor(0xFF000000 + ItemColors.getColorForLocation(item.locationId()))
                         .withBold(ItemFormatter.shouldBold(itemTier))
                         .withUnderline(ItemFormatter.shouldUnderline(itemTier))));
             }

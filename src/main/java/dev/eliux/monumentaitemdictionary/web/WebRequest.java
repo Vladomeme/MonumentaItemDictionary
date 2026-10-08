@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutionException;
 
 public class WebRequest {
 
-    String url;
+    final String url;
     CompletableFuture<HttpResponse<String>> future;
 
     public WebRequest(String url) {

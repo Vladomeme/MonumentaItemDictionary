@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StatsFormats {
-    public static Map<String, String> statFormats = new HashMap<>() {{
+    public static final Map<String, String> statFormats = new HashMap<>() {{
        put("armor", "Armor: ");
        put("agility", "Agility: ");
        put("speedPercent", "% Speed: ");
@@ -44,8 +44,4 @@ public class StatsFormats {
        put("fall", "Fall: ");
        put("ailment", "Ailment: ");
     }};
-
-    public static Map<String, String> getStatFormats() {
-        return statFormats;
-    }
 }

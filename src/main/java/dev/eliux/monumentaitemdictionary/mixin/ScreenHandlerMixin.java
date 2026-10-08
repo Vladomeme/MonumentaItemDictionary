@@ -32,8 +32,9 @@ import java.util.Objects;
 
 @Mixin(Screen.class)
 public abstract class ScreenHandlerMixin {
+    @SuppressWarnings("UnusedReturnValue")
     @Shadow protected abstract <T extends Element & Selectable> T addSelectableChild(T child);
-
+    @SuppressWarnings("UnusedReturnValue")
     @Shadow protected abstract <T extends Element & Drawable & Selectable> T addDrawableChild(T drawableElement);
 
     @Shadow public abstract void close();
@@ -46,7 +47,7 @@ public abstract class ScreenHandlerMixin {
         if (currentScreen instanceof GenericContainerScreen && buildFromInventoryButton != null) {
             buildFromInventoryButton.active = !isOnArmoryMainscreen(
                     currentScreen.getTitle().getString(),
-                    ((HandledScreenAccessor) currentScreen).getHandler().slots);
+                    ((HandledScreenAccessor) currentScreen).mid$getHandler().slots);
             buildFromInventoryButton.render(context, mouseX, mouseY, delta);
         }
     }
@@ -56,12 +57,11 @@ public abstract class ScreenHandlerMixin {
         if (client.currentScreen == null) return;
         String inventoryTitle = client.currentScreen.getTitle().getString();
         if (client.currentScreen instanceof GenericContainerScreen && (inventoryTitle.equals("Player Stats Calculator") || inventoryTitle.equals("Mechanical Armory"))) {
-            int x = ((HandledScreenAccessor) client.currentScreen).getX() + ((HandledScreenAccessor) client.currentScreen).getBackGroundWidth() - 20;
-            int y = ((HandledScreenAccessor) client.currentScreen).getY() - 20;
+            int x = ((HandledScreenAccessor) client.currentScreen).mid$getX() + ((HandledScreenAccessor) client.currentScreen).mid$getBackGroundWidth() - 20;
+            int y = ((HandledScreenAccessor) client.currentScreen).mid$getY() - 20;
 
-            buildFromInventoryButton =
-                    new ItemIconButtonWidget(x, y, 20, 20, Text.literal(""), button -> {
-                        DefaultedList<Slot> slots = ((HandledScreenAccessor) client.currentScreen).getHandler().slots;
+            buildFromInventoryButton = new ItemIconButtonWidget(x, y, 20, 20, button -> {
+                        DefaultedList<Slot> slots = ((HandledScreenAccessor) client.currentScreen).mid$getHandler().slots;
                         DictionaryController controller = new DictionaryController();
 
                         DictionaryBuild buildFromInventory =
@@ -113,7 +113,7 @@ public abstract class ScreenHandlerMixin {
         if(!slotItemNames.get(45).equals("Class Excluded")) {
             String classInfo = slotItemNames.get(47);
             className = classInfo.substring(0, classInfo.indexOf(" "));
-            specializationName = classInfo.substring(classInfo.indexOf("(")+1, classInfo.indexOf(")"));
+            specializationName = classInfo.substring(classInfo.indexOf("(") + 1, classInfo.indexOf(")"));
         }
 
         int id = controller.generateNewId();
@@ -160,8 +160,8 @@ public abstract class ScreenHandlerMixin {
     @Inject(method = "resize", at = @At("TAIL"))
     private void onResize(MinecraftClient client, int width, int height, CallbackInfo ci) {
         if (buildFromInventoryButton != null && client.currentScreen != null) {
-            int x = ((HandledScreenAccessor) client.currentScreen).getX() + ((HandledScreenAccessor) client.currentScreen).getBackGroundWidth() - 20;
-            int y = ((HandledScreenAccessor) client.currentScreen).getY() - 20;
+            int x = ((HandledScreenAccessor) client.currentScreen).mid$getX() + ((HandledScreenAccessor) client.currentScreen).mid$getBackGroundWidth() - 20;
+            int y = ((HandledScreenAccessor) client.currentScreen).mid$getY() - 20;
             buildFromInventoryButton.setX(x);
             buildFromInventoryButton.setY(y);
             addSelectableChild(buildFromInventoryButton);

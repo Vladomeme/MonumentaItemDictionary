@@ -69,60 +69,52 @@ public class CharmDictionaryGui extends Screen {
         });
         searchBar.setFocused(true);
 
-        reloadCharmsButton = new ItemIconButtonWidget(
-                5, 5, 20, 20,
-                Text.literal(""),
+        reloadCharmsButton = new ItemIconButtonWidget(5, 5, 20, 20,
                 (button) -> controller.requestAndUpdate(),
                 Text.literal("Reload All Data"), "globe_banner_pattern", "");
 
-        showItemsButton = new ItemIconButtonWidget(
-                width - sideMenuWidth + 10, labelMenuHeight + 10, 20, 20,
-                Text.literal(""),
+        showItemsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10, 20, 20,
                 (button) -> controller.setItemDictionaryScreen(),
                 Text.literal("Item Data").setStyle(Style.EMPTY.withColor(0xFF00FFFF)), "iron_chestplate", "");
 
-        buildDictionaryButton = new ItemIconButtonWidget(
-                55, 5, 20, 20,
-                Text.literal(""),
+        buildDictionaryButton = new ItemIconButtonWidget(55, 5, 20, 20,
                 (button) -> controller.setBuildDictionaryScreen(),
                 Text.literal("Open Builder GUI"), "iron_chestplate", "");
 
-        builderButton = new ItemIconButtonWidget(
-                55, 5, 20, 20,
-                Text.literal(""),
+        builderButton = new ItemIconButtonWidget(55, 5, 20, 20,
                 (button) -> {
                     isGettingBuildCharm = false;
                     controller.setBuilderScreen();
-                    },
+                },
                 Text.literal("Go Back To Builder"), "arrow", "");
         
-        filterButton = new ItemIconButtonWidget(
-                width - sideMenuWidth + 10, height - 30, 20, 20,
-                Text.literal(""),
+        filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30, 20, 20,
                 (button) -> controller.setCharmFilterScreen(),
                 Text.literal("Filter"), "chest", "");
 
-        resetFilterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 60, 20, 20, Text.literal(""), (button) -> {
+        resetFilterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 60, 20, 20, (button) -> {
             controller.charmFilterGui.clearFilters();
             searchBar.setText("");
             buildCharmList();
-        }, Text.literal("Reset Filters").setStyle(Style.EMPTY.withColor(0xFFFF0000)), "barrier", "");
+        },Text.literal("Reset Filters").setStyle(Style.EMPTY.withColor(0xFFFF0000)), "barrier", "");
 
         tipsMasterworkButton = new ItemIconButtonWidget(
                 30, 5, 20, 20,
-                Text.literal(""),
                 (button) -> Util.getOperatingSystem().open("https://github.com/Ilyiux/MonumentaItemDictionary"),
                 Arrays.asList(
                     Text.literal("Tips").setStyle(Style.EMPTY.withColor(0xFFFFFFFF)),
                     Text.literal(""),
-                    Text.literal("Shift").setStyle(Style.EMPTY.withBold(true).withColor(ItemColors.TEXT_COLOR)).append(Text.literal(" to show an item's lore").setStyle(Style.EMPTY.withBold(false).withColor(ItemColors.TEXT_COLOR))),
+                    Text.literal("Shift").setStyle(Style.EMPTY.withBold(true).withColor(ItemColors.TEXT_COLOR))
+                            .append(Text.literal(" to show an item's lore").setStyle(Style.EMPTY.withBold(false).withColor(ItemColors.TEXT_COLOR))),
                     Text.literal(""),
-                    Text.literal("Double Tap Alt").setStyle(Style.EMPTY.withBold(true).withColor(ItemColors.TEXT_COLOR)).append(Text.literal(" to quickly reset search and filters").setStyle(Style.EMPTY.withBold(false).withColor(ItemColors.TEXT_COLOR))),
+                    Text.literal("Double Tap Alt").setStyle(Style.EMPTY.withBold(true).withColor(ItemColors.TEXT_COLOR))
+                            .append(Text.literal(" to quickly reset search and filters").setStyle(Style.EMPTY.withBold(false).withColor(ItemColors.TEXT_COLOR))),
                     Text.literal(""),
-                    Text.literal("Ctrl Shift + Click").setStyle(Style.EMPTY.withBold(true).withColor(ItemColors.TEXT_COLOR)).append(Text.literal(" to open an item in the wiki").setStyle(Style.EMPTY.withBold(false).withColor(ItemColors.TEXT_COLOR))),
+                    Text.literal("Ctrl Shift + Click").setStyle(Style.EMPTY.withBold(true).withColor(ItemColors.TEXT_COLOR))
+                            .append(Text.literal(" to open an item in the wiki").setStyle(Style.EMPTY.withBold(false).withColor(ItemColors.TEXT_COLOR))),
                     Text.literal(""),
                     Text.literal("Click to go to the MID Github page!").setStyle(Style.EMPTY.withUnderline(true).withColor(0xFF5555FF))
-            ), "oak_sign", "");
+            ),"oak_sign", "");
     }
 
     @Override
@@ -134,10 +126,14 @@ public class CharmDictionaryGui extends Screen {
         int totalPixelHeight = totalRows * itemSize + (totalRows + 1) * itemPadding;
         double bottomPercent = (double)scrollPixels / totalPixelHeight;
         double screenPercent = (double)(height - labelMenuHeight) / totalPixelHeight;
-        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
+        // called twice to make the scroll bar render wider (janky, but I don't really care)
+        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA);
         context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
-        context.drawVerticalLine(width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
-        context.drawVerticalLine(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+
+        context.drawVerticalLine(width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent),
+                (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+        context.drawVerticalLine(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent),
+                (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
 
         // draw the sort menu
         context.drawVerticalLine(width - sideMenuWidth, labelMenuHeight, height, 0xFFFFFFFF);
@@ -156,8 +152,10 @@ public class CharmDictionaryGui extends Screen {
                 context.drawCenteredTextWithShadow(textRenderer, "Found No Charms", width / 2, labelMenuHeight + 10, 0xFF2222);
 
                 if (controller.anyCharms()) {
-                    context.drawCenteredTextWithShadow(textRenderer, "It seems like there were no charms to begin with...", width / 2, labelMenuHeight + 30, 0xFF2222);
-                    context.drawCenteredTextWithShadow(textRenderer, "Try clicking the Reload All Data button in the top left", width / 2, labelMenuHeight + 45, 0xFF2222);
+                    context.drawCenteredTextWithShadow(textRenderer, "It seems like there were no charms to begin with...",
+                            width / 2, labelMenuHeight + 30, 0xFF2222);
+                    context.drawCenteredTextWithShadow(textRenderer, "Try clicking the Reload All Data button in the top left",
+                            width / 2, labelMenuHeight + 45, 0xFF2222);
                 }
             }
         }
@@ -171,7 +169,8 @@ public class CharmDictionaryGui extends Screen {
         context.getMatrices().translate(0, 0, 110);
         context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
         context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Monumenta Charm Dictionary").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFd8b427);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Monumenta Charm Dictionary").setStyle(Style.EMPTY.withBold(true)),
+                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFd8b427);
         context.getMatrices().pop();
 
         // draw gui elements
@@ -186,15 +185,16 @@ public class CharmDictionaryGui extends Screen {
         if (!isGettingBuildCharm) {
             showItemsButton.render(context, mouseX, mouseY, delta);
             buildDictionaryButton.render(context, mouseX, mouseY, delta);
-        } else {
-            builderButton.render(context, mouseX, mouseY, delta);
         }
+        else builderButton.render(context, mouseX, mouseY, delta);
+
 
         context.getMatrices().pop();
 
         try {
             children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -212,21 +212,19 @@ public class CharmDictionaryGui extends Screen {
             int x = (col + 1) * itemPadding + col * itemSize;
             int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
 
-            CharmButtonWidget button = new CharmButtonWidget(x, y, itemSize, index, Text.literal(charm.name), (b) -> {
+            CharmButtonWidget button = new CharmButtonWidget(x, y, itemSize, Text.literal(charm.name()), (b) -> {
                 if (hasShiftDown() && hasControlDown()) {
-                    String wikiFormatted = charm.name.replace(" ", "_").replace("'", "%27");
+                    String wikiFormatted = charm.name().replace(" ", "_").replace("'", "%27");
                     Util.getOperatingSystem().open("https://monumenta.wiki.gg/wiki/" + wikiFormatted);
                 } else if (isGettingBuildCharm) {
-                    if (charm.power + controller.builderGui.getCharmsListWithPower().size() <= 12 && !hasAltDown()) {
+                    if (charm.power() + controller.builderGui.getCharmsListWithPower().size() <= 12 && !hasAltDown()) {
                         returnCharm(charm);
                     }
                 }
 
                 ClientPlayerEntity player = MinecraftClient.getInstance().player;
-                if (player != null && hasAltDown() && player.getAbilities().creativeMode) {
-                    //ItemGenerator.giveItemToClientPlayer(charm.name);
+                if (player != null && hasAltDown() && player.getAbilities().creativeMode)
                     controller.setGeneratorScreen().setCharm(charm);
-                }
             }, charm, () -> generateCharmLoreText(charm), this);
 
             charmButtons.add(button);
@@ -300,9 +298,8 @@ public class CharmDictionaryGui extends Screen {
         if (!isGettingBuildCharm) {
             showItemsButton.mouseClicked(mouseX, mouseY, button);
             buildDictionaryButton.mouseClicked(mouseX, mouseY, button);
-        } else {
-            builderButton.mouseClicked(mouseX, mouseY, button);
         }
+        else builderButton.mouseClicked(mouseX, mouseY, button);
 
         return true;
     }
@@ -310,41 +307,42 @@ public class CharmDictionaryGui extends Screen {
     public List<Text> generateCharmLoreText(DictionaryCharm charm) {
         List<Text> lines = new ArrayList<>();
 
-        lines.add(Text.literal(charm.name).setStyle(Style.EMPTY
-                .withColor(0xFF000000 + ItemColors.getColorForLocation(charm.locationId))
-                .withBold(ItemFormatter.shouldBold(charm.tier))
-                .withUnderline(ItemFormatter.shouldUnderline(charm.tier))));
+        lines.add(Text.literal(charm.name()).setStyle(Style.EMPTY
+                .withColor(0xFF000000 + ItemColors.getColorForLocation(charm.locationId()))
+                .withBold(ItemFormatter.shouldBold(charm.tier()))
+                .withUnderline(ItemFormatter.shouldUnderline(charm.tier()))));
 
-        MutableText region = Text.literal(charm.region + " : ").setStyle(Style.EMPTY
+        MutableText region = Text.literal(charm.region() + " : ").setStyle(Style.EMPTY
                 .withColor(ItemColors.TEXT_COLOR));
-        MutableText tier = Text.literal(ItemFormatter.formatCharmTier(charm.tier)).setStyle(Style.EMPTY
-                .withColor(ItemColors.getColorForTier(charm.tier))
-                .withBold(ItemFormatter.shouldUnderline(charm.tier)));
+        MutableText tier = Text.literal(ItemFormatter.formatCharmTier(charm.tier())).setStyle(Style.EMPTY
+                .withColor(ItemColors.getColorForTier(charm.tier()))
+                .withBold(ItemFormatter.shouldUnderline(charm.tier())));
         lines.add(region.append(tier));
 
         MutableText charmPowerDesc = Text.literal("Charm Power : ").setStyle(Style.EMPTY
                 .withColor(ItemColors.TEXT_COLOR));
         MutableText charmPower = Text.literal("").setStyle(Style.EMPTY
                 .withColor(ItemColors.TEXT_CHARM_POWER_COLOR));
-        for (int i = 0; i < charm.power; i++) charmPower.append("★");
+        for (int i = 0; i < charm.power(); i++) charmPower.append("★");
         MutableText divider = Text.literal(" - ").setStyle(Style.EMPTY
                 .withColor(ItemColors.TEXT_COLOR));
-        MutableText classText = Text.literal(charm.className).setStyle(Style.EMPTY
-                        .withColor(ItemColors.getColorForClass(charm.className)));
+        MutableText classText = Text.literal(charm.className()).setStyle(Style.EMPTY
+                        .withColor(ItemColors.getColorForClass(charm.className())));
         lines.add(charmPowerDesc.append(charmPower).append(divider).append(classText));
 
-        Location location = Mid.controller.locationData.get(charm.locationId);
+        Location location = Mid.controller.locationData.get(charm.locationId());
         if (location != null) lines.add(Text.literal(location.displayName()).setStyle(Style.EMPTY.withColor(location.color())));
 
         lines.add(Text.literal(""));
 
         lines.add(Text.literal("When in Charm Slot:").setStyle(Style.EMPTY.withColor(0xAAAAAA)));
-        for (CharmStat stat : charm.stats) {
-            if (charm.name.equals("Psychosis") && stat.statNameFull.equals("amplifying_hex_max_debuffs_flat"))
-                lines.add(Text.literal((stat.statLocked ? "\uD83D\uDD12 " : "") + stat.statValue + " " + ItemFormatter.formatCharmStat(stat.statNameFull)).setStyle(Style.EMPTY
-                    .withColor(ItemColors.getColorForCharmStat(stat)))); //PSYCHOSIS HARDCODE
-            else lines.add(Text.literal((stat.statLocked ? "\uD83D\uDD12 " : "") + (stat.statValue >= 0 ? "+" : "") + stat.statValue + (stat.statNameFull.endsWith("percent") ? "" : " ") + ItemFormatter.formatCharmStat(stat.statNameFull)).setStyle(Style.EMPTY
-                    .withColor(ItemColors.getColorForCharmStat(stat))));
+        for (CharmStat stat : charm.stats()) {
+            if (charm.name().equals("Psychosis") && stat.statNameFull().equals("amplifying_hex_max_debuffs_flat"))
+                lines.add(Text.literal((stat.statLocked() ? "\uD83D\uDD12 " : "") + stat.statValue() + " " + ItemFormatter.formatCharmStat(stat.statNameFull()))
+                        .setStyle(Style.EMPTY.withColor(ItemColors.getColorForCharmStat(stat)))); //PSYCHOSIS HARDCODE
+            else lines.add(Text.literal((stat.statLocked() ? "\uD83D\uDD12 " : "") + (stat.statValue() >= 0 ? "+" : "") + stat.statValue()
+                            + (stat.statNameFull().endsWith("percent") ? "" : " ") + ItemFormatter.formatCharmStat(stat.statNameFull()))
+                    .setStyle(Style.EMPTY.withColor(ItemColors.getColorForCharmStat(stat))));
         }
 
         lines.add(Text.literal(""));
@@ -356,11 +354,9 @@ public class CharmDictionaryGui extends Screen {
         lines.add(Text.literal("[CTRL] [SHIFT] + Click to open in the wiki").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
         Screen currentScreen = MinecraftClient.getInstance().currentScreen;
         if (currentScreen instanceof BuilderGui) {
-            lines.add(Text.literal("[SHIFT] + Click to delete item")
-                    .setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
+            lines.add(Text.literal("[SHIFT] + Click to delete item").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
         }
-        lines.add(Text.literal(charm.baseItem).setStyle(Style.EMPTY
-                .withColor(ItemColors.TEXT_COLOR)));
+        lines.add(Text.literal(charm.baseItem()).setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
 
         return lines;
     }
@@ -392,9 +388,7 @@ public class CharmDictionaryGui extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
         super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
-        if (Screen.hasControlDown()) {
-            charmButtons.forEach((b) -> b.scrolled(mouseX, mouseY, vAmount));
-        } else {
+        if (!Screen.hasControlDown()) {
             if (mouseX >= 0 && mouseX < width - sideMenuWidth && mouseY >= labelMenuHeight && mouseY < height) {
                 scrollPixels += (int) (-vAmount * 22); // scaled
 
@@ -406,7 +400,7 @@ public class CharmDictionaryGui extends Screen {
     }
 
     private void updateScrollLimits() {
-        int rows = (int) Math.ceil((double)charmButtons.size() / (double)((width - sideMenuWidth - 5) / (itemSize + itemPadding)));
+        int rows = (int) Math.ceil((double) charmButtons.size() / (double) ((width - sideMenuWidth - 5) / (itemSize + itemPadding)));
         int maxScroll = rows * itemSize + (rows + 1) * itemPadding - height + labelMenuHeight;
         if (scrollPixels > maxScroll) scrollPixels = maxScroll;
 

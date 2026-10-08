@@ -7,6 +7,7 @@ import java.util.*;
 import static java.lang.Math.*;
 
 public class Stats {
+
     // Misc Stats
     public double armor;
     public double agility;
@@ -14,6 +15,7 @@ public class Stats {
     public int knockbackRes;
     public int thorns;
     public double fireTickDamage;
+
     // Health Stats
     public double healthFinal;
     public double currentHealth;
@@ -23,6 +25,7 @@ public class Stats {
     public Percentage regenPerSecPercent;
     public double lifeDrainOnCrit;
     public Percentage lifeDrainOnCritPercent;
+
     // DR Stats
     public Percentage meleeDR;
     public Percentage projectileDR;
@@ -31,6 +34,7 @@ public class Stats {
     public Percentage fireDR;
     public Percentage fallDR;
     public Percentage ailmentDR;
+
     // Health Normalized DR Stats
     public Percentage meleeHNDR;
     public Percentage projectileHNDR;
@@ -39,6 +43,7 @@ public class Stats {
     public Percentage fireHNDR;
     public Percentage fallHNDR;
     public Percentage ailmentHNDR;
+
     // EHP Stats
     public double meleeEHP;
     public double projectileEHP;
@@ -47,6 +52,7 @@ public class Stats {
     public double fallEHP;
     public double fireEHP;
     public double ailmentEHP;
+
     // Melee Stats
     public Percentage attackSpeedPercent;
     public double attackSpeed;
@@ -55,6 +61,7 @@ public class Stats {
     public double attackDamageCrit;
     public double iframeDPS;
     public double iframeCritDPS;
+
     // Projectile Stats
     public Percentage projectileDamagePercent;
     public double projectileDamage;
@@ -62,6 +69,7 @@ public class Stats {
     public double projectileSpeed;
     public Percentage throwRatePercent;
     public double throwRate;
+
     // Magic Stats
     public Percentage magicDamagePercent;
     public Percentage spellPowerPercent;
@@ -98,7 +106,8 @@ public class Stats {
     private final Map<String, List<ItemStat>> allItemStats = new HashMap<>();
     private final String currentRegion;
 
-    public Stats(List<DictionaryItem> items, Map<String, Boolean> enabledSituationals, Map<String, Boolean> infusions, double currentHealthPercent, String currentRegion) {
+    public Stats(List<DictionaryItem> items, Map<String, Boolean> enabledSituationals, Map<String, Boolean> infusions,
+                 double currentHealthPercent, String currentRegion) {
         this.enabledSituationals = enabledSituationals;
         vitality = (infusions.get("vitality")) ? 24 : 0;
         tenacity = (infusions.get("tenacity")) ? 24 : 0;
@@ -130,7 +139,7 @@ public class Stats {
         for (int i = 0; i < itemTypes.size(); i++) {
             if (items.get(i) != null) {
                 DictionaryItem item = items.get(i);
-                List<ItemStat> itemStats = item.hasMasterwork ? item.getStatsFromMasterwork(item.getMaxMasterwork() - 1) : item.getStatsNoMasterwork();
+                List<ItemStat> itemStats = item.hasMasterwork() ? item.getStatsFromMasterwork(item.getMaxMasterwork() - 1) : item.getStatsNoMasterwork();
                 this.allItemStats.put(itemTypes.get(i), itemStats);
             }
         }
@@ -183,7 +192,6 @@ public class Stats {
         boolean hasEqual = armor == agility;
         boolean hasNothing = (hasEqual && armor == 0);
 
-
         double maxDefStat;
         double regionMulti;
 
@@ -207,11 +215,8 @@ public class Stats {
         double eAgility = min(agility, maxDefStat);
 
         if (enabledSituationals.get("adaptability")) {
-            if (eArmor > eAgility) {
-                eAgility = eArmor;
-            } else {
-                eArmor = eAgility;
-            }
+            if (eArmor > eAgility) eAgility = eArmor;
+            else eArmor = eAgility;
         }
 
         double situationalArmorRatio = min(eArmor / maxDefStat, 1);
@@ -255,7 +260,8 @@ public class Stats {
             fireEHP = (healthFinal * currentHealthPercent.val / (1 - fireDamageReduct.get("base")));
             fallEHP = (healthFinal * currentHealthPercent.val / (1 - fallDamageReduct.get("base")));
             ailmentEHP = (healthFinal * currentHealthPercent.val / (1 - ailmentDamageReduct.get("base")));
-        } else {
+        }
+        else {
             double hpNoSecondWind = max(0, (currentHealth - healthFinal * 0.5));
             double hpSecondWind = min(currentHealth, healthFinal * 0.5);
 
@@ -323,8 +329,8 @@ public class Stats {
         if (itemStats == null) return 0.0;
         double statValue = 0.0;
         for (ItemStat stat : itemStats) {
-            if (stat.statName.equals(statName)) {
-                statValue = stat.statValue;
+            if (stat.statName().equals(statName)) {
+                statValue = stat.statValue();
                 break;
             }
         }
@@ -335,8 +341,8 @@ public class Stats {
         if (itemStats == null) return perLevelMultiplier;
         double enchLevel = 0.0;
         for (ItemStat stat : itemStats) {
-            if (stat.statName.equals(enchName)) {
-                enchLevel = stat.statValue;
+            if (stat.statName().equals(enchName)) {
+                enchLevel = stat.statValue();
                 break;
             }
         }

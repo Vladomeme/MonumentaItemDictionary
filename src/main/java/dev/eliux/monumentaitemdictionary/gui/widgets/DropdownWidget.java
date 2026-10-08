@@ -35,6 +35,7 @@ public class DropdownWidget extends TextFieldWidget {
         updateMaxShown();
     }
 
+    @SuppressWarnings("unchecked")
     public void setChoices(Object newChoices) {
         if (newChoices instanceof List) {
             if (choiceProvider instanceof MapBasedChoiceProvider)
@@ -93,13 +94,10 @@ public class DropdownWidget extends TextFieldWidget {
             setText("");
             choiceProvider.resetValidChoices();
             visualValidChoices = new ArrayList<>(visualChoices);
-        } else {
-            setText(visualLastChoice);
         }
+        else setText(visualLastChoice);
 
-        if (isFocused() && mouseX >= this.getX() && mouseX <= this.getX() + this.width && mouseY >= this.getY() && mouseY <= this.getY() + this.height) {
-            //setFocused(false);
-        } else {
+        if (!isFocused() || !(mouseX >= this.getX()) || !(mouseX <= this.getX() + this.width) || !(mouseY >= this.getY()) || !(mouseY <= this.getY() + this.height)) {
             super.mouseClicked(mouseX, mouseY, button);
         }
 
@@ -144,12 +142,6 @@ public class DropdownWidget extends TextFieldWidget {
     }
 
     // must be called manually
-    public void resize(MinecraftClient client, int width, int height) {
-        updateMaxShown();
-        updateScrollLimits();
-    }
-
-    // must be called manually
     // called at normal render
     public void renderMain(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
@@ -159,7 +151,7 @@ public class DropdownWidget extends TextFieldWidget {
 
     // must be called manually
     // called after other render calls
-    public void renderDropdown(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderDropdown(DrawContext context, int mouseX, int mouseY) {
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 200);
         if (this.isFocused() && !validChoices.isEmpty()) {
@@ -181,12 +173,11 @@ public class DropdownWidget extends TextFieldWidget {
             // draw choice text
             for (int i = 0; i < Math.min(visualValidChoices.size(), maxShown); i ++) {
                 String finalText;
-                if (textRenderer.getWidth(visualValidChoices.get(i + scrollAmount)) > this.width - 8) {
+                if (textRenderer.getWidth(visualValidChoices.get(i + scrollAmount)) > this.width - 8)
                     finalText = textRenderer.trimToWidth(visualValidChoices.get(i + scrollAmount), this.width - 14) + "...";
-                } else {
+                else
                     finalText = visualValidChoices.get(i + scrollAmount);
-                }
-                //String finalText = textRenderer.trimToWidth(validChoices.get(i), this.width - 8);
+
                 context.drawTextWithShadow(textRenderer, finalText, this.getX() + 4, this.getY() + this.height + ((this.height + 1) * i) + 4, 0xFFFFFFFF);
             }
 
@@ -221,6 +212,7 @@ public class DropdownWidget extends TextFieldWidget {
             setText(visualLastChoice);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public void setChoices(Object source) {
             List<String> newChoices = (List<String>) source;
@@ -249,7 +241,8 @@ public class DropdownWidget extends TextFieldWidget {
                 if (getText().isEmpty()) {
                     validChoices = new ArrayList<>(choices);
                     visualValidChoices = new ArrayList<>(visualChoices);
-                } else {
+                }
+                else {
                     for (String choice : visualChoices) {
                         if (choice.toLowerCase().contains(getText().toLowerCase())) {
                             validChoices.add(choices.get(visualChoices.indexOf(choice)));
@@ -275,6 +268,7 @@ public class DropdownWidget extends TextFieldWidget {
             visualValidChoices = new ArrayList<>(visualChoices);
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public void setChoices(Object source) {
             Map<String, String> newChoices = (Map<String, String>) source;
@@ -304,7 +298,8 @@ public class DropdownWidget extends TextFieldWidget {
                 if (getText().isEmpty()) {
                     validChoices = new ArrayList<>(choices.values());
                     visualValidChoices = new ArrayList<>(visualChoices);
-                } else {
+                }
+                else {
                     for (Map.Entry<String, String> entry : choices.entrySet()) {
                         String input = getText().toLowerCase();
                         if (entry.getKey().toLowerCase().contains(input) || entry.getValue().toLowerCase().contains(input)) {

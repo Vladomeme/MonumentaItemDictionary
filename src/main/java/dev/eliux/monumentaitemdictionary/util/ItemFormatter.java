@@ -3,10 +3,9 @@ package dev.eliux.monumentaitemdictionary.util;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeMap;
 
 public class ItemFormatter {
-    public static String[] modifiableSkills = {"alchemist_potions", "gruesome_alchemy", "iron_tincture", "volatile_reaction", "energizing_elixir", "brutal_alchemy", "alchemical_artillery", "unstable_amalgam", "bezoar", "taboo", "scorched_earth", "esoteric_enhancements", "panacea", "transmutation_ring", "warding_remedy",
+    public static final String[] modifiableSkills = {"alchemist_potions", "gruesome_alchemy", "iron_tincture", "volatile_reaction", "energizing_elixir", "brutal_alchemy", "alchemical_artillery", "unstable_amalgam", "bezoar", "taboo", "scorched_earth", "esoteric_enhancements", "panacea", "transmutation_ring", "warding_remedy",
             "crusade", "celestial_blessing", "divine_justice", "heavenly_boon", "illuminate", "cleansing_rain", "hand_of_light", "touch_of_radiance", "sanctified_armor", "unwavering", "holy_javelin", "choir_bells", "luminous_infusion", "rejuvenation", "ethereal_ascension", "hallowed_beam", "keeper_virtue",
             "channeling", "arcane_strike", "frost_nova", "mana_lance", "thunder_step", "elemental_arrows", "magma_shield", "spellshock", "prismatic_shield", "astral_omen", "cosmic_moonblade", "sage's_insight", "blizzard", "elemental_spirits", "starfall",
             "dethroner", "advancing_shadows", "dagger_throw", "escape_death", "smokescreen", "by_my_blade", "dodging", "skirmisher", "vicious_combos", "blade_dance", "deadly_ronde", "wind_walk", "bodkin_blitz", "cloak_and_dagger", "coup_de_grace",
@@ -61,46 +60,10 @@ public class ItemFormatter {
     }
 
     public static String buildStatString(String name, double value) {
-        if (isStat(name)) {
-            return (value < 0 ? "" : (isBaseStat(name) ? " " : "+")) + (name.equals("knockback_resistance_flat") ? 10 * value : (name.equals("potion_recharge_rate_percent")) ? value / 100 : value) + (isPercentStat(name) ? "" : " ") + formatStat(name);
-        } else {
-            return formatStat(name) + " " + (isSingleEnchant(name) ? "" : (int)value);
-        }
-    }
-
-    public static String buildStatStringWithRoman(String name, double value) {
-        if (isStat(name)) {
-            return (value < 0 ? "" : (isBaseStat(name) ? " " : "+")) + value + (isPercentStat(name) ? "" : " ") + formatStat(name);
-        } else {
-            return formatStat(name) + " " + (isSingleEnchant(name) ? "" : toRoman((int)value));
-        }
-    }
-
-    public static String toRoman(int number) {
-        TreeMap<Integer, String> romanMap = new TreeMap<>();
-
-        romanMap.put(1000, "M");
-        romanMap.put(900, "CM");
-        romanMap.put(500, "D");
-        romanMap.put(400, "CD");
-        romanMap.put(100, "C");
-        romanMap.put(90, "XC");
-        romanMap.put(50, "L");
-        romanMap.put(40, "XL");
-        romanMap.put(10, "X");
-        romanMap.put(9, "IX");
-        romanMap.put(5, "V");
-        romanMap.put(4, "IV");
-        romanMap.put(1, "I");
-
-        Integer l = romanMap.floorKey(number);
-        if (l == null) {
-            return "" + number;
-        }
-        if (l == number) {
-            return "" + romanMap.get(l);
-        }
-        return romanMap.get(l) + toRoman(number - l);
+        if (isStat(name))
+            return (value < 0 ? "" : (isBaseStat(name) ? " " : "+")) + (name.equals("knockback_resistance_flat") ? 10 * value
+                    : (name.equals("potion_recharge_rate_percent")) ? value / 100 : value) + (isPercentStat(name) ? "" : " ") + formatStat(name);
+        else return formatStat(name) + " " + (isSingleEnchant(name) ? "" : (int)value);
     }
 
     public static int getMasterworkForRarity(String rarity) {
@@ -177,10 +140,10 @@ public class ItemFormatter {
         String stat = inStat;
         stat = stat.replace("_s_", "'s_");
         if (stat.endsWith("_prot")) stat = stat.substring(0, stat.lastIndexOf("_prot")) + "_protection";
-        if (stat.endsWith("_base")) stat = stat.equals("spell_power_base") ? "%_" + stat.substring(0, stat.lastIndexOf("_base")) : stat.substring(0, stat.lastIndexOf("_base")) + "";
-        if (stat.endsWith("_flat")) stat = stat.equals("knockback_resistance_flat") ? "%_" + stat.substring(0, stat.lastIndexOf("_flat")) : stat.substring(0, stat.lastIndexOf("_flat")) + "";
-        if (stat.endsWith("_percent")) stat = stat.equals("potion_recharge_rate_percent") ? stat.substring(0, stat.lastIndexOf("_percent")) : "%_" + stat.substring(0, stat.lastIndexOf("_percent")) + "";
-        if (stat.endsWith("_bow")) stat = stat.substring(0, stat.lastIndexOf("_bow")) + "";
+        if (stat.endsWith("_base")) stat = stat.equals("spell_power_base") ? "%_" + stat.substring(0, stat.lastIndexOf("_base")) : stat.substring(0, stat.lastIndexOf("_base"));
+        if (stat.endsWith("_flat")) stat = stat.equals("knockback_resistance_flat") ? "%_" + stat.substring(0, stat.lastIndexOf("_flat")) : stat.substring(0, stat.lastIndexOf("_flat"));
+        if (stat.endsWith("_percent")) stat = stat.equals("potion_recharge_rate_percent") ? stat.substring(0, stat.lastIndexOf("_percent")) : "%_" + stat.substring(0, stat.lastIndexOf("_percent"));
+        if (stat.endsWith("_bow")) stat = stat.substring(0, stat.lastIndexOf("_bow"));
         if (stat.endsWith("_tool")) stat = stat.substring(0, stat.lastIndexOf("_tool")) + "_food";
         if (stat.endsWith("_m")) stat = stat.substring(0, stat.lastIndexOf("_m")) + "_melee";
         if (stat.endsWith("_p")) stat = stat.substring(0, stat.lastIndexOf("_p")) + "_ranged";
@@ -209,7 +172,7 @@ public class ItemFormatter {
     public static String formatCharmStat(String inStat) {
         String stat = inStat;
 
-        if (stat.endsWith("_flat")) stat = stat.substring(0, stat.lastIndexOf("_flat")) + "";
+        if (stat.endsWith("_flat")) stat = stat.substring(0, stat.lastIndexOf("_flat"));
         if (stat.endsWith("_percent")) stat = "%_" + stat.substring(0, stat.lastIndexOf("_percent"));
         stat = stat.replace("_", " ");
 

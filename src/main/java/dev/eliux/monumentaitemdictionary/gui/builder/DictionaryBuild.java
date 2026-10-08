@@ -8,19 +8,19 @@ import java.util.List;
 
 public class DictionaryBuild {
     public final int id;
-    public DictionaryItem itemOnButton;
-    public String className;
-    public String specialization;
-    public String region;
-    public String name;
-    public DictionaryItem mainhand;
-    public DictionaryItem offhand;
-    public DictionaryItem head;
-    public DictionaryItem chestplate;
-    public DictionaryItem leggings;
-    public DictionaryItem boots;
-    public List<DictionaryCharm> charms;
-    public List<DictionaryItem> allItems;
+    public final DictionaryItem itemOnButton;
+    public final String className;
+    public final String specialization;
+    public final String region;
+    public final String name;
+    public final DictionaryItem mainhand;
+    public final DictionaryItem offhand;
+    public final DictionaryItem head;
+    public final DictionaryItem chestplate;
+    public final DictionaryItem leggings;
+    public final DictionaryItem boots;
+    public final List<DictionaryCharm> charms;
+    public final List<DictionaryItem> allItems;
     public boolean favorite;
 
     public DictionaryBuild(String name, List<DictionaryItem> items, List<DictionaryCharm> charms, DictionaryItem itemOnBuildButton, String region, String className, String specialization, boolean favorite, int id) {

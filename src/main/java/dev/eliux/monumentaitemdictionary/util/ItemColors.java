@@ -3,6 +3,7 @@ package dev.eliux.monumentaitemdictionary.util;
 import dev.eliux.monumentaitemdictionary.Mid;
 
 public class ItemColors {
+
     public static final int DEFAULT_COLOR = 0xFFFFFF;
 
     public static final int TEXT_COLOR = 0x555555;
@@ -13,6 +14,7 @@ public class ItemColors {
     public static final int TEXT_NEGATIVE_COLOR = 0xFF5555;
     public static final int TEXT_MASTERWORK_COLOR = 0xFFB43E;
     public static final int TEXT_CHARM_POWER_COLOR = 0xFFFA75;
+    @SuppressWarnings("unused")
     public static final int TEXT_LORE_COLOR = 0xAA00AA;
     public static final int TEXT_POSITIVE_CHARM_COLOR = 0x4AC2E5;
     public static final int TEXT_NEGATIVE_CHARM_COLOR = 0xD02E28;
@@ -95,25 +97,25 @@ public class ItemColors {
     }
 
     public static int getColorForCharmStat(CharmStat charmStat) {
-        boolean positive = charmStat.statValue >= 0;
-        boolean inverted = (charmStat.statNameFull.contains("cooldown")
-                && !(charmStat.statNameFull.contains("cooldown_reduction")
-                    || charmStat.statNameFull.contains("cooldown_cap")
-                    || charmStat.statNameFull.contains("cooldown_recharge_rate")
-                    || charmStat.statNameFull.contains("cooldown_refund") ))
-                || charmStat.statNameFull.contains("self_damage")
-                || charmStat.statNameFull.contains("requirement")
-                || charmStat.statNameFull.contains("penalty")
-                || charmStat.statNameFull.contains("delay")
-                || charmStat.statNameFull.contains("price")
-                || charmStat.statNameFull.contains("received_damage")
-                || charmStat.statNameFull.contains("cost")
-                || charmStat.statNameFull.contains("priming_duration")
+        boolean positive = charmStat.statValue() >= 0;
+        boolean inverted = (charmStat.statNameFull().contains("cooldown")
+                && !(charmStat.statNameFull().contains("cooldown_reduction")
+                    || charmStat.statNameFull().contains("cooldown_cap")
+                    || charmStat.statNameFull().contains("cooldown_recharge_rate")
+                    || charmStat.statNameFull().contains("cooldown_refund") ))
+                || charmStat.statNameFull().contains("self_damage")
+                || charmStat.statNameFull().contains("requirement")
+                || charmStat.statNameFull().contains("penalty")
+                || charmStat.statNameFull().contains("delay")
+                || charmStat.statNameFull().contains("price")
+                || charmStat.statNameFull().contains("received_damage")
+                || charmStat.statNameFull().contains("cost")
+                || charmStat.statNameFull().contains("priming_duration")
                 /* Hardcode Affected Charm Note
                     Silver Codex, Focused/Greater/Lesser Executioner's Charm: Coup de Grace health threshold
                     Psychosis: Locked Amplifying Hex max debuffs */
-                || (charmStat.statNameFull.contains("threshold") && !(charmStat.statNameFull.contains("coup_de_grace")))
-                || (charmStat.statLocked && charmStat.statNameFull.equals("amplifying_hex_max_debuffs_flat"));
+                || (charmStat.statNameFull().contains("threshold") && !(charmStat.statNameFull().contains("coup_de_grace")))
+                || (charmStat.statLocked() && charmStat.statNameFull().equals("amplifying_hex_max_debuffs_flat"));
         return (positive ^ inverted) ? TEXT_POSITIVE_CHARM_COLOR : TEXT_NEGATIVE_CHARM_COLOR;
     }
 
@@ -125,13 +127,10 @@ public class ItemColors {
     public static int getColorForStat(String itemStat, double value) {
         if (value < 0 || ItemFormatter.isCurseEnchant(itemStat))
             return TEXT_NEGATIVE_COLOR;
-
         if (itemStat.equals("armor") || itemStat.equals("agility"))
             return TEXT_DEFENSE_COLOR;
-
         if (ItemFormatter.isBaseStat(itemStat))
             return TEXT_BASE_STAT_COLOR;
-
         if (ItemFormatter.isStat(itemStat))
             return TEXT_STAT_COLOR;
 
@@ -147,9 +146,9 @@ public class ItemColors {
         int h2g = (h2 / 256) % 256;
         int h2b = h2 % 256;
 
-        int or = (int)(h1r * p) + (int)(h2r * (1 - p));
-        int og = (int)(h1g * p) + (int)(h2g * (1 - p));
-        int ob = (int)(h1b * p) + (int)(h2b * (1 - p));
+        int or = (int) (h1r * p) + (int) (h2r * (1 - p));
+        int og = (int) (h1g * p) + (int) (h2g * (1 - p));
+        int ob = (int) (h1b * p) + (int) (h2b * (1 - p));
 
         return (or * (256 * 256)) + (og * 256) + (ob);
     }

@@ -7,16 +7,11 @@ public class Percentage {
         if (perc) {
             this.perc = value;
             this.val = value / 100;
-        } else {
+        }
+        else {
             this.perc = value * 100;
             this.val = value;
         }
-    }
-
-    public Percentage addP(Percentage percentage) {
-        this.perc += percentage.perc;
-        this.val += percentage.val;
-        return this;
     }
 
     public Percentage mulP(Percentage percentage) {
@@ -29,7 +24,8 @@ public class Percentage {
         if (percent) {
             this.perc += value;
             this.val += value / 100;
-        } else {
+        }
+        else {
             this.perc += value*100;
             this.val += value;
         }
@@ -40,7 +36,8 @@ public class Percentage {
         if (percent) {
             this.perc *= value/100;
             this.val *= value/100;
-        } else {
+        }
+        else {
             this.perc *= value;
             this.val *= value;
         }

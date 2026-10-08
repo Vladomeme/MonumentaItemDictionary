@@ -25,10 +25,9 @@ public class BuildDictionaryGui extends Screen {
     public final int labelMenuHeight = 30;
     public final int itemPadding = 10;
     public final int itemSize = 50;
-    private long lastAltPressed = 0;
     public final DictionaryController controller;
     public ArrayList<DictionaryBuild> buildsList;
-    public HashMap<DictionaryBuild, BuildButtonWidget> buildsButtons = new HashMap<>();
+    public final HashMap<DictionaryBuild, BuildButtonWidget> buildsButtons = new HashMap<>();
     private TextFieldWidget searchBar;
     private ItemIconButtonWidget filterButton;
     public final List<String> itemTypesIndex = Arrays.asList("Mainhand", "Offhand", "Helmet", "Chestplate", "Leggings", "Boots");
@@ -42,50 +41,37 @@ public class BuildDictionaryGui extends Screen {
         searchBar = new TextFieldWidget(textRenderer, width / 2 + 90, 7, width / 2 - 100, 15, Text.literal("Search"));
         searchBar.setChangedListener(t -> {
             controller.setBuildNameFilter(searchBar.getText());
-            if (searchBar.getText().isEmpty())
-                controller.clearBuildNameFilter();
-
+            if (searchBar.getText().isEmpty()) controller.clearBuildNameFilter();
             buildBuildsList();
         });
         searchBar.setFocused(true);
 
         buildsList = new ArrayList<>();
 
-        addBuildButton = new ItemIconButtonWidget(
-                5, 5, 20, 20,
-                Text.literal(""),
-                (button) -> {
-                    controller.setBuilderScreen();
-                    controller.builderGui.resetBuild();
-                    },
-                Text.literal("Add Build"),
-                "paper", "");
+        addBuildButton = new ItemIconButtonWidget(5, 5, 20, 20, (button) -> {
+            controller.setBuilderScreen();
+            controller.builderGui.resetBuild();
+            }, Text.literal("Add Build"), "paper", "");
 
-        showItemsButton = new ItemIconButtonWidget(
-                width - sideMenuWidth + 10,labelMenuHeight + 10, 20, 20,
-                Text.literal(""),
-                (button) -> controller.setItemDictionaryScreen(),
+        showItemsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10,labelMenuHeight + 10, 20, 20,
+                (button) ->
+                controller.setItemDictionaryScreen(),
                 Text.literal("Item Data").setStyle(Style.EMPTY.withColor(0xFF00FFFF)),
                 "iron_chestplate", "");
 
-        showCharmsButton = new ItemIconButtonWidget(
-                width - sideMenuWidth + 10, labelMenuHeight + 38, 20, 20,
-                Text.literal(""),
+        showCharmsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 38, 20, 20,
                 (button) -> controller.setCharmDictionaryScreen(),
                 Text.literal("Charm Data").setStyle(Style.EMPTY.withColor(0xFFFFFF00)),
                 "glowstone_dust", "");
 
-        filterButton = new ItemIconButtonWidget(
-                width - sideMenuWidth + 10, height - 30, 20, 20,
-                Text.literal(""),
+        filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30, 20, 20,
                 button -> controller.setBuildFilterScreen(),
                 Text.literal("Filter"), "chest", "");
 
         buildBuildsList();
     }
 
-    public void buildBuildsList()
-    {
+    public void buildBuildsList() {
         controller.loadBuilds();
         controller.refreshBuilds();
         buildsList = controller.getBuilds();
@@ -105,19 +91,20 @@ public class BuildDictionaryGui extends Screen {
         int x = (col + 1) * itemPadding + col * itemSize;
         int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
 
-        return new BuildButtonWidget(x, y, itemSize, Text.literal(build.name), b -> buildButtonClicked(build), build,
-                this);
+        return new BuildButtonWidget(x, y, itemSize, Text.literal(build.name), b -> buildButtonClicked(build), build, this);
     }
 
     private void buildButtonClicked(DictionaryBuild build) {
         if (hasShiftDown() && hasControlDown()) {
             controller.deleteBuildFromJson(build.id);
             buildsList.remove(build);
-        } else if (hasShiftDown()){
+        }
+        else if (hasShiftDown()){
             toggleFavorite(build);
             buildsButtons.get(build).updateFavorite();
             controller.refreshBuilds();
-        }else {
+        }
+        else {
             controller.setBuilderScreen();
             controller.builderGui.loadItems(build);
         }
@@ -137,9 +124,12 @@ public class BuildDictionaryGui extends Screen {
         context.getMatrices().translate(0, 0, 110);
         context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
         context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Build Dictionary").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Build Dictionary").setStyle(Style.EMPTY.withBold(true)),
+                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
         context.getMatrices().pop();
-        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
+
+        // called twice to make the scroll bar render wider (janky, but I don't really care)
+        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA);
         context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
 
         buildsButtons.forEach((build, button) -> button.renderWidget(context, mouseX, mouseY, delta));
@@ -159,7 +149,8 @@ public class BuildDictionaryGui extends Screen {
 
         try {
             children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -198,7 +189,8 @@ public class BuildDictionaryGui extends Screen {
         filterButton.setY(height - 30);
     }
 
-    public void addBuild(String name, List<DictionaryItem> items, List<DictionaryCharm> charms, DictionaryItem itemOnBuildButton, String region, String className, String specialization) {
+    public void addBuild(String name, List<DictionaryItem> items, List<DictionaryCharm> charms, DictionaryItem itemOnBuildButton,
+                         String region, String className, String specialization) {
         if (name.isEmpty()) name = "No Name";
         int id = controller.generateNewId();
 
@@ -218,21 +210,20 @@ public class BuildDictionaryGui extends Screen {
         for (DictionaryItem item : build.allItems) {
             if (item != null) {
                 JsonObject itemJson = new JsonObject();
-                itemJson.addProperty("name", item.name);
-                itemJson.addProperty("exalted", item.region.equals("Ring"));
+                itemJson.addProperty("name", item.name());
+                itemJson.addProperty("exalted", item.region().equals("Ring"));
 
-                itemsJson.add(item.type, itemJson);
-            } else {
-                itemsJson.add(itemTypesIndex.get(i), new JsonObject());
+                itemsJson.add(item.type(), itemJson);
             }
+            else itemsJson.add(itemTypesIndex.get(i), new JsonObject());
+
             i++;
         }
 
         ArrayList<DictionaryCharm> charmsWithoutDuplicates = new ArrayList<>(new HashSet<>(build.charms));
         JsonArray charmsArray = new JsonArray();
-        for (DictionaryCharm charm : charmsWithoutDuplicates) {
-            charmsArray.add(charm.name);
-        }
+
+        for (DictionaryCharm charm : charmsWithoutDuplicates) charmsArray.add(charm.name());
 
         jsonBuild.addProperty("name", build.name);
         jsonBuild.add("items", itemsJson);
@@ -242,8 +233,8 @@ public class BuildDictionaryGui extends Screen {
         jsonBuild.addProperty("specialization", build.specialization);
 
         JsonObject itemToShowJson = new JsonObject();
-        itemToShowJson.addProperty("name", build.itemOnButton.name);
-        itemToShowJson.addProperty("exalted", build.itemOnButton.region.equals("Ring"));
+        itemToShowJson.addProperty("name", build.itemOnButton.name());
+        itemToShowJson.addProperty("exalted", build.itemOnButton.region().equals("Ring"));
         jsonBuild.add("item_to_show", itemToShowJson);
         jsonBuild.addProperty("favorite", build.favorite);
 
@@ -268,31 +259,20 @@ public class BuildDictionaryGui extends Screen {
                 buildBuildsList();
             }
         }
-
         return true;
     }
 
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         super.keyReleased(keyCode, scanCode, modifiers);
-
-        if (keyCode == 342 || keyCode == 346) { // left or right alt pressed
-            lastAltPressed = System.currentTimeMillis();
-        }
-
         return true;
     }
-
-
 
     @Override
     public boolean charTyped(char chr, int modifiers) {
         super.charTyped(chr, modifiers);
-
         searchBar.charTyped(chr, modifiers);
-
         return true;
     }
-
 }
 
