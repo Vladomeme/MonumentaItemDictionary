@@ -101,7 +101,9 @@ public class ItemButtonWidget extends ButtonWidget {
         context.drawVerticalLine(minX, minY, maxY, outlineColor);
         context.drawVerticalLine(maxX, minY, maxY, outlineColor);
 
+        context.enableScissor(0, gui.labelMenuHeight + 1, gui.width, gui.height);
         context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);
+        context.disableScissor();
 
         if (hovered) {
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltipTextSupplier.get(), mouseX, mouseY);

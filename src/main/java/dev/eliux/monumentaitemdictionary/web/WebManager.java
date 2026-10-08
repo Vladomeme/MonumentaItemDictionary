@@ -44,7 +44,8 @@ public class WebManager {
         Style style = Style.EMPTY.withColor(Formatting.RED);
 
         new Thread(() -> {
-            try (HttpClient client = HttpClient.newHttpClient()) {
+            try {
+                HttpClient client = HttpClient.newHttpClient();
                 List<CompletableFuture<HttpResponse<String>>> futures = new ArrayList<>(requests.length);
 
                 for (WebRequest request : requests) {

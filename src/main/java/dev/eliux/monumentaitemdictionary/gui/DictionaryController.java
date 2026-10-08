@@ -1012,7 +1012,7 @@ public class DictionaryController {
         }
 
         if (possibleItems.size() == 1) {
-            return possibleItems.getFirst();
+            return possibleItems.get(0);
         } else if (possibleItems.size() > 1) {
             for (DictionaryItem item : possibleItems) {
                 if (isExalted && item.region.equals("Ring")) {
