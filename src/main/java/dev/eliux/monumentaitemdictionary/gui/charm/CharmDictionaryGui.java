@@ -145,11 +145,13 @@ public class CharmDictionaryGui extends Screen {
 
         // draw item buttons
         if (!controller.isRequesting) {
+            context.enableScissor(0, labelMenuHeight + 1, width, height);
             charmButtons.forEach(b -> {
                 if (b.getY() - scrollPixels + itemSize >= labelMenuHeight && b.getY() - scrollPixels <= height) {
                     b.renderWidget(context, mouseX, mouseY, delta);
                 }
             });
+            context.disableScissor();
 
             if (charmButtons.isEmpty()) {
                 context.drawCenteredTextWithShadow(textRenderer, "Found No Charms", width / 2, labelMenuHeight + 10, 0xFF2222);
