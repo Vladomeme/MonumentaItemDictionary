@@ -167,13 +167,11 @@ public class ItemDictionaryGui extends Screen {
 
         // draw item buttons
         if (!controller.isRequesting) {
-            context.enableScissor(0, labelMenuHeight + 1, width, height);
             for (List<ItemButtonWidget> row : itemButtons
                     .subMap(labelMenuHeight + scrollPixels - itemSize, true, height + scrollPixels, true)
                     .values()) {
                 row.forEach(b -> b.renderWidget(context, mouseX, mouseY, delta));
             }
-            context.disableScissor();
 
             if (itemButtons.isEmpty()) {
                 context.drawCenteredTextWithShadow(textRenderer, "Found No Items", width / 2, labelMenuHeight + 10, 0xFF2222);
