@@ -48,7 +48,6 @@ public class CharmDictionaryGui extends Screen {
     public final DictionaryController controller;
     private ItemIconButtonWidget buildDictionaryButton;
     public boolean isGettingBuildCharm = false;
-    public boolean isInBuilderGui = false;
     private ItemIconButtonWidget builderButton;
 
     public CharmDictionaryGui(Text title, DictionaryController controller) {
@@ -351,7 +350,7 @@ public class CharmDictionaryGui extends Screen {
         lines.add(Text.literal(""));
 
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null && player.getAbilities().creativeMode && !isInBuilderGui) {
+        if (player != null && player.getAbilities().creativeMode && !(MinecraftClient.getInstance().currentScreen instanceof BuilderGui)) {
             lines.add(Text.literal("[ALT] + Click to generate this item").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
         }
         lines.add(Text.literal("[CTRL] [SHIFT] + Click to open in the wiki").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
