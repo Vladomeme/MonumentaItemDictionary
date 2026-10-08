@@ -229,8 +229,6 @@ public class DictionaryController {
         } else {
             builderGui.updateGuiPositions();
         }
-        itemGui.isInBuilderGui = true;
-        charmGui.isInBuilderGui = true;
     }
 
     private String readStringData(String path) {
@@ -1056,7 +1054,6 @@ public class DictionaryController {
     public void getItemFromDictionary(String itemType) {
         itemGui.postInit();
         itemGui.isGettingBuildItem = true;
-        itemGui.isInBuilderGui = false;
         itemGui.itemTypeLookingFor = itemType;
         clearItemNameFilter();
         itemGui.clearSearchBar();
@@ -1067,7 +1064,6 @@ public class DictionaryController {
     public void getCharmFromDictionary() {
         charmGui.postInit();
         charmGui.isGettingBuildCharm = true;
-        charmGui.isInBuilderGui = false;
         if (charmGuiPreviouslyOpened) {
             clearCharmNameFilter();
             charmGui.clearSearchBar();
