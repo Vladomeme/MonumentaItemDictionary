@@ -4,6 +4,8 @@ import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
 import dev.eliux.monumentaitemdictionary.util.ItemStat;
 
 import java.util.ArrayList;
+import java.util.Objects;
+
 import org.jetbrains.annotations.NotNull;
 
 public class DictionaryItem implements Comparable<DictionaryItem> {
@@ -134,5 +136,20 @@ public class DictionaryItem implements Comparable<DictionaryItem> {
         }
 
         return name.compareTo(o.name);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof DictionaryItem otherItem)) return false;
+
+        return hasMasterwork == otherItem.hasMasterwork
+                && Objects.equals(name, otherItem.name)
+                && Objects.equals(region, otherItem.region)
+                && Objects.equals(baseItem, otherItem.baseItem);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, region, baseItem, hasMasterwork);
     }
 }

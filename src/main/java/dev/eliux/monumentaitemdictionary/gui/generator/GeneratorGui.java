@@ -153,9 +153,9 @@ public class GeneratorGui extends Screen {
     private void updateGeneratedItem() {
         if (lastFocused == DictionaryItem.class) {
             String nbt = focusedItem.hasMasterwork ? focusedItem.getNbtFromMasterwork(masterworkLevel) : focusedItem.getNbtNoMasterwork();
-            generatedItem = ItemFactory.fromEncodingWithStringNbt(focusedItem.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"), nbt);
+            generatedItem = ItemFactory.fromEncodingWithStringNbt(focusedItem.baseItem.toLowerCase().replace(" ", "_"), nbt);
         } else {
-            generatedItem = ItemFactory.fromEncodingWithStringNbt(focusedCharm.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"), focusedCharm.nbt);
+            generatedItem = ItemFactory.fromEncodingWithStringNbt(focusedCharm.baseItem.toLowerCase().replace(" ", "_"), focusedCharm.nbt);
         }
 
         if (generatedItem.getItem() instanceof DyeableItem item && dyeColor != -1) {

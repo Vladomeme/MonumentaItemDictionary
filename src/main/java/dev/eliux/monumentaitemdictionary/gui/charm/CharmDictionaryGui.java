@@ -144,13 +144,14 @@ public class CharmDictionaryGui extends Screen {
 
         // draw item buttons
         if (!controller.isRequesting) {
-            charmButtons.forEach(b -> {
-                if (b.getY() - scrollPixels + itemSize >= labelMenuHeight && b.getY() - scrollPixels <= height) {
-                    b.renderWidget(context, mouseX, mouseY, delta);
-                }
-            });
-
-            if (charmButtons.isEmpty()) {
+            if (!charmButtons.isEmpty()) {
+                charmButtons.forEach(b -> {
+                    if (b.getY() - scrollPixels + itemSize >= labelMenuHeight && b.getY() - scrollPixels <= height) {
+                        b.renderWidget(context, mouseX, mouseY, delta);
+                    }
+                });
+            }
+            else {
                 context.drawCenteredTextWithShadow(textRenderer, "Found No Charms", width / 2, labelMenuHeight + 10, 0xFF2222);
 
                 if (controller.anyCharms()) {
@@ -202,15 +203,15 @@ public class CharmDictionaryGui extends Screen {
         ArrayList<DictionaryCharm> toBuildCharms = controller.getCharms();
 
         charmButtons.clear();
-        for (DictionaryCharm charm : toBuildCharms) {
-            int index = toBuildCharms.indexOf(charm);
-            int row = index / ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
-            int col = index % ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
+        for (int i = 0; i != toBuildCharms.size(); i++) {
+            DictionaryCharm charm = toBuildCharms.get(i);
+            int row = i / ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
+            int col = i % ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
 
             int x = (col + 1) * itemPadding + col * itemSize;
             int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
 
-            CharmButtonWidget button = new CharmButtonWidget(x, y, itemSize, index, Text.literal(charm.name), (b) -> {
+            CharmButtonWidget button = new CharmButtonWidget(x, y, itemSize, i, Text.literal(charm.name), (b) -> {
                 if (hasShiftDown() && hasControlDown()) {
                     String wikiFormatted = charm.name.replace(" ", "_").replace("'", "%27");
                     Util.getOperatingSystem().open("https://monumenta.wiki.gg/wiki/" + wikiFormatted);
@@ -237,7 +238,7 @@ public class CharmDictionaryGui extends Screen {
         builderGui.charms.add(charm);
 
         controller.setBuilderScreen();
-        controller.builderGui.updateButtons();
+        builderGui.updateButtons();
 
         isGettingBuildCharm = false;
     }

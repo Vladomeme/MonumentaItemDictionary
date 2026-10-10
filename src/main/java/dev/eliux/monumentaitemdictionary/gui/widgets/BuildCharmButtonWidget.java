@@ -51,7 +51,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
 
             return builtItem;
         }
-        ItemStack builtItem = ItemFactory.fromEncoding(charm.baseItem.split("/")[0].trim().toLowerCase().replace(" ", "_"));
+        ItemStack builtItem = ItemFactory.fromEncoding(charm.baseItem.toLowerCase().replace(" ", "_"));
         NbtCompound baseNbt = builtItem.getOrCreateNbt();
 
         NbtCompound monumenta = new NbtCompound();

@@ -178,14 +178,14 @@ public class ItemDictionaryGui extends Screen {
 
         // draw item buttons
         if (!controller.isRequesting) {
-            for (List<ItemButtonWidget> row : itemButtons
-                    .subMap(labelMenuHeight + scrollPixels - itemSize, true,
-                            height + scrollPixels, true)
-                    .values()) {
-                row.forEach(b -> b.renderWidget(context, mouseX, mouseY, delta));
+            if (!itemButtons.isEmpty()) {
+                for (List<ItemButtonWidget> row : itemButtons
+                        .subMap(labelMenuHeight + scrollPixels - itemSize, true, height + scrollPixels, true)
+                        .values()) {
+                    row.forEach(b -> b.renderWidget(context, mouseX, mouseY, delta));
+                }
             }
-
-            if (itemButtons.isEmpty()) {
+            else {
                 context.drawCenteredTextWithShadow(textRenderer, "Found No Items", width / 2, labelMenuHeight + 10, 0xFF2222);
 
                 if (controller.anyItems()) {
@@ -240,15 +240,15 @@ public class ItemDictionaryGui extends Screen {
 
         itemButtons.clear();
         widgetByItem.clear();
-        for (DictionaryItem item : toBuildItems) {
-            int index = toBuildItems.indexOf(item);
-            int row = index / ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
-            int col = index % ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
+        for (int i = 0; i != toBuildItems.size(); i++) {
+            DictionaryItem item = toBuildItems.get(i);
+            int row = i / ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
+            int col = i % ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
 
             int x = (col + 1) * itemPadding + col * itemSize;
             int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
 
-            ItemButtonWidget button = new ItemButtonWidget(x, y, itemSize, index, Text.literal(item.name), (b) -> {
+            ItemButtonWidget button = new ItemButtonWidget(x, y, itemSize, i, Text.literal(item.name), (b) -> {
                 if (hasShiftDown() && hasControlDown()) {
                     String wikiFormatted = item.name.replace(" ", "_").replace("'", "%27");
                     Util.getOperatingSystem().open("https://monumenta.wiki.gg/wiki/" + wikiFormatted);
@@ -279,19 +279,15 @@ public class ItemDictionaryGui extends Screen {
     private void returnItem(DictionaryItem item) {
         BuilderGui builderGui = controller.builderGui;
 
-        int index = 0;
-        for (String itemType : builderGui.itemTypesIndex) {
-            if (item.type.contains(itemType)) {
-                index = builderGui.itemTypesIndex.indexOf(itemType);
-                break;
-            }
+        int index;
+        for (index = 0; index < builderGui.itemTypesIndex.size(); index++) {
+            String itemType = builderGui.itemTypesIndex.get(index);
+            if (item.type.contains(itemType)) break;
         }
-
         builderGui.buildItems.set(index, item);
 
-        controller.builderGui.updateUserOptions();
-        controller.builderGui.updateButtons();
-        controller.builderGui.updateStats();
+        builderGui.updateButtons();
+        builderGui.updateStats();
         controller.itemFilterGui.clearFilters();
         controller.setBuilderScreen();
 
