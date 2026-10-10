@@ -34,7 +34,7 @@ public class BuildItemButtonWidget extends ButtonWidget {
         this.gui = gui;
         this.scale = (float) width/18;
 
-        builtItem = ItemFactory.fromEncoding(item != null ? (item.baseItem().split("/")[0].trim().toLowerCase().replace(" ", "_")) : "barrier");
+        builtItem = ItemFactory.fromEncoding(item != null ? (item.baseItem().toLowerCase().replace(" ", "_")) : "barrier");
 
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();

@@ -37,7 +37,7 @@ public class ItemButtonWidget extends ButtonWidget {
         this.gui = gui;
 
         // dummy itemstack for rendering item icon
-        builtItem = ItemFactory.fromEncoding(item.baseItem().split("/")[0].trim().toLowerCase().replace(" ", "_"));
+        builtItem = ItemFactory.fromEncoding(item.baseItem().toLowerCase().replace(" ", "_"));
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();
         display.putString("Name", item.name().split("\\(")[0].trim());

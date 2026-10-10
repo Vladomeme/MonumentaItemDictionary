@@ -34,7 +34,7 @@ public class CharmButtonWidget extends ButtonWidget {
         this.gui = gui;
 
         // dummy itemstack for rendering item icon
-        builtItem = ItemFactory.fromEncoding(charm.baseItem().split("/")[0].trim().toLowerCase().replace(" ", "_"));
+        builtItem = ItemFactory.fromEncoding(charm.baseItem().toLowerCase().replace(" ", "_"));
 
         NbtCompound monumenta = new NbtCompound();
         monumenta.putInt("CharmPower", charm.power());

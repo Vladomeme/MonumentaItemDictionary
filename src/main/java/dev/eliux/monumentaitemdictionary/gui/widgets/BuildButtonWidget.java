@@ -36,7 +36,7 @@ public class BuildButtonWidget extends ButtonWidget {
         DictionaryItem displayingItem = build.itemOnButton;
 
         if (displayingItem != null) {
-            builtItem = ItemFactory.fromEncoding(displayingItem.baseItem().split("/")[0].trim().toLowerCase().replace(" ", "_"));
+            builtItem = ItemFactory.fromEncoding(displayingItem.baseItem().toLowerCase().replace(" ", "_"));
             NbtCompound plain = new NbtCompound();
             NbtCompound display = new NbtCompound();
             display.putString("Name", displayingItem.name().split("\\(")[0].trim());
