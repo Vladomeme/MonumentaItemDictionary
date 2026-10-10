@@ -52,6 +52,7 @@ public class ItemDictionaryGui extends Screen {
     private ItemIconButtonWidget maxMasterworkButton;
     private ItemIconButtonWidget tipsMasterworkButton;
     public boolean isGettingBuildItem = false;
+    private long lastAltPressed = 0;
 
     public final DictionaryController controller;
     private ItemIconButtonWidget builderButton;
@@ -291,7 +292,6 @@ public class ItemDictionaryGui extends Screen {
 
         // reset filters shortcut
         if (keyCode == 342 || keyCode == 346) { // left or right alt pressed
-            long lastAltPressed = 0;
             if (System.currentTimeMillis() - lastAltPressed < 1000) {
                 controller.itemFilterGui.clearFilters();
                 searchBar.setText("");
@@ -305,6 +305,11 @@ public class ItemDictionaryGui extends Screen {
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         super.keyReleased(keyCode, scanCode, modifiers);
+
+        if (keyCode == 342 || keyCode == 346) { // left or right alt pressed
+            lastAltPressed = System.currentTimeMillis();
+        }
+
         return true;
     }
 
