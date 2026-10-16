@@ -29,8 +29,8 @@ public class ItemFormatter {
 
     private static final Set<String> curseEnchants = new HashSet<>(List.of("ineptitude", "curse_of_shrapnel", "curse_of_vanishing", "curse_of_corruption",
             "curse_of_crippling", "curse_of_irreparability", "two_handed", "fire_fragility", "melee_fragility", "blast_fragility", "projectile_fragility",
-            "magic_fragility", "ailment_fragility", "curse_of_anemia", "cumbersome", "curse_of_ephemerality", "curse_of_instability", "curse_of_the_veil",
-            "oversized", "curse_of_pestilence", "starvation"));
+            "magic_fragility", "ailment_fragility", "fall_fragility", "curse_of_anemia", "cumbersome", "curse_of_ephemerality", "curse_of_instability",
+            "curse_of_the_veil", "oversized", "curse_of_pestilence", "starvation"));
 
     private static final Set<String> stats = new HashSet<>(List.of("armor", "agility", "spell_power_base", "projectile_speed_percent",
             "knockback_resistance_flat", "attack_damage_base", "thorns_percent", "max_health_flat", "projectile_damage_base", "throw_rate_percent",
