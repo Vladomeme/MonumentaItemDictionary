@@ -34,7 +34,7 @@ public class BuildButtonWidget extends ButtonWidget {
         DictionaryItem displayingItem = build.itemOnButton;
 
         if (displayingItem != null) {
-            builtItem = ItemFactory.fromEncoding(displayingItem.baseItem.toLowerCase().replace(" ", "_"));
+            builtItem = ItemFactory.fromItem(displayingItem);
             NbtCompound baseNbt = builtItem.getOrCreateNbt();
             NbtCompound plain = new NbtCompound();
             NbtCompound display = new NbtCompound();
@@ -43,7 +43,7 @@ public class BuildButtonWidget extends ButtonWidget {
             baseNbt.put("plain", plain);
             builtItem.setNbt(baseNbt);
         } else {
-            builtItem = ItemFactory.fromEncoding("barrier");
+            builtItem = ItemFactory.fromId("barrier");
         }
     }
 
@@ -67,11 +67,9 @@ public class BuildButtonWidget extends ButtonWidget {
         int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
 
-        context.fill(minX, minY, maxX, maxY, favorite ? 0x88FFFF00 : fillOpacity | (!Objects.equals(build.className, "No Class") ? ItemColors.getColorForClass(build.className) : 0x00000000));
-        context.drawHorizontalLine(minX, maxX, minY, outlineColor);
-        context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
-        context.drawVerticalLine(minX, minY, maxY, outlineColor);
-        context.drawVerticalLine(maxX, minY, maxY, outlineColor);
+        context.fill(minX, minY, maxX, maxY, favorite ? 0x88FFFF00
+                : fillOpacity | (!Objects.equals(build.className, "No Class") ? ItemColors.getColorForClass(build.className) : 0x00000000));
+        context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);
 

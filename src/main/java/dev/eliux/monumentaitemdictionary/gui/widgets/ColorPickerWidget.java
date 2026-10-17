@@ -42,10 +42,7 @@ public class ColorPickerWidget extends ButtonWidget {
         int borderColor = isOpen ? 0xFFFFFFFF : 0xFFAAAAAA;
 
         context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), displayColor);
-        context.drawHorizontalLine(getX() - 1, getX() + getWidth(), getY() - 1, borderColor);
-        context.drawHorizontalLine(getX() - 1, getX() + getWidth(), getY() + getHeight(), borderColor);
-        context.drawVerticalLine(getX() - 1, getY() - 1, getY() + getHeight(), borderColor);
-        context.drawVerticalLine(getX() + getWidth(), getY() - 1, getY() + getHeight(), borderColor);
+        context.drawBorder(getX() - 1, getY() - 1, width, height, borderColor);
     }
 
     public void renderPopup(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -59,10 +56,7 @@ public class ColorPickerWidget extends ButtonWidget {
             }
         }
 
-        context.drawHorizontalLine(getX() - 1, getX() + popupWidth, getY() + getHeight(), 0xFFFFFFFF);
-        context.drawHorizontalLine(getX() - 1, getX() + popupWidth, getY() + getHeight() + popupHeight, 0xFFFFFFFF);
-        context.drawVerticalLine(getX() - 1, getY() + getHeight(), getY() + getHeight() + popupHeight, 0xFFFFFFFF);
-        context.drawVerticalLine(getX() + popupWidth, getY() + getHeight(), getY() + getHeight() + popupHeight, 0xFFFFFFFF);
+        context.drawBorder(getX() - 1, getY() - 1, popupWidth, popupHeight, 0xFFFFFFFF);
 
         // hue box
         for (int x = 0; x < popupWidth; x++) {
@@ -70,10 +64,7 @@ public class ColorPickerWidget extends ButtonWidget {
             context.fill(getX() + x, getY() + getHeight() + popupHeight + 4, getX() + x + 1, getY() + getHeight() + popupHeight + 10, color);
         }
 
-        context.drawHorizontalLine(getX() - 1, getX() + popupWidth, getY() + getHeight() + popupHeight + 4, 0xFFFFFFFF);
-        context.drawHorizontalLine(getX() - 1, getX() + popupWidth, getY() + getHeight() + popupHeight + 10, 0xFFFFFFFF);
-        context.drawVerticalLine(getX() - 1, getY() + getHeight() + popupHeight + 4, getY() + getHeight() + popupHeight + 10, 0xFFFFFFFF);
-        context.drawVerticalLine(getX() + popupWidth, getY() + getHeight() + popupHeight + 4, getY() + getHeight() + popupHeight + 10, 0xFFFFFFFF);
+        context.drawBorder(getX() - 1, getY() + height + popupHeight + 4, popupWidth, 6, 0xFFFFFFFF);
     }
 
     public boolean willClick(double mouseX, double mouseY) {

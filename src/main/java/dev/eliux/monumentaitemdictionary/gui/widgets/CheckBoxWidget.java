@@ -5,7 +5,6 @@ import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.screen.narration.NarrationPart;
@@ -54,20 +53,21 @@ public class CheckBoxWidget extends CheckboxWidget {
     }
     @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        MinecraftClient minecraftClient = MinecraftClient.getInstance();
         RenderSystem.enableDepthTest();
-        TextRenderer textRenderer = minecraftClient.textRenderer;
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
 
         Identifier identifier;
         if (this.checked) identifier = this.isFocused() ? SELECTED_HIGHLIGHTED_TEXTURE : SELECTED_TEXTURE;
         else identifier = this.isFocused() ? HIGHLIGHTED_TEXTURE : TEXTURE;
 
         context.drawGuiTexture(identifier, this.getX(), this.getY(), 20, 20);
+
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.showMessage) {
-            context.drawTextWithShadow(textRenderer, this.getMessage(), this.getX() + 24, this.getY() + (this.height - 8) / 2, 14737632 | MathHelper.ceil(this.alpha * 255.0F) << 24);
+            context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer,
+                    this.getMessage(), this.getX() + 24, this.getY() + 8,
+                    14737632 | MathHelper.ceil(this.alpha * 255.0F) << 24);
         }
 
     }

@@ -28,19 +28,20 @@ public class BuildCharmButtonWidget extends ButtonWidget {
     private final ItemStack builtItem;
     private final float scale;
 
-    public BuildCharmButtonWidget(int x, int y, int itemSize, Text message, PressAction onPress, @Nullable DictionaryCharm charm, Supplier<List<Text>> loreSupplier, BuilderGui gui) {
+    public BuildCharmButtonWidget(int x, int y, int itemSize, Text message, PressAction onPress,
+                                  @Nullable DictionaryCharm charm, Supplier<List<Text>> loreSupplier, BuilderGui gui) {
         super(x, y, itemSize, itemSize, message, onPress, DEFAULT_NARRATION_SUPPLIER);
         this.loreSupplier = loreSupplier;
         this.charm = charm;
         this.gui = gui;
-        this.scale = (float) width/18;
+        this.scale = (float) width / 18;
 
         builtItem = getItemStack(charm);
     }
 
     private ItemStack getItemStack(@Nullable DictionaryCharm charm) {
         if (charm == null) {
-            ItemStack builtItem = ItemFactory.fromEncoding("barrier");
+            ItemStack builtItem = ItemFactory.fromId("barrier");
             NbtCompound baseNbt = builtItem.getOrCreateNbt();
             NbtCompound plain = new NbtCompound();
             NbtCompound display = new NbtCompound();
@@ -51,7 +52,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
 
             return builtItem;
         }
-        ItemStack builtItem = ItemFactory.fromEncoding(charm.baseItem.toLowerCase().replace(" ", "_"));
+        ItemStack builtItem = ItemFactory.fromId(charm.baseItem.toLowerCase().replace(" ", "_"));
         NbtCompound baseNbt = builtItem.getOrCreateNbt();
 
         NbtCompound monumenta = new NbtCompound();
@@ -91,7 +92,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
         int minY = getY();
         int maxX = minX + width;
         int maxY = minY + height;
-        int itemSize = (int) (16*scale);
+        int itemSize = (int) (16 * scale);
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
@@ -99,20 +100,17 @@ public class BuildCharmButtonWidget extends ButtonWidget {
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
 
         context.fill(minX, minY, maxX, maxY, fillOpacity + (charm != null ? ItemColors.getColorForTier(charm.tier) : 0x00000000));
-        context.drawHorizontalLine(minX, maxX, minY, outlineColor);
-        context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
-        context.drawVerticalLine(minX, minY, maxY, outlineColor);
-        context.drawVerticalLine(maxX, minY, maxY, outlineColor);
+        context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.getMatrices().push();
         context.getMatrices().scale(scale, scale, scale);
-        context.drawItem(builtItem, (int) ceil((minX + (double) width/2 - ceil(
-                (double) itemSize/2))/scale), (int) ceil((minY + (double) height/2 - ceil((double) itemSize/2))/scale));
+        context.drawItem(builtItem, (int) ceil((minX + (double) width / 2 - ceil(
+                (double) itemSize / 2)) / scale), (int) ceil((minY + (double) height / 2 - ceil((double) itemSize / 2))/scale));
         context.getMatrices().pop();
 
         if (hovered) {
             List<Text> lines = new ArrayList<>();
-            lines.add(Text.literal("Click to add an item."));
+            lines.add(Text.literal("Click to add a charm."));
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, (charm != null ? loreSupplier.get() : lines), mouseX, mouseY);
         }
     }

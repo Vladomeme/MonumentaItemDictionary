@@ -1,5 +1,10 @@
 package dev.eliux.monumentaitemdictionary.util;
 
+import dev.eliux.monumentaitemdictionary.Mid;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -157,6 +162,17 @@ public class ItemFormatter {
             case "Valley" -> 1;
             default -> 0;
         };
+    }
+
+    public static Text getLocationText(String locationId) {
+        MutableText text;
+        Location location = Mid.controller.locationData.get(locationId);
+        if (locationId.equals("twisted")) {
+            text = Text.literal("Twisted ").append(Text.literal("XXXXXXXX")
+                    .setStyle(Style.EMPTY.withObfuscated(true)));
+        }
+        else text = Text.literal(location.displayName());
+        return text.setStyle(Style.EMPTY.withColor(location.color()));
     }
 
     public static String formatUseLine(String inType) {

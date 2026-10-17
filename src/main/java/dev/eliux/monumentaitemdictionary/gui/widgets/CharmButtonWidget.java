@@ -32,8 +32,7 @@ public class CharmButtonWidget extends ButtonWidget {
 
         this.gui = gui;
 
-        // dummy itemstack for rendering item icon
-        builtItem = ItemFactory.fromEncoding(charm.baseItem.toLowerCase().replace(" ", "_"));
+        builtItem = ItemFactory.fromId(charm.baseItem.toLowerCase().replace(" ", "_"));
         NbtCompound baseNbt = builtItem.getOrCreateNbt();
 
         NbtCompound monumenta = new NbtCompound();
@@ -60,14 +59,6 @@ public class CharmButtonWidget extends ButtonWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
-        super.onClick(mouseX, mouseY);
-
-
-    }
-     public void scrolled (double mouseX, double mouseY, double amount) {
-     }
-    @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         int yPixelOffset = -gui.getScrollPixels();
 
@@ -85,10 +76,7 @@ public class CharmButtonWidget extends ButtonWidget {
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
 
         context.fill(minX, minY, maxX, maxY, fillOpacity + ItemColors.getColorForTier(charm.tier));
-        context.drawHorizontalLine(minX, maxX, minY, outlineColor);
-        context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
-        context.drawVerticalLine(minX, minY, maxY, outlineColor);
-        context.drawVerticalLine(maxX, minY, maxY, outlineColor);
+        context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.enableScissor(0, gui.labelMenuHeight + 1, gui.width, gui.height);
         context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);

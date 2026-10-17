@@ -8,7 +8,6 @@ import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.CharmStat;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
-import dev.eliux.monumentaitemdictionary.util.Location;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -60,6 +59,7 @@ public class CharmDictionaryGui extends Screen {
 
         searchBar = new TextFieldWidget(textRenderer, width / 2 + 90, 7, width / 2 - 100, 15, Text.literal("Search"));
         searchBar.setChangedListener(t -> {
+            scrollPixels = 0;
             controller.setCharmNameFilter(searchBar.getText());
             if (searchBar.getText().isEmpty())
                 controller.clearCharmNameFilter();
@@ -67,6 +67,7 @@ public class CharmDictionaryGui extends Screen {
             buildCharmList();
             updateScrollLimits();
         });
+        searchBar.setPlaceholder(Text.of("Search..."));
         searchBar.setFocused(true);
 
         reloadCharmsButton = new ItemIconButtonWidget(
@@ -130,14 +131,14 @@ public class CharmDictionaryGui extends Screen {
         this.renderBackground(context, mouseX, mouseY, delta);
 
         // draw the scroll bar
-        int totalRows = (int) Math.ceil((double)charmButtons.size() / (double)((width - sideMenuWidth - 5) / (itemSize + itemPadding)));
+        int totalRows = (int) Math.ceil((double)charmButtons.size() / (double) ((width - sideMenuWidth - 5) / (itemSize + itemPadding)));
         int totalPixelHeight = totalRows * itemSize + (totalRows + 1) * itemPadding;
-        double bottomPercent = (double)scrollPixels / totalPixelHeight;
-        double screenPercent = (double)(height - labelMenuHeight) / totalPixelHeight;
-        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
-        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
-        context.drawVerticalLine(width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
-        context.drawVerticalLine(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+        double bottomPercent = (double) scrollPixels / totalPixelHeight;
+        double screenPercent = (double) (height - labelMenuHeight) / totalPixelHeight;
+
+        context.fill(width - sideMenuWidth - 2, labelMenuHeight, width - sideMenuWidth, height, 0x77AAAAAA);
+        context.fill(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent),
+                width - sideMenuWidth, (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
 
         // draw the sort menu
         context.drawVerticalLine(width - sideMenuWidth, labelMenuHeight, height, 0xFFFFFFFF);
@@ -203,10 +204,11 @@ public class CharmDictionaryGui extends Screen {
         ArrayList<DictionaryCharm> toBuildCharms = controller.getCharms();
 
         charmButtons.clear();
+        int columns = (width - sideMenuWidth - 5) / (itemSize + itemPadding);
         for (int i = 0; i != toBuildCharms.size(); i++) {
             DictionaryCharm charm = toBuildCharms.get(i);
-            int row = i / ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
-            int col = i % ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
+            int row = i / columns;
+            int col = i % columns;
 
             int x = (col + 1) * itemPadding + col * itemSize;
             int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
@@ -216,7 +218,7 @@ public class CharmDictionaryGui extends Screen {
                     String wikiFormatted = charm.name.replace(" ", "_").replace("'", "%27");
                     Util.getOperatingSystem().open("https://monumenta.wiki.gg/wiki/" + wikiFormatted);
                 } else if (isGettingBuildCharm) {
-                    if (charm.power + controller.builderGui.getCharmsListWithPower().size() <= 12 && !hasAltDown()) {
+                    if (charm.power + controller.builderGui.getCharmsListWithPower().size() <= BuilderGui.MAX_CHARM_POWER && !hasAltDown()) {
                         returnCharm(charm);
                     }
                 }
@@ -288,8 +290,6 @@ public class CharmDictionaryGui extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         super.mouseClicked(mouseX, mouseY, button);
 
-        charmButtons.forEach((b) -> b.mouseClicked(mouseX, mouseY + scrollPixels, button));
-
         searchBar.mouseClicked(mouseX, mouseY, button);
         reloadCharmsButton.mouseClicked(mouseX, mouseY, button);
         filterButton.mouseClicked(mouseX, mouseY, button);
@@ -302,6 +302,9 @@ public class CharmDictionaryGui extends Screen {
         } else {
             builderButton.mouseClicked(mouseX, mouseY, button);
         }
+
+        if (mouseY > labelMenuHeight)
+            charmButtons.forEach((b) -> b.mouseClicked(mouseX, mouseY + scrollPixels, button));
 
         return true;
     }
@@ -332,8 +335,8 @@ public class CharmDictionaryGui extends Screen {
                         .withColor(ItemColors.getColorForClass(charm.className)));
         lines.add(charmPowerDesc.append(charmPower).append(divider).append(classText));
 
-        Location location = Mid.controller.locationData.get(charm.locationId);
-        if (location != null) lines.add(Text.literal(location.displayName()).setStyle(Style.EMPTY.withColor(location.color())));
+        if (Mid.controller.locationData.containsKey(charm.locationId))
+            lines.add(ItemFormatter.getLocationText(charm.locationId));
 
         lines.add(Text.literal(""));
 
@@ -391,9 +394,7 @@ public class CharmDictionaryGui extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
         super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
-        if (Screen.hasControlDown()) {
-            charmButtons.forEach((b) -> b.scrolled(mouseX, mouseY, vAmount));
-        } else {
+        if (!Screen.hasControlDown()) {
             if (mouseX >= 0 && mouseX < width - sideMenuWidth && mouseY >= labelMenuHeight && mouseY < height) {
                 scrollPixels += (int) (-vAmount * 22); // scaled
 
@@ -405,7 +406,7 @@ public class CharmDictionaryGui extends Screen {
     }
 
     private void updateScrollLimits() {
-        int rows = (int) Math.ceil((double)charmButtons.size() / (double)((width - sideMenuWidth - 5) / (itemSize + itemPadding)));
+        int rows = (int) Math.ceil((double) charmButtons.size() / (double) ((width - sideMenuWidth - 5) / (itemSize + itemPadding)));
         int maxScroll = rows * itemSize + (rows + 1) * itemPadding - height + labelMenuHeight;
         if (scrollPixels > maxScroll) scrollPixels = maxScroll;
 

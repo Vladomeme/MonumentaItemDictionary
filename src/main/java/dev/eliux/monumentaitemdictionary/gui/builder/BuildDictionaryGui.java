@@ -26,9 +26,10 @@ public class BuildDictionaryGui extends Screen {
     public final int itemPadding = 10;
     public final int itemSize = 50;
     private long lastAltPressed = 0;
+
     public final DictionaryController controller;
     public ArrayList<DictionaryBuild> buildsList;
-    public HashMap<DictionaryBuild, BuildButtonWidget> buildsButtons = new HashMap<>();
+    public final HashMap<DictionaryBuild, BuildButtonWidget> buildsButtons = new HashMap<>();
     private TextFieldWidget searchBar;
     private ItemIconButtonWidget filterButton;
     public final List<String> itemTypesIndex = Arrays.asList("Mainhand", "Offhand", "Helmet", "Chestplate", "Leggings", "Boots");
@@ -84,40 +85,40 @@ public class BuildDictionaryGui extends Screen {
         buildBuildsList();
     }
 
-    public void buildBuildsList()
-    {
+    public void buildBuildsList() {
         controller.loadBuilds();
         controller.refreshBuilds();
         buildsList = controller.getBuilds();
 
         buildsButtons.clear();
-        for (DictionaryBuild build : buildsList) {
-            BuildButtonWidget button = getBuildButtonWidget(build);
-            buildsButtons.put(build, button);
+        for (int i = 0; i != buildsList.size(); i++) {
+            DictionaryBuild build = buildsList.get(i);
+            buildsButtons.put(build, getBuildButtonWidget(build, i));
         }
     }
 
-    private BuildButtonWidget getBuildButtonWidget(DictionaryBuild build) {
-        int index = buildsList.indexOf(build);
-        int row = index / ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
-        int col = index % ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
+    private BuildButtonWidget getBuildButtonWidget(DictionaryBuild build, int index) {
+        int columns = (width - sideMenuWidth - 5) / (itemSize + itemPadding);
+        int row = index / columns;
+        int col = index % columns;
 
         int x = (col + 1) * itemPadding + col * itemSize;
         int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
 
-        return new BuildButtonWidget(x, y, itemSize, Text.literal(build.name), b -> buildButtonClicked(build), build,
-                this);
+        return new BuildButtonWidget(x, y, itemSize, Text.literal(build.name), b -> buildButtonClicked(build), build, this);
     }
 
     private void buildButtonClicked(DictionaryBuild build) {
         if (hasShiftDown() && hasControlDown()) {
             controller.deleteBuildFromJson(build.id);
             buildsList.remove(build);
-        } else if (hasShiftDown()){
+        }
+        else if (hasShiftDown()){
             toggleFavorite(build);
             buildsButtons.get(build).updateFavorite();
             controller.refreshBuilds();
-        }else {
+        }
+        else {
             controller.setBuilderScreen();
             controller.builderGui.loadItems(build);
         }
@@ -137,10 +138,11 @@ public class BuildDictionaryGui extends Screen {
         context.getMatrices().translate(0, 0, 110);
         context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
         context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Build Dictionary").setStyle(Style.EMPTY.withBold(true)), width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Build Dictionary").setStyle(Style.EMPTY.withBold(true)),
+                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
         context.getMatrices().pop();
-        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
-        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
+
+        context.fill(width - sideMenuWidth - 2, labelMenuHeight, width - sideMenuWidth, height, 0x77AAAAAA);
 
         buildsButtons.forEach((build, button) -> button.renderWidget(context, mouseX, mouseY, delta));
 
@@ -159,7 +161,8 @@ public class BuildDictionaryGui extends Screen {
 
         try {
             children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -198,7 +201,8 @@ public class BuildDictionaryGui extends Screen {
         filterButton.setY(height - 30);
     }
 
-    public void addBuild(String name, List<DictionaryItem> items, List<DictionaryCharm> charms, DictionaryItem itemOnBuildButton, String region, String className, String specialization) {
+    public void addBuild(String name, List<DictionaryItem> items, List<DictionaryCharm> charms, DictionaryItem itemOnBuildButton,
+                         String region, String className, String specialization) {
         if (name.isEmpty()) name = "No Name";
         int id = controller.generateNewId();
 
@@ -222,17 +226,16 @@ public class BuildDictionaryGui extends Screen {
                 itemJson.addProperty("exalted", item.region.equals("Ring"));
 
                 itemsJson.add(item.type, itemJson);
-            } else {
-                itemsJson.add(itemTypesIndex.get(i), new JsonObject());
             }
+            else itemsJson.add(itemTypesIndex.get(i), new JsonObject());
+
             i++;
         }
 
         ArrayList<DictionaryCharm> charmsWithoutDuplicates = new ArrayList<>(new HashSet<>(build.charms));
         JsonArray charmsArray = new JsonArray();
-        for (DictionaryCharm charm : charmsWithoutDuplicates) {
-            charmsArray.add(charm.name);
-        }
+
+        for (DictionaryCharm charm : charmsWithoutDuplicates) charmsArray.add(charm.name);
 
         jsonBuild.addProperty("name", build.name);
         jsonBuild.add("items", itemsJson);
@@ -261,14 +264,12 @@ public class BuildDictionaryGui extends Screen {
 
         // reset filters shortcut
         if (keyCode == 342 || keyCode == 346) { // left or right alt pressed
-            long lastAltPressed = 0;
             if (System.currentTimeMillis() - lastAltPressed < 1000) {
-                controller.itemFilterGui.clearFilters();
+                controller.buildFilterGui.clearFilters();
                 searchBar.setText("");
                 buildBuildsList();
             }
         }
-
         return true;
     }
 
@@ -283,16 +284,11 @@ public class BuildDictionaryGui extends Screen {
         return true;
     }
 
-
-
     @Override
     public boolean charTyped(char chr, int modifiers) {
         super.charTyped(chr, modifiers);
-
         searchBar.charTyped(chr, modifiers);
-
         return true;
     }
-
 }
 

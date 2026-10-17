@@ -12,7 +12,6 @@ import dev.eliux.monumentaitemdictionary.util.ItemStat;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-import dev.eliux.monumentaitemdictionary.util.Location;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -67,6 +66,7 @@ public class ItemDictionaryGui extends Screen {
 
         searchBar = new TextFieldWidget(textRenderer, width / 2 + 90, 7, width / 2 - 100, 15, Text.literal("Search"));
         searchBar.setChangedListener(t -> {
+            scrollPixels = 0;
             controller.setItemNameFilter(searchBar.getText());
             if (searchBar.getText().isEmpty())
                 controller.clearItemNameFilter();
@@ -74,6 +74,7 @@ public class ItemDictionaryGui extends Screen {
             buildItemList();
             updateScrollLimits();
         });
+        searchBar.setPlaceholder(Text.of("Search..."));
         searchBar.setFocused(true);
 
         reloadItemsButton = new ItemIconButtonWidget(
@@ -166,12 +167,12 @@ public class ItemDictionaryGui extends Screen {
         // draw the scroll bar
         int totalRows = itemButtons.size();
         int totalPixelHeight = totalRows * itemSize + (totalRows + 1) * itemPadding;
-        double bottomPercent = (double)scrollPixels / totalPixelHeight;
-        double screenPercent = (double)(height - labelMenuHeight) / totalPixelHeight;
-        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA); // called twice to make the scroll bar render wider (janky, but I don't really care)
-        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
-        context.drawVerticalLine(width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
-        context.drawVerticalLine(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent), (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+        double bottomPercent = (double) scrollPixels / totalPixelHeight;
+        double screenPercent = (double) (height - labelMenuHeight) / totalPixelHeight;
+
+        context.fill(width - sideMenuWidth - 2, labelMenuHeight, width - sideMenuWidth, height, 0x77AAAAAA);
+        context.fill(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent),
+                width - sideMenuWidth, (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
 
         // draw the sort menu
         context.drawVerticalLine(width - sideMenuWidth, labelMenuHeight, height, 0xFFFFFFFF);
@@ -240,10 +241,11 @@ public class ItemDictionaryGui extends Screen {
 
         itemButtons.clear();
         widgetByItem.clear();
+        int columns = (width - sideMenuWidth - 5) / (itemSize + itemPadding);
         for (int i = 0; i != toBuildItems.size(); i++) {
             DictionaryItem item = toBuildItems.get(i);
-            int row = i / ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
-            int col = i % ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
+            int row = i / columns;
+            int col = i % columns;
 
             int x = (col + 1) * itemPadding + col * itemSize;
             int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
@@ -339,13 +341,6 @@ public class ItemDictionaryGui extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         super.mouseClicked(mouseX, mouseY, button);
 
-        for (List<ItemButtonWidget> row : itemButtons
-                .subMap((int) mouseY + scrollPixels - itemSize, true,
-                        (int) mouseY + scrollPixels, true)
-                .values()) {
-            row.forEach(b -> b.mouseClicked(mouseX, mouseY + scrollPixels, button));
-        }
-
         searchBar.mouseClicked(mouseX, mouseY, button);
         reloadItemsButton.mouseClicked(mouseX, mouseY, button);
         filterButton.mouseClicked(mouseX, mouseY, button);
@@ -359,6 +354,14 @@ public class ItemDictionaryGui extends Screen {
             showCharmsButton.mouseClicked(mouseX, mouseY, button);
         } else {
             builderButton.mouseClicked(mouseX, mouseY, button);
+        }
+
+        if (mouseY > labelMenuHeight) {
+            for (List<ItemButtonWidget> row : itemButtons
+                    .subMap((int) mouseY + scrollPixels - itemSize, true,
+                            (int) mouseY + scrollPixels, true).values()) {
+                row.forEach(b -> b.mouseClicked(mouseX, mouseY + scrollPixels, button));
+            }
         }
 
         return true;
@@ -395,19 +398,22 @@ public class ItemDictionaryGui extends Screen {
             }
         }
 
+        boolean isAlchemicalUtensil = false;
         if (showStats != null) {
             for (ItemStat stat : showStats) {
-                Text line = Text.literal(ItemFormatter.buildStatString(stat.statName, stat.statValue)).setStyle(Style.EMPTY
-                        .withColor(ItemColors.getColorForStat(stat.statName, stat.statValue)));
-                if (ItemFormatter.isStat(stat.statName)) {
-                    if (ItemFormatter.isBaseStat(stat.statName)) {
-                        baseStats.add(line);
-                    } else {
-                        stats.add(line);
-                    }
-                } else {
-                    enchants.add(line);
+                if (stat.statName.equals("alchemical_utensil") && stat.statValue > 0) {
+                    isAlchemicalUtensil = true;
+                    continue;
                 }
+                if (stat.statName.equals("utility_item_for_armory")) continue;
+
+                Text line = Text.literal(ItemFormatter.buildStatString(stat.statName, stat.statValue))
+                        .setStyle(Style.EMPTY.withColor(ItemColors.getColorForStat(stat.statName, stat.statValue)));
+                if (ItemFormatter.isStat(stat.statName)) {
+                    if (ItemFormatter.isBaseStat(stat.statName)) baseStats.add(line);
+                    else stats.add(line);
+                }
+                else enchants.add(line);
             }
         }
 
@@ -415,12 +421,18 @@ public class ItemDictionaryGui extends Screen {
             lines.addAll(enchants);
         }
 
+        if (item.type.equals("Wand"))
+            lines.add(Text.literal("* Magic Wand *").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
+        if (isAlchemicalUtensil)
+            lines.add(Text.literal("* Alchemical Utensil *").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
+
         if (item.hasRegion() || item.hasTier()) {
             MutableText regionText = Text.literal(item.hasRegion() ? ItemFormatter.formatRegion(item.region) + (item.hasTier() ? " : " : "") : "")
                     .setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR));
             MutableText tierText = Text.literal(item.hasTier() ? itemTier : "").setStyle(Style.EMPTY
                     .withColor(ItemColors.getColorForTier(itemTier))
-                    .withBold(ItemFormatter.shouldUnderline(itemTier)));
+                    .withBold(ItemFormatter.shouldUnderline(itemTier))
+                    .withObfuscated(itemTier.equals("Obfuscated")));
 
             lines.add(regionText.append(tierText));
         }
@@ -449,9 +461,8 @@ public class ItemDictionaryGui extends Screen {
             lines.add(baseText);
         }
 
-        if (item.hasLocation()) {
-            Location location = Mid.controller.locationData.get(item.locationId);
-            if (location != null) lines.add(Text.literal(location.displayName()).setStyle(Style.EMPTY.withColor(location.color())));
+        if (item.hasLocation() && Mid.controller.locationData.containsKey(item.locationId)) {
+            lines.add(ItemFormatter.getLocationText(item.locationId));
         }
 
         if (!item.lore.isEmpty()) {

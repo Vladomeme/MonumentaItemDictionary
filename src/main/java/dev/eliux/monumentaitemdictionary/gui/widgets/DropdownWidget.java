@@ -194,7 +194,8 @@ public class DropdownWidget extends TextFieldWidget {
             if (validChoices.size() > maxShown) {
                 context.drawVerticalLine(this.getX() + this.width - 1, this.getY() + this.height,  this.getY() + ((this.height + 1) * (maxShown + 1)) - 1, 0xFF303030);
                 int scrollBarPixels = ((this.height + 1) * (maxShown + 1)) - 1 - this.height;
-                context.drawVerticalLine(this.getX() + this.width - 1, this.getY() + this.height + (int)(scrollBarPixels * ((double)scrollAmount / validChoices.size())), this.getY() + this.height + (int)(scrollBarPixels * ((double)(scrollAmount + maxShown) / validChoices.size())), 0xFF505050);
+                context.drawVerticalLine(this.getX() + this.width - 1, this.getY() + this.height + (int) (scrollBarPixels * ((double) scrollAmount / validChoices.size())),
+                        this.getY() + this.height + (int) (scrollBarPixels * ((double) (scrollAmount + maxShown) / validChoices.size())), 0xFF505050);
             }
         }
         context.getMatrices().pop();

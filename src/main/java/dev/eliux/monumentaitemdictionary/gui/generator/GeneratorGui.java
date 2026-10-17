@@ -153,10 +153,9 @@ public class GeneratorGui extends Screen {
     private void updateGeneratedItem() {
         if (lastFocused == DictionaryItem.class) {
             String nbt = focusedItem.hasMasterwork ? focusedItem.getNbtFromMasterwork(masterworkLevel) : focusedItem.getNbtNoMasterwork();
-            generatedItem = ItemFactory.fromEncodingWithStringNbt(focusedItem.baseItem.toLowerCase().replace(" ", "_"), nbt);
-        } else {
-            generatedItem = ItemFactory.fromEncodingWithStringNbt(focusedCharm.baseItem.toLowerCase().replace(" ", "_"), focusedCharm.nbt);
+            generatedItem = ItemFactory.fromIdWithStringNbt(focusedItem.baseItem.toLowerCase().replace(" ", "_"), nbt);
         }
+        else generatedItem = ItemFactory.fromIdWithStringNbt(focusedCharm.baseItem.toLowerCase().replace(" ", "_"), focusedCharm.nbt);
 
         if (generatedItem.getItem() instanceof DyeableItem item && dyeColor != -1) {
             item.setColor(generatedItem, dyeColor);
@@ -177,10 +176,7 @@ public class GeneratorGui extends Screen {
             int maxY = labelMenuHeight + 38;
 
             context.fill(minX, minY, maxX, maxY, 0x6B666666);
-            context.drawHorizontalLine(minX, maxX, minY, 0xFFCCCCCC);
-            context.drawHorizontalLine(minX, maxX, maxY, 0xFFCCCCCC);
-            context.drawVerticalLine(minX, minY, maxY, 0xFFCCCCCC);
-            context.drawVerticalLine(maxX, minY, maxY, 0xFFCCCCCC);
+            context.drawBorder(minX, minY, 24, 24, 0xFFCCCCCC);
 
             context.drawItem(generatedItem, 180, labelMenuHeight + 18);
 

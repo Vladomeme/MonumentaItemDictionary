@@ -22,7 +22,7 @@ public class ItemIconButtonWidget extends ButtonWidget {
         super(x, y, width, height, message, onPress, DEFAULT_NARRATION_SUPPLIER);
         this.tooltipText = tooltipText;
 
-        iconItem = ItemFactory.fromEncoding(itemEncoding);
+        iconItem = ItemFactory.fromId(itemEncoding);
         if (!displayInfo.isEmpty()) {
             NbtCompound baseNbt = iconItem.getOrCreateNbt();
             NbtCompound plain = new NbtCompound();

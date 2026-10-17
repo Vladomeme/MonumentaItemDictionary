@@ -30,9 +30,11 @@ public class BuildItemButtonWidget extends ButtonWidget {
         this.lore = lore;
         this.item = item;
         this.gui = gui;
-        this.scale = (float) width/18;
+        this.scale = (float) width / 18;
 
-        builtItem = ItemFactory.fromEncoding(item != null ? (item.baseItem.toLowerCase().replace(" ", "_")) : "barrier");
+        if (item == null) builtItem = ItemFactory.fromId("barrier");
+        else builtItem = ItemFactory.fromItem(item);
+
         NbtCompound baseNbt = builtItem.getOrCreateNbt();
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();
@@ -55,23 +57,22 @@ public class BuildItemButtonWidget extends ButtonWidget {
         int minY = getY();
         int maxX = minX + width;
         int maxY = minY + height;
-        int itemSize = (int) (16*scale);
+        int itemSize = (int) (16 * scale);
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
         int outlineColor = hovered ?  0xFFC6C6C6 : 0xFFFFFFFF;
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
 
-        context.fill(minX, minY, maxX, maxY, fillOpacity | (gui.itemOnBuildButton == item && item != null ? 0x000FF000 : 0x00000000) | (item != null ? (ItemColors.getColorForTier(item.hasMasterwork ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork())) : 0x00000000));
-        context.drawHorizontalLine(minX, maxX, minY, outlineColor);
-        context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
-        context.drawVerticalLine(minX, minY, maxY, outlineColor);
-        context.drawVerticalLine(maxX, minY, maxY, outlineColor);
+        context.fill(minX, minY, maxX, maxY, fillOpacity | (gui.itemOnBuildButton == item && item != null ? 0x000FF000 : 0x00000000)
+                        | (item != null ? (ItemColors.getColorForTier(item.hasMasterwork ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork())) : 0x00000000));
+
+        context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.getMatrices().push();
         context.getMatrices().scale(scale, scale, scale);
-        context.drawItem(builtItem, (int) ceil((minX + (double) width/2 - ceil(
-                (double) itemSize/2))/scale), (int) ceil((minY + (double) height/2 - ceil((double) itemSize/2))/scale));
+        context.drawItem(builtItem, (int) ceil((minX + (double) width / 2 - ceil(
+                (double) itemSize / 2)) / scale), (int) ceil((minY + (double) height / 2 - ceil((double) itemSize / 2)) / scale));
         context.getMatrices().pop();
 
         if (hovered) {
