@@ -32,9 +32,10 @@ public class BuildItemButtonWidget extends ButtonWidget {
         this.lore = lore;
         this.item = item;
         this.gui = gui;
-        this.scale = (float) width/18;
+        this.scale = (float) width / 18;
 
-        builtItem = ItemFactory.fromEncoding(item != null ? (item.baseItem().toLowerCase().replace(" ", "_")) : "barrier");
+        if (item == null) builtItem = ItemFactory.fromId("barrier");
+        else builtItem = ItemFactory.fromItem(item);
 
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();
@@ -68,10 +69,7 @@ public class BuildItemButtonWidget extends ButtonWidget {
         context.fill(minX, minY, maxX, maxY, fillOpacity | (gui.itemOnBuildButton == item && item != null ? 0x000FF000 : 0x00000000)
                         | (item != null ? (ItemColors.getColorForTier(item.hasMasterwork() ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork())) : 0x00000000));
 
-        context.drawHorizontalLine(minX, maxX, minY, outlineColor);
-        context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
-        context.drawVerticalLine(minX, minY, maxY, outlineColor);
-        context.drawVerticalLine(maxX, minY, maxY, outlineColor);
+        context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.getMatrices().push();
         context.getMatrices().scale(scale, scale, scale);

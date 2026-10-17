@@ -56,7 +56,7 @@ public class CheckBoxWidget extends CheckboxWidget {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.showMessage) {
             context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer,
-                    this.getMessage(), this.getX() + 24, this.getY() + (this.height - 8) / 2,
+                    this.getMessage(), this.getX() + 24, this.getY() + 8,
                     14737632 | MathHelper.ceil(this.alpha * 255.0F) << 24);
         }
 

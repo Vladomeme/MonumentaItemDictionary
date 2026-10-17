@@ -31,6 +31,9 @@ import static java.lang.Math.floor;
 import static java.lang.Math.max;
 
 public class BuilderGui extends Screen {
+
+    public static final int MAX_CHARM_POWER = 12;
+
     private final DictionaryController controller;
     public final List<String> itemTypesIndex = Arrays.asList("Mainhand", "Offhand", "Helmet", "Chestplate", "Leggings", "Boots");
     public final List<String> situationals = Arrays.asList("Shielding", "Poise", "Inure", "Steadfast", "Guard", "Second Wind",
@@ -53,7 +56,7 @@ public class BuilderGui extends Screen {
     public int itemPadding = 5;
     public int buttonSize = 50;
     public final int checkBoxSize = 20;
-    public int statsY = 260 + itemPadding*2;
+    public int statsY = 260 + itemPadding * 2;
     public final int statsRow = 350;
     public final int statsColumn = 170;
     public int charmsY = labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 3;
@@ -106,12 +109,13 @@ public class BuilderGui extends Screen {
                 Text.literal("Current Health: 100%"), 1) {
             @Override
             protected void updateMessage() {
-                this.setMessage(Text.literal("Current Health: " + (float) this.value * 100 + "%"));
+                this.setMessage(Text.literal("Current Health: " + Math.round(value * 100) + "%"));
             }
 
             @Override
             protected void applyValue() {
-                currentHealthPercent = this.value * 100;
+                currentHealthPercent = Math.round(this.value * 100);
+                this.value = currentHealthPercent / 100.0;
                 updateStats();
             }
         };
@@ -159,6 +163,7 @@ public class BuilderGui extends Screen {
                         width - sideMenuWidth - halfWidth - halfWidthPadding, 20,
                         Text.literal("Class"), (button, className) -> {
                             this.className = className;
+                            this.specialization = Specializations.NO_SPECIALIZATION;
                             updateSpecializations();
                 });
 
@@ -214,7 +219,8 @@ public class BuilderGui extends Screen {
                     if (isItemExalted(item)) baseUrl.append("EX%20");
                     baseUrl.append(item.name().replace(" ", "%20")).append(String.format("-%d", item.getMaxMasterwork()-1)).append("&");
                 }
-            } else baseUrl.append("None&");
+            }
+            else baseUrl.append("None&");
         }
 
         baseUrl.append("charm=");
@@ -249,9 +255,8 @@ public class BuilderGui extends Screen {
         return String.format("%s-%s-%d-%s", relevantLetters.get(0), relevantLetters.get(1), charm.power(), charm.className().charAt(0));
     }
 
-
-
     private void updateSpecializations() {
+        if (specialization == Specializations.NO_CLASS) specialization = Specializations.NO_SPECIALIZATION;
         specializationButton = CyclingButtonWidget.builder(Specializations::getText)
                 .values(switch (className) {
                     case NO_CLASS -> List.of(Specializations.NO_SPECIALIZATION);
@@ -265,7 +270,7 @@ public class BuilderGui extends Screen {
                     case CLERIC -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.PALADIN, Specializations.SERAPH);
                     case DD_ZENITH -> Specializations.getDDZenithClasses();
                 })
-                .initially(Specializations.NO_SPECIALIZATION)
+                .initially(specialization)
                 .build(halfWidth + halfWidthPadding,
                         labelMenuHeight + itemPadding + (itemPadding+buttonSize)*2 + 25,
                         width - sideMenuWidth - halfWidth - halfWidthPadding, 20,
@@ -459,7 +464,7 @@ public class BuilderGui extends Screen {
             for (int i = 0; i < getCharmsListWithPower().size(); i++) {
                 charmsButton = getCharmButtonWidget(i, getCharmsListWithPower().get(i));
             }
-            if (getCharmsListWithPower().size() < 12) {
+            if (getCharmsListWithPower().size() < MAX_CHARM_POWER) {
                 charmsButton = getCharmButtonWidget(getCharmsListWithPower().size(), null);
             }
         }
@@ -594,15 +599,15 @@ public class BuilderGui extends Screen {
                     x, y, 0xFFFFFFFF);
         }
 
-        String stars = "★".repeat(getCharmsListWithPower().size()) + "☆".repeat(12 - getCharmsListWithPower().size()) + " " + getCharmsListWithPower().size() + "/12";
-        stars = (textRenderer.getWidth(stars) > width - sideMenuWidth - charmsX) ? getCharmsListWithPower().size() + "/12" : stars;
+        String stars = "★".repeat(getCharmsListWithPower().size()) + "☆".repeat(MAX_CHARM_POWER - getCharmsListWithPower().size()) + " " + getCharmsListWithPower().size() + "/" + MAX_CHARM_POWER;
+        stars = (textRenderer.getWidth(stars) > width - sideMenuWidth - charmsX) ? getCharmsListWithPower().size() + "/" + MAX_CHARM_POWER : stars;
         context.drawTextWithShadow(textRenderer,
                 Text.literal("Charms"),
                 charmsX, charmsY - 20 - scrollPixels, 0xFFFFFFFF);
         context.drawTextWithShadow(textRenderer,
                 Text.literal(stars),
                 charmsX, charmsY - 10 - scrollPixels, 0xFFFFFF00);
-        if (getCharmsListWithPower().size() == 12) {
+        if (getCharmsListWithPower().size() == MAX_CHARM_POWER) {
             context.drawTextWithShadow(textRenderer,
                     Text.literal(getSlidingText("Full Charms", charmsX, width - labelMenuHeight, true)).setStyle(Style.EMPTY.withBold(true).withUnderline(true)),
                     charmsX, charmsY - 30 - scrollPixels, 0xFFFF0000);
@@ -619,7 +624,6 @@ public class BuilderGui extends Screen {
         int charWidth = textRenderer.getWidth(Text.literal("M").setStyle(Style.EMPTY.withBold(bold)));
         int textLength = (int) floor((double) textWidth/charWidth);
 
-
         int start = textTimeOffset % textLength;
 
         return (text + " " + text + " " + text).substring(start, start + textLength);
@@ -627,27 +631,29 @@ public class BuilderGui extends Screen {
 
     private void drawStats(DrawContext context) {
         if (statsToRender.isEmpty()) return;
+
         List<String> statsTypes = new ArrayList<>(Arrays.asList("Misc Stats", "Health Stats", "DR Stats", "HP Normalized DR Stats", "EHP Stats", "Melee Stats", "Projectile Stats", "Magic Stats"));
         List<List<String>> statsByType = new ArrayList<>();
 
-        statsByType.add(statsToRender.subList(0 ,  6)); // Misc Stats
-        statsByType.add(statsToRender.subList(6 , 14)); // Health Stats
-        statsByType.add(statsToRender.subList(14, 21)); // Damage Reduction Stats
-        statsByType.add(statsToRender.subList(21, 28)); // Health Normalized Damage Reduction Stats
-        statsByType.add(statsToRender.subList(28, 35)); // EHP Stats
-        statsByType.add(statsToRender.subList(35, 42)); // Melee Stats
-        statsByType.add(statsToRender.subList(42, 48)); // Projectile Stats
-        statsByType.add(statsToRender.subList(48, 52)); // Magic Stats
+        statsByType.add(statsToRender.subList(0,   7)); // Misc Stats
+        statsByType.add(statsToRender.subList(7,  15)); // Health Stats
+        statsByType.add(statsToRender.subList(15, 22)); // Damage Reduction Stats
+        statsByType.add(statsToRender.subList(22, 29)); // Health Normalized Damage Reduction Stats
+        statsByType.add(statsToRender.subList(29, 36)); // EHP Stats
+        statsByType.add(statsToRender.subList(36, 43)); // Melee Stats
+        statsByType.add(statsToRender.subList(43, 49)); // Projectile Stats
+        statsByType.add(statsToRender.subList(49, 53)); // Magic Stats
 
         int i = 0;
         int j = 0;
         for (List<String> stats : statsByType) {
+            if (i == 4) j = 0;
             context.drawTextWithShadow(textRenderer, Text.literal(statsTypes.get(i)).setStyle(Style.EMPTY.withBold(true)),
-                    itemPadding + (i / 4) * statsColumn, statsY + (j * 10) % statsRow - scrollPixels, 0xFF92BDA3);
+                    itemPadding + (i / 4) * statsColumn, statsY + j * 10 - scrollPixels, 0xFF92BDA3);
             for (String stat : stats) {
                 j++;
                 context.drawTextWithShadow(textRenderer, Text.literal(stat),
-                        itemPadding + (i / 4) * statsColumn, statsY + (j * 10) % statsRow - scrollPixels, 0xFFA1BA89);
+                        itemPadding + (i / 4) * statsColumn, statsY + j * 10 - scrollPixels, 0xFFA1BA89);
             }
             j += 2;
             i++;
@@ -665,18 +671,12 @@ public class BuilderGui extends Screen {
 
         int totalRows = 10;
         int totalPixelHeight = totalRows * buttonSize + (totalRows + 1) * itemPadding;
-        double bottomPercent = (double)scrollPixels / totalPixelHeight;
-        double screenPercent = (double)(height - labelMenuHeight) / totalPixelHeight;
+        double bottomPercent = (double) scrollPixels / totalPixelHeight;
+        double screenPercent = (double) (height - labelMenuHeight) / totalPixelHeight;
 
-        //called twice to make the scroll bar render wider (janky, but I don't really care)
-        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA);
-        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
-
-        context.drawVerticalLine(width - sideMenuWidth - 1, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent),
-                (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
-        context.drawVerticalLine(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent),
-                (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
-
+        context.fill(width - sideMenuWidth - 2, labelMenuHeight, width - sideMenuWidth, height, 0x77AAAAAA);
+        context.fill(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent),
+                width - sideMenuWidth, (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
 
         updateGuiPositions();
         updateButtons();
@@ -694,25 +694,19 @@ public class BuilderGui extends Screen {
                 185, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
         context.getMatrices().pop();
 
-        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA);
-        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
+        context.fill(width - sideMenuWidth - 2, labelMenuHeight, width - sideMenuWidth, height, 0x77AAAAAA);
 
+        currentHealthSlider.render(context, mouseX, mouseY, delta);
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 500);
         regionButton.render(context, mouseX, mouseY, delta);
         nameBar.render(context, mouseX, mouseY, delta);
-        currentHealthSlider.render(context, mouseX, mouseY, delta);
         addBuildButton.render(context, mouseX, mouseY, delta);
         buildClipboard.render(context, mouseX, mouseY, delta);
         showBuildDictionaryButton.render(context, mouseX, mouseY, delta);
         context.getMatrices().pop();
 
-        try {
-            children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
     }
 
     @Override
@@ -742,9 +736,10 @@ public class BuilderGui extends Screen {
 
         situationalCheckBoxList.forEach((b) -> b.mouseClicked(mouseX, mouseY, button));
         infusionsCheckBoxList.forEach((b) -> b.mouseClicked(mouseX, mouseY, button));
-        buildItemButtons.forEach((b) -> b.mouseClicked(mouseX, mouseY, button));
-        buildCharmButtons.forEach((b) -> b.mouseClicked(mouseX, mouseY, button));
-
+        if (mouseY > labelMenuHeight) {
+            buildItemButtons.forEach((b) -> b.mouseClicked(mouseX, mouseY, button));
+            buildCharmButtons.forEach((b) -> b.mouseClicked(mouseX, mouseY, button));
+        }
         return true;
     }
 

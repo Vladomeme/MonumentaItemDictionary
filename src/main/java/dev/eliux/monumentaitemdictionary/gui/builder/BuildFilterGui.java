@@ -79,7 +79,8 @@ public class BuildFilterGui extends Screen {
             constant.setChangedListener(c -> {
                 try {
                     filter.constant = Double.parseDouble(c);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     // error handling is stupid
                 }
                 updateFilterOutput();
@@ -116,6 +117,19 @@ public class BuildFilterGui extends Screen {
 
             updateFilterListPositions();
         }).position(5, labelMenuHeight + 5).size(80, 20).build();
+    }
+
+    public void clearFilters() {
+        filterListOption.clear();
+        filterListValue.clear();
+        filterListComparator.clear();
+        filterListConstant.clear();
+        filterListDelete.clear();
+        buildFilters.clear();
+
+        removeIndex = -1;
+        updateFilterListPositions();
+        updateFilterOutput();
     }
 
     private void updateFilterListPositions() {

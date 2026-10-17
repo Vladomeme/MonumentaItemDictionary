@@ -36,7 +36,7 @@ public class BuildButtonWidget extends ButtonWidget {
         DictionaryItem displayingItem = build.itemOnButton;
 
         if (displayingItem != null) {
-            builtItem = ItemFactory.fromEncoding(displayingItem.baseItem().toLowerCase().replace(" ", "_"));
+            builtItem = ItemFactory.fromItem(displayingItem);
             NbtCompound plain = new NbtCompound();
             NbtCompound display = new NbtCompound();
             display.putString("Name", displayingItem.name().split("\\(")[0].trim());
@@ -44,7 +44,7 @@ public class BuildButtonWidget extends ButtonWidget {
             builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
                     component -> component.apply(nbt -> nbt.put("plain", plain)));
         } else {
-            builtItem = ItemFactory.fromEncoding("barrier");
+            builtItem = ItemFactory.fromId("barrier");
         }
     }
 
@@ -70,11 +70,7 @@ public class BuildButtonWidget extends ButtonWidget {
 
         context.fill(minX, minY, maxX, maxY, favorite ? 0x88FFFF00
                 : fillOpacity | (!Objects.equals(build.className, "No Class") ? ItemColors.getColorForClass(build.className) : 0x00000000));
-
-        context.drawHorizontalLine(minX, maxX, minY, outlineColor);
-        context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
-        context.drawVerticalLine(minX, minY, maxY, outlineColor);
-        context.drawVerticalLine(maxX, minY, maxY, outlineColor);
+        context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);
 

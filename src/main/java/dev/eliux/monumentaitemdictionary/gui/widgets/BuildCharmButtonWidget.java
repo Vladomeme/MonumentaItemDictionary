@@ -43,7 +43,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
 
     private ItemStack getItemStack(@Nullable DictionaryCharm charm) {
         if (charm == null) {
-            ItemStack builtItem = ItemFactory.fromEncoding("barrier");
+            ItemStack builtItem = ItemFactory.fromId("barrier");
             NbtCompound plain = new NbtCompound();
             NbtCompound display = new NbtCompound();
             display.putString("Name", "No Item");
@@ -53,7 +53,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
 
             return builtItem;
         }
-        ItemStack builtItem = ItemFactory.fromEncoding(charm.baseItem().toLowerCase().replace(" ", "_"));
+        ItemStack builtItem = ItemFactory.fromId(charm.baseItem().toLowerCase().replace(" ", "_"));
 
         NbtCompound monumenta = new NbtCompound();
         monumenta.putInt("CharmPower", charm.power());
@@ -100,10 +100,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
 
         context.fill(minX, minY, maxX, maxY, fillOpacity + (charm != null ? ItemColors.getColorForTier(charm.tier()) : 0x00000000));
-        context.drawHorizontalLine(minX, maxX, minY, outlineColor);
-        context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
-        context.drawVerticalLine(minX, minY, maxY, outlineColor);
-        context.drawVerticalLine(maxX, minY, maxY, outlineColor);
+        context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.getMatrices().push();
         context.getMatrices().scale(scale, scale, scale);
@@ -113,7 +110,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
 
         if (hovered) {
             List<Text> lines = new ArrayList<>();
-            lines.add(Text.literal("Click to add an item."));
+            lines.add(Text.literal("Click to add a charm."));
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, (charm != null ? loreSupplier.get() : lines), mouseX, mouseY);
         }
     }

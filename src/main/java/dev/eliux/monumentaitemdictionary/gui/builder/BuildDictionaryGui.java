@@ -25,6 +25,8 @@ public class BuildDictionaryGui extends Screen {
     public final int labelMenuHeight = 30;
     public final int itemPadding = 10;
     public final int itemSize = 50;
+    private long lastAltPressed = 0;
+
     public final DictionaryController controller;
     public ArrayList<DictionaryBuild> buildsList;
     public final HashMap<DictionaryBuild, BuildButtonWidget> buildsButtons = new HashMap<>();
@@ -77,16 +79,16 @@ public class BuildDictionaryGui extends Screen {
         buildsList = controller.getBuilds();
 
         buildsButtons.clear();
-        for (DictionaryBuild build : buildsList) {
-            BuildButtonWidget button = getBuildButtonWidget(build);
-            buildsButtons.put(build, button);
+        for (int i = 0; i != buildsList.size(); i++) {
+            DictionaryBuild build = buildsList.get(i);
+            buildsButtons.put(build, getBuildButtonWidget(build, i));
         }
     }
 
-    private BuildButtonWidget getBuildButtonWidget(DictionaryBuild build) {
-        int index = buildsList.indexOf(build);
-        int row = index / ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
-        int col = index % ((width - sideMenuWidth - 5) / (itemSize + itemPadding));
+    private BuildButtonWidget getBuildButtonWidget(DictionaryBuild build, int index) {
+        int columns = (width - sideMenuWidth - 5) / (itemSize + itemPadding);
+        int row = index / columns;
+        int col = index % columns;
 
         int x = (col + 1) * itemPadding + col * itemSize;
         int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
@@ -128,9 +130,7 @@ public class BuildDictionaryGui extends Screen {
                 width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
         context.getMatrices().pop();
 
-        // called twice to make the scroll bar render wider (janky, but I don't really care)
-        context.drawVerticalLine(width - sideMenuWidth - 1, labelMenuHeight, height, 0x77AAAAAA);
-        context.drawVerticalLine(width - sideMenuWidth - 2, labelMenuHeight, height, 0x77AAAAAA);
+        context.fill(width - sideMenuWidth - 2, labelMenuHeight, width - sideMenuWidth, height, 0x77AAAAAA);
 
         buildsButtons.forEach((build, button) -> button.renderWidget(context, mouseX, mouseY, delta));
 
@@ -252,9 +252,8 @@ public class BuildDictionaryGui extends Screen {
 
         // reset filters shortcut
         if (keyCode == 342 || keyCode == 346) { // left or right alt pressed
-            long lastAltPressed = 0;
             if (System.currentTimeMillis() - lastAltPressed < 1000) {
-                controller.itemFilterGui.clearFilters();
+                controller.buildFilterGui.clearFilters();
                 searchBar.setText("");
                 buildBuildsList();
             }
@@ -265,6 +264,11 @@ public class BuildDictionaryGui extends Screen {
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         super.keyReleased(keyCode, scanCode, modifiers);
+
+        if (keyCode == 342 || keyCode == 346) { // left or right alt pressed
+            lastAltPressed = System.currentTimeMillis();
+        }
+
         return true;
     }
 

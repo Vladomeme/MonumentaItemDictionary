@@ -36,8 +36,7 @@ public class ItemButtonWidget extends ButtonWidget {
 
         this.gui = gui;
 
-        // dummy itemstack for rendering item icon
-        builtItem = ItemFactory.fromEncoding(item.baseItem().toLowerCase().replace(" ", "_"));
+        builtItem = ItemFactory.fromItem(item);
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();
         display.putString("Name", item.name().split("\\(")[0].trim());
@@ -90,10 +89,7 @@ public class ItemButtonWidget extends ButtonWidget {
         int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
 
         context.fill(minX, minY, maxX, maxY, fillOpacity | ItemColors.getColorForTier(item.hasMasterwork() ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork()));
-        context.drawHorizontalLine(minX, maxX, minY, outlineColor);
-        context.drawHorizontalLine(minX, maxX, maxY, outlineColor);
-        context.drawVerticalLine(minX, minY, maxY, outlineColor);
-        context.drawVerticalLine(maxX, minY, maxY, outlineColor);
+        context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.enableScissor(0, gui.labelMenuHeight + 1, gui.width, gui.height);
         context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);

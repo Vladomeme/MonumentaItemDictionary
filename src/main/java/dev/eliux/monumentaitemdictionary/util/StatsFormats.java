@@ -36,6 +36,7 @@ public class StatsFormats {
        put("spellPowerPercent", "Spell Power: ");
        put("spellDamage", "Total Magic Damage: ");
        put("spellCooldownPercent", "Cooldown Duration: ");
+       put("potionDamage", "Potion Damage: ");
        put("melee", "Melee: ");
        put("projectile", "Projectile: ");
        put("magic", "Magic: ");
