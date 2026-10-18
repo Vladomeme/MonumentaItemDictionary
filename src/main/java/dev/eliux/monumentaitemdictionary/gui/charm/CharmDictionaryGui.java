@@ -112,7 +112,7 @@ public class CharmDictionaryGui extends Screen {
         tipsMasterworkButton = new ItemIconButtonWidget(
                 30, 5, 20, 20,
                 Text.literal(""),
-                (button) -> Util.getOperatingSystem().open("https://github.com/Ilyiux/MonumentaItemDictionary"),
+                (button) -> Util.getOperatingSystem().open("https://github.com/Vladomeme/MonumentaItemDictionary"),
                 Arrays.asList(
                     Text.literal("Tips").setStyle(Style.EMPTY.withColor(0xFFFFFFFF)),
                     Text.literal(""),
