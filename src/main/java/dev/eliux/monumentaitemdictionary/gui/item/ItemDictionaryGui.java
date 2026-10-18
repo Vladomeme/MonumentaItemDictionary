@@ -321,7 +321,7 @@ public class ItemDictionaryGui extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         super.mouseClicked(mouseX, mouseY, button);
 
-        searchBar.mouseClicked(mouseX, mouseY, button);
+        if (searchBar.mouseClicked(mouseX, mouseY, button)) searchBar.setFocused(true);
         reloadItemsButton.mouseClicked(mouseX, mouseY, button);
         filterButton.mouseClicked(mouseX, mouseY, button);
         resetFilterButton.mouseClicked(mouseX, mouseY, button);
