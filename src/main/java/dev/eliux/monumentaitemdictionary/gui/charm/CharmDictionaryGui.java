@@ -1,5 +1,6 @@
 package dev.eliux.monumentaitemdictionary.gui.charm;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
@@ -15,6 +16,8 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -296,10 +299,15 @@ public class CharmDictionaryGui extends Screen {
     public List<Text> generateCharmLoreText(DictionaryCharm charm) {
         List<Text> lines = new ArrayList<>();
 
-        lines.add(Text.literal(charm.name()).setStyle(Style.EMPTY
-                .withColor(0xFF000000 + ItemColors.getColorForLocation(charm.locationId()))
-                .withBold(ItemFormatter.shouldBold(charm.tier()))
-                .withUnderline(ItemFormatter.shouldUnderline(charm.tier()))));
+        NbtCompound nbt;
+        try {
+            nbt = StringNbtReader.parse(charm.nbt());
+        }
+        catch (CommandSyntaxException ignored) {
+            nbt = null;
+        }
+
+        addNameLoreText(lines, charm, nbt);
 
         MutableText region = Text.literal(charm.region() + " : ")
                 .setStyle(Style.EMPTY
@@ -350,6 +358,23 @@ public class CharmDictionaryGui extends Screen {
         lines.add(Text.literal(charm.baseItem()).setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
 
         return lines;
+    }
+
+    private void addNameLoreText(List<Text> lines, DictionaryCharm charm, NbtCompound nbt) {
+        if (MinecraftClient.getInstance().world == null) return;
+
+        if (nbt == null || !nbt.getCompound("display").contains("Name")) {
+            //old method
+            lines.add(Text.literal(charm.name()).setStyle(Style.EMPTY
+                    .withColor(0xFF000000 + ItemColors.getColorForLocation(charm.locationId()))
+                    .withBold(ItemFormatter.shouldBold(charm.tier()))
+                    .withUnderline(ItemFormatter.shouldUnderline(charm.tier()))));
+            return;
+        }
+
+        String nameJson = nbt.getCompound("display").getString("Name");
+        Text text = Text.Serialization.fromJson(nameJson, MinecraftClient.getInstance().world.getRegistryManager());
+        lines.add(text);
     }
 
     @Override

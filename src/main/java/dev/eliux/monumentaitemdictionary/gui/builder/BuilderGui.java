@@ -17,8 +17,10 @@ import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.Clipboard;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -586,7 +588,7 @@ public class BuilderGui extends Screen {
                 String itemText = getSlidingText(item.name(), x, (i < 2) ? width - sideMenuWidth : width / 3, true);
                 context.drawTextWithShadow(textRenderer,
                         Text.literal(itemText).setStyle(Style.EMPTY.withBold(true).withUnderline(true)),
-                        x, y, 0xFF000000 + ItemColors.getColorForLocation(item.locationId()));
+                        x, y, 0xFF000000 + getNameColor(item));
             }
         }
 
@@ -616,6 +618,28 @@ public class BuilderGui extends Screen {
         if (!statusText.getString().isEmpty()) {
             context.drawTextWithShadow(textRenderer, statusText, itemPadding, statusY - scrollPixels, 0xFFFF0000);
         }
+    }
+
+    public int getNameColor(DictionaryItem item) {
+        if (MinecraftClient.getInstance().world == null)
+            return ItemColors.getColorForLocation(item.locationId());
+
+        NbtCompound nbt = ItemFactory.getItemNbt(item);
+
+        if (nbt == null || !nbt.getCompound("display").contains("Name"))
+            return ItemColors.getColorForLocation(item.locationId());
+
+        String nameJson = nbt.getCompound("display").getString("Name");
+        Text text = Text.Serialization.fromJson(nameJson, MinecraftClient.getInstance().world.getRegistryManager());
+        if (text != null) {
+            Style style = text.getStyle();
+            if (style != null) {
+                TextColor color = style.getColor();
+                if (color != null) return color.getRgb();
+            }
+        }
+
+        return ItemColors.getColorForLocation(item.locationId());
     }
 
     private String getSlidingText(String text, int xi, int xf, boolean bold) {

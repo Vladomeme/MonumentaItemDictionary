@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class BuildButtonWidget extends ButtonWidget {
+
     private final DictionaryBuild build;
     private final BuildDictionaryGui gui;
     private final ItemStack builtItem;
@@ -43,9 +44,8 @@ public class BuildButtonWidget extends ButtonWidget {
             plain.put("display", display);
             builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
                     component -> component.apply(nbt -> nbt.put("plain", plain)));
-        } else {
-            builtItem = ItemFactory.fromId("barrier");
         }
+        else builtItem = ItemFactory.fromId("barrier");
     }
 
     @Override
@@ -81,16 +81,32 @@ public class BuildButtonWidget extends ButtonWidget {
             for (DictionaryItem item : build.allItems) {
                 if (item == null) continue;
                 String itemTier = item.hasMasterwork() ? item.getTierFromMasterwork(item.getMaxMasterwork() - 1) : item.getTierNoMasterwork();
-                lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
-                        .withColor(0xFF000000 + ItemColors.getColorForLocation(item.locationId()))
-                        .withBold(ItemFormatter.shouldBold(itemTier))
-                        .withUnderline(ItemFormatter.shouldUnderline(itemTier))));
+                addNameLoreText(lines, item, itemTier);
             }
 
             lines.add(Text.literal("SHIFT + Click to toggle favorite on this build").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
             lines.add(Text.literal("CTRL + SHIFT + Click to delete this build").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, lines, mouseX, mouseY);
         }
+    }
+
+    public void addNameLoreText(List<Text> lines, DictionaryItem item, String itemTier) {
+        if (MinecraftClient.getInstance().world == null) return;
+
+        NbtCompound nbt = ItemFactory.getItemNbt(item);
+
+        if (nbt == null || !nbt.getCompound("display").contains("Name")) {
+            //old method
+            lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
+                    .withColor(0xFF000000 + ItemColors.getColorForLocation(item.locationId()))
+                    .withBold(ItemFormatter.shouldBold(itemTier))
+                    .withUnderline(ItemFormatter.shouldUnderline(itemTier))));
+            return;
+        }
+
+        String nameJson = nbt.getCompound("display").getString("Name");
+        Text text = Text.Serialization.fromJson(nameJson, MinecraftClient.getInstance().world.getRegistryManager());
+        lines.add(text);
     }
 
     public void updateFavorite() {

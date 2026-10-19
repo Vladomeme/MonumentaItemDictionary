@@ -355,13 +355,11 @@ public class ItemDictionaryGui extends Screen {
             masterworkTier = itemButton.shownMasterworkTier;
         }
         String itemTier = item.hasMasterwork() ? item.getTierFromMasterwork(Math.max(masterworkTier, item.getMinMasterwork())) : item.getTierNoMasterwork();
+        NbtCompound nbt = ItemFactory.getItemNbt(item);
 
         List<Text> lines = new ArrayList<>();
 
-        lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
-                .withColor(0xFF000000 + ItemColors.getColorForLocation(item.locationId()))
-                .withBold(!item.isFish() ? ItemFormatter.shouldBold(itemTier) : ItemFormatter.shouldBoldFish(item.fishTier()))
-                .withUnderline(!item.isFish() ? ItemFormatter.shouldUnderline(itemTier) : ItemFormatter.shouldUnderlineFish(item.fishTier()))));
+        addNameLoreText(lines, item, nbt, itemTier);
 
         ArrayList<Text> enchants = new ArrayList<>();
         ArrayList<Text> baseStats = new ArrayList<>();
@@ -451,7 +449,7 @@ public class ItemDictionaryGui extends Screen {
         }
 
         if (ItemFactory.arrayContains(ItemFactory.POTIONS, Registries.ITEM.get(Identifier.of(item.baseItem().toLowerCase().replace(" ", "_")))))
-            addPotionEffectLoreText(lines, item);
+            addPotionEffectLoreText(lines, nbt);
 
         if (showStats != null) {
             if (!stats.isEmpty() || !baseStats.isEmpty()) {
@@ -482,11 +480,26 @@ public class ItemDictionaryGui extends Screen {
         return lines;
     }
 
-    private void addPotionEffectLoreText(List<Text> lines, DictionaryItem item) {
+    private void addNameLoreText(List<Text> lines, DictionaryItem item, NbtCompound nbt, String itemTier) {
         if (MinecraftClient.getInstance().world == null) return;
 
-        NbtCompound nbt = ItemFactory.getItemNbt(item);
-        if (nbt == null || !nbt.getCompound("Monumenta").getCompound("Stock").contains("Effects")) return;
+        if (nbt == null || !nbt.getCompound("display").contains("Name")) {
+            //old method
+            lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
+                    .withColor(0xFF000000 + ItemColors.getColorForLocation(item.locationId()))
+                    .withBold(!item.isFish() ? ItemFormatter.shouldBold(itemTier) : ItemFormatter.shouldBoldFish(item.fishTier()))
+                    .withUnderline(!item.isFish() ? ItemFormatter.shouldUnderline(itemTier) : ItemFormatter.shouldUnderlineFish(item.fishTier()))));
+            return;
+        }
+
+        String nameJson = nbt.getCompound("display").getString("Name");
+        Text text = Text.Serialization.fromJson(nameJson, MinecraftClient.getInstance().world.getRegistryManager());
+        lines.add(text);
+    }
+
+    private void addPotionEffectLoreText(List<Text> lines, NbtCompound nbt) {
+        if (MinecraftClient.getInstance().world == null || nbt == null
+                || !nbt.getCompound("Monumenta").getCompound("Stock").contains("Effects")) return;
 
         NbtList lore = nbt.getCompound("display").getList("Lore", 8);
         if (lore.isEmpty()) return;

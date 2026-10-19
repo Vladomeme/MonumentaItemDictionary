@@ -238,12 +238,7 @@ public class ItemFilterGui extends Screen {
         backButton.render(context, mouseX, mouseY, delta);
         context.getMatrices().pop();
 
-        try {
-            children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
     }
 
     @Override
