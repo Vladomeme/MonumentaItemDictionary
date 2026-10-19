@@ -54,6 +54,8 @@ public class ItemColors {
     public static final int GENERALIST_COLOR = 0x9F8F91;
 
     public static int getColorForTier(String itemTier) {
+        if (itemTier.isEmpty()) return DEFAULT_COLOR;
+
         return switch (itemTier) {
             case "Legendary" -> LEGENDARY_COLOR;
             case "Epic" -> EPIC_COLOR;

@@ -183,16 +183,9 @@ public class CharmDictionaryGui extends Screen {
             buildDictionaryButton.render(context, mouseX, mouseY, delta);
         }
         else builderButton.render(context, mouseX, mouseY, delta);
-
-
         context.getMatrices().pop();
 
-        try {
-            children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
     }
 
     public void buildCharmList() {
@@ -308,11 +301,13 @@ public class CharmDictionaryGui extends Screen {
                 .withBold(ItemFormatter.shouldBold(charm.tier()))
                 .withUnderline(ItemFormatter.shouldUnderline(charm.tier()))));
 
-        MutableText region = Text.literal(charm.region() + " : ").setStyle(Style.EMPTY
-                .withColor(ItemColors.TEXT_COLOR));
-        MutableText tier = Text.literal(ItemFormatter.formatCharmTier(charm.tier())).setStyle(Style.EMPTY
-                .withColor(ItemColors.getColorForTier(charm.tier()))
-                .withBold(ItemFormatter.shouldUnderline(charm.tier())));
+        MutableText region = Text.literal(charm.region() + " : ")
+                .setStyle(Style.EMPTY
+                        .withColor(ItemColors.TEXT_COLOR));
+        MutableText tier = Text.literal(ItemFormatter.formatCharmTier(charm.tier()))
+                .setStyle(Style.EMPTY
+                        .withColor(ItemColors.getColorForTier(charm.tier()))
+                        .withBold(ItemFormatter.shouldUnderline(charm.tier())));
         lines.add(region.append(tier));
 
         MutableText charmPowerDesc = Text.literal("Charm Power : ").setStyle(Style.EMPTY

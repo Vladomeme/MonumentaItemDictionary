@@ -211,15 +211,9 @@ public class ItemDictionaryGui extends Screen {
             showCharmsButton.render(context, mouseX, mouseY, delta);
         }
         else builderButton.render(context, mouseX, mouseY, delta);
-
         context.getMatrices().pop();
 
-        try {
-            children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
     }
 
     public void buildItemList() {
@@ -402,13 +396,15 @@ public class ItemDictionaryGui extends Screen {
         if (isAlchemicalUtensil)
             lines.add(Text.literal("* Alchemical Utensil *").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
 
-        if (item.hasRegion() || item.hasTier()) {
-            MutableText regionText = Text.literal(item.hasRegion() ? ItemFormatter.formatRegion(item.region()) + (item.hasTier() ? " : " : "") : "")
-                    .setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR));
-            MutableText tierText = Text.literal(item.hasTier() ? itemTier : "").setStyle(Style.EMPTY
-                    .withColor(ItemColors.getColorForTier(itemTier))
-                    .withBold(ItemFormatter.shouldUnderline(itemTier))
-                    .withObfuscated(itemTier.equals("Obfuscated")));
+        if (item.hasRegion() && item.hasTier()) {
+            MutableText regionText = Text.literal(ItemFormatter.formatRegion(item.region()) + " : ")
+                    .setStyle(Style.EMPTY
+                            .withColor(ItemColors.TEXT_COLOR));
+            MutableText tierText = Text.literal(itemTier)
+                    .setStyle(Style.EMPTY
+                            .withColor(ItemColors.getColorForTier(itemTier))
+                            .withBold(ItemFormatter.shouldUnderline(itemTier))
+                            .withObfuscated(itemTier.equals("Obfuscated")));
 
             lines.add(regionText.append(tierText));
         }

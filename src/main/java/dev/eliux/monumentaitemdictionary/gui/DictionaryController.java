@@ -511,7 +511,7 @@ public class DictionaryController {
                     ArrayList<ArrayList<ItemStat>> totalStatsList = new ArrayList<>();
                     ArrayList<String> totalNbtList = new ArrayList<>();
 
-                    totalTierList.add(itemTier);
+                    if (!itemTier.isEmpty()) totalTierList.add(itemTier);
                     totalStatsList.add(itemStats);
                     totalNbtList.add(itemNbt);
 

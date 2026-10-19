@@ -48,7 +48,7 @@ public record DictionaryItem(String name, String type, String region, ArrayList<
     }
 
     public String getTierNoMasterwork() {
-        return tier.getFirst();
+        return tier.isEmpty() ? "" : tier.getFirst();
     }
 
     public String getTierFromMasterwork(int level) {
