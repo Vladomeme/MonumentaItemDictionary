@@ -35,7 +35,7 @@ import java.util.*;
 public class ItemFactory {
     private static final ItemStack ERROR_ITEM = fromId("minecraft:red_concrete");
     private static final Item[] LEATHER_ARMOR = new Item[] {Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS};
-    private static final Item[] POTIONS = new Item[] {Items.POTION, Items.SPLASH_POTION, Items.LINGERING_POTION, Items.TIPPED_ARROW};
+    public static final Item[] POTIONS = new Item[] {Items.POTION, Items.SPLASH_POTION, Items.LINGERING_POTION, Items.TIPPED_ARROW};
 
     public static ItemStack fromId(String baseItem) {
         Item item = Registries.ITEM.get(Identifier.of(baseItem.toLowerCase().replace(" ", "_")));
@@ -56,7 +56,7 @@ public class ItemFactory {
         return stack;
     }
 
-    private static NbtCompound getItemNbt(DictionaryItem item) {
+    public static NbtCompound getItemNbt(DictionaryItem item) {
         for (String nbt : item.nbt()) {
             if (nbt != null && !nbt.isEmpty()) {
                 try {
@@ -68,7 +68,7 @@ public class ItemFactory {
         return null;
     }
 
-    private static boolean arrayContains(Item[] array, Item item) {
+    public static boolean arrayContains(Item[] array, Item item) {
         for (Item i : array) {
             if (i == item) return true;
         }

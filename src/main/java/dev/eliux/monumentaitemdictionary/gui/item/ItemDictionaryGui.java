@@ -7,6 +7,7 @@ import dev.eliux.monumentaitemdictionary.gui.charm.CharmDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemButtonWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
+import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
 import dev.eliux.monumentaitemdictionary.util.ItemStat;
 import java.util.HashMap;
@@ -19,9 +20,14 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
 import java.util.ArrayList;
@@ -442,8 +448,10 @@ public class ItemDictionaryGui extends Screen {
                 }
             }
             else lines.add(Text.literal("Press [SHIFT] to show lore.").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
-
         }
+
+        if (ItemFactory.arrayContains(ItemFactory.POTIONS, Registries.ITEM.get(Identifier.of(item.baseItem().toLowerCase().replace(" ", "_")))))
+            addPotionEffectLoreText(lines, item);
 
         if (showStats != null) {
             if (!stats.isEmpty() || !baseStats.isEmpty()) {
@@ -472,6 +480,35 @@ public class ItemDictionaryGui extends Screen {
             lines.add(Text.literal(item.type() + " - " + item.baseItem()).setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
         }
         return lines;
+    }
+
+    private void addPotionEffectLoreText(List<Text> lines, DictionaryItem item) {
+        if (MinecraftClient.getInstance().world == null) return;
+
+        NbtCompound nbt = ItemFactory.getItemNbt(item);
+        if (nbt == null || !nbt.getCompound("Monumenta").getCompound("Stock").contains("Effects")) return;
+
+        NbtList lore = nbt.getCompound("display").getList("Lore", 8);
+        if (lore.isEmpty()) return;
+
+        boolean addedNewline = false;
+        boolean adding = false;
+        for (NbtElement nbtElement : lore) {
+            Text text = Text.Serialization.fromJson(nbtElement.asString(), MinecraftClient.getInstance().world.getRegistryManager());
+            if (text == null) continue;
+
+            String line = text.getString();
+            if (line.equals("When Consumed:")) adding = true;
+            else if (adding && line.isEmpty()) return;
+
+            if (adding) {
+                if (!addedNewline) {
+                    lines.add(Text.literal(""));
+                    addedNewline = true;
+                }
+                lines.add(text);
+            }
+        }
     }
 
     @Override
