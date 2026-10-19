@@ -332,16 +332,19 @@ public class CharmDictionaryGui extends Screen {
         if (Mid.controller.locationData.containsKey(charm.locationId()))
             lines.add(ItemFormatter.getLocationText(charm.locationId()));
 
-        lines.add(Text.literal(""));
+        if (!charm.stats().isEmpty()) {
+            lines.add(Text.literal(""));
 
-        lines.add(Text.literal("When in Charm Slot:").setStyle(Style.EMPTY.withColor(0xAAAAAA)));
-        for (CharmStat stat : charm.stats()) {
-            if (charm.name().equals("Psychosis") && stat.statNameFull().equals("amplifying_hex_max_debuffs_flat"))
-                lines.add(Text.literal((stat.statLocked() ? "\uD83D\uDD12 " : "") + stat.statValue() + " " + ItemFormatter.formatCharmStat(stat.statNameFull()))
-                        .setStyle(Style.EMPTY.withColor(ItemColors.getColorForCharmStat(stat)))); //PSYCHOSIS HARDCODE
-            else lines.add(Text.literal((stat.statLocked() ? "\uD83D\uDD12 " : "") + (stat.statValue() >= 0 ? "+" : "") + stat.statValue()
-                            + (stat.statNameFull().endsWith("percent") ? "" : " ") + ItemFormatter.formatCharmStat(stat.statNameFull()))
-                    .setStyle(Style.EMPTY.withColor(ItemColors.getColorForCharmStat(stat))));
+            lines.add(Text.literal("When in Charm Slot:").setStyle(Style.EMPTY.withColor(0xAAAAAA)));
+            for (CharmStat stat : charm.stats()) {
+                if (charm.name().equals("Psychosis") && stat.statNameFull().equals("amplifying_hex_max_debuffs_flat"))
+                    lines.add(Text.literal((stat.statLocked() ? "\uD83D\uDD12 " : "") + stat.statValue() + " " + ItemFormatter.formatCharmStat(stat.statNameFull()))
+                            .setStyle(Style.EMPTY.withColor(ItemColors.getColorForCharmStat(stat)))); //PSYCHOSIS HARDCODE
+                else
+                    lines.add(Text.literal((stat.statLocked() ? "\uD83D\uDD12 " : "") + (stat.statValue() >= 0 ? "+" : "") + stat.statValue()
+                                    + (stat.statNameFull().endsWith("percent") ? "" : " ") + ItemFormatter.formatCharmStat(stat.statNameFull()))
+                            .setStyle(Style.EMPTY.withColor(ItemColors.getColorForCharmStat(stat))));
+            }
         }
 
         lines.add(Text.literal(""));
