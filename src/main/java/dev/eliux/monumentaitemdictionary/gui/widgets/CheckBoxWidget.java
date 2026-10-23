@@ -31,33 +31,33 @@ public class CheckBoxWidget extends CheckboxWidget {
 
     @Override
     public void onPress() {
-        this.checked = !this.checked;
+        checked = !checked;
         gui.updateCheckBoxes();
         gui.updateStats();
     }
 
     @Override
     public boolean isChecked() {
-        return this.checked;
+        return checked;
     }
 
     @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
 
         Identifier identifier;
-        if (this.checked) identifier = this.isFocused() ? SELECTED_HIGHLIGHTED_TEXTURE : SELECTED_TEXTURE;
-        else identifier = this.isFocused() ? HIGHLIGHTED_TEXTURE : TEXTURE;
+        if (checked) identifier = isFocused() ? SELECTED_HIGHLIGHTED_TEXTURE : SELECTED_TEXTURE;
+        else identifier = isFocused() ? HIGHLIGHTED_TEXTURE : TEXTURE;
 
-        context.drawGuiTexture(identifier, this.getX(), this.getY(), 20, 20);
+        context.drawGuiTexture(identifier, getX(), getY(), 20, 20);
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        if (this.showMessage) {
+        if (showMessage) {
             context.drawTextWithShadow(MinecraftClient.getInstance().textRenderer,
-                    this.getMessage(), this.getX() + 24, this.getY() + 8,
-                    14737632 | MathHelper.ceil(this.alpha * 255.0F) << 24);
+                    getMessage(), getX() + 24, getY() + 8,
+                    14737632 | MathHelper.ceil(alpha * 255.0F) << 24);
         }
 
     }

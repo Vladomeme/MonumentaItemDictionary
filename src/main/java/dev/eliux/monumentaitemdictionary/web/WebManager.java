@@ -1,10 +1,9 @@
 package dev.eliux.monumentaitemdictionary.web;
 
+import dev.eliux.monumentaitemdictionary.util.Styles;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -22,7 +21,6 @@ public class WebManager {
 
     public static void manageRequestsAsynchronous(Runnable onSuccess, Runnable onFailure, WebRequest... requests) {
         ChatHud chat = MinecraftClient.getInstance().inGameHud.getChatHud();
-        Style style = Style.EMPTY.withColor(Formatting.RED);
 
         new Thread(() -> {
             try (HttpClient client = HttpClient.newHttpClient()) {
@@ -37,18 +35,18 @@ public class WebManager {
                 }
                 CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).get(60, TimeUnit.SECONDS);
                 onSuccess.run();
-                chat.addMessage(Text.literal("Monumenta Item Dictionary data request is finished.").setStyle(Style.EMPTY.withColor(Formatting.GREEN)));
+                chat.addMessage(Text.literal("Monumenta Item Dictionary data request is finished.").setStyle(Styles.GREEN));
                 return;
             }
             catch (InterruptedException e) {
-                chat.addMessage(Text.literal("Monumenta Item Dictionary data request was interrupted.").setStyle(style));
+                chat.addMessage(Text.literal("Monumenta Item Dictionary data request was interrupted.").setStyle(Styles.RED));
             }
             catch (ExecutionException e) {
-                chat.addMessage(Text.literal("An error occurred during an Monumenta Item Dictionary data request.").setStyle(style));
+                chat.addMessage(Text.literal("An error occurred during an Monumenta Item Dictionary data request.").setStyle(Styles.RED));
                 e.printStackTrace();
             }
             catch (TimeoutException e) {
-                chat.addMessage(Text.literal("Monumenta Item Dictionary data request timed out, API might be unreachable. Try again later.").setStyle(style));
+                chat.addMessage(Text.literal("Monumenta Item Dictionary data request timed out, API might be unreachable. Try again later.").setStyle(Styles.RED));
             }
             onFailure.run();
         }).start();

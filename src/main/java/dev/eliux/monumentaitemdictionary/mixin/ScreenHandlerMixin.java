@@ -32,6 +32,7 @@ import java.util.Objects;
 
 @Mixin(Screen.class)
 public abstract class ScreenHandlerMixin {
+
     @SuppressWarnings("UnusedReturnValue")
     @Shadow protected abstract <T extends Element & Selectable> T addSelectableChild(T child);
     @SuppressWarnings("UnusedReturnValue")
@@ -67,7 +68,7 @@ public abstract class ScreenHandlerMixin {
                         DictionaryBuild buildFromInventory =
                                 (inventoryTitle.equals("Mechanical Armory")) ? getBuildFromMechanicalArmory(client,
                                         slots, controller) : getBuildFromPlayerStats(client, slots, controller);
-                        this.close();
+                        close();
                         controller.setBuilderScreen();
                         controller.builderGui.loadItems(buildFromInventory);
                     }, Text.literal("Add build from current inventory"), "name_tag", "");

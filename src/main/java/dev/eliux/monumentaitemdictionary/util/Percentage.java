@@ -1,8 +1,10 @@
 package dev.eliux.monumentaitemdictionary.util;
 
 public class Percentage {
+
     public double perc;
     public double val;
+
     public Percentage(double value, boolean perc) {
         if (perc) {
             this.perc = value;
@@ -45,6 +47,6 @@ public class Percentage {
     }
 
     public Percentage duplicate() {
-        return new Percentage(this.perc, true);
+        return new Percentage(perc, true);
     }
 }

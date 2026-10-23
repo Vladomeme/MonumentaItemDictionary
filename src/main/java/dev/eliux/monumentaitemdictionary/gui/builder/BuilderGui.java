@@ -63,7 +63,7 @@ public class BuilderGui extends Screen {
     public final int statsColumn = 170;
     public int charmsY = labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 3;
     public int charmsButtonY;
-    public final int charmsX = 2*statsColumn + itemPadding;
+    public final int charmsX = 2 * statsColumn + itemPadding;
     public int textTimeOffset = 1;
     public float deltaTicks = 0;
     private int halfWidth;
@@ -81,7 +81,7 @@ public class BuilderGui extends Screen {
     private double currentHealthPercent = 100;
     private int scrollPixels = 0;
     private int statusY;
-    private Text statusText = Text.literal("");
+    private Text statusText = Text.empty();
     private CyclingButtonWidget<ClassName> classButton;
     private CyclingButtonWidget<Specializations> specializationButton;
 
@@ -91,19 +91,19 @@ public class BuilderGui extends Screen {
     }
 
     public void postInit() {
-        this.charmsButtonY = (int) (getCharmsListWithPower().size() / floor((double) (width - sideMenuWidth - charmsX) / (buttonSize + itemPadding))) *
+        charmsButtonY = (int) (getCharmsListWithPower().size() / floor((double) (width - sideMenuWidth - charmsX) / (buttonSize + itemPadding))) *
                 (buttonSize + itemPadding) - scrollPixels + buttonSize + itemPadding;
-        this.halfWidth = width / 2;
-        this.scrollPixels = 0;
-        this.statusText = Text.literal("");
+        halfWidth = width / 2;
+        scrollPixels = 0;
+        statusText = Text.empty();
 
         nameBar = new TextFieldWidget(textRenderer,
-                190 + textRenderer.getWidth(Text.literal("Monumenta Builder").setStyle(Style.EMPTY.withBold(true))),
+                190 + textRenderer.getWidth(Text.literal("Monumenta Builder").setStyle(Styles.BOLD)),
                 itemPadding,
-                width - itemPadding - (185 + textRenderer.getWidth(Text.literal("Monumenta Builder").setStyle(Style.EMPTY.withBold(true)))),
+                width - itemPadding - (185 + textRenderer.getWidth(Text.literal("Monumenta Builder").setStyle(Styles.BOLD))),
                 20, Text.literal("Build Name"));
         nameBar.setPlaceholder(Text.literal("Build Name: "));
-        nameBar.setChangedListener(text -> statusText = Text.literal(""));
+        nameBar.setChangedListener(text -> statusText = Text.empty());
         nameBar.setText("");
 
         currentHealthSlider = new SliderWidget(charmsX, charmsY + charmsButtonY,
@@ -111,24 +111,24 @@ public class BuilderGui extends Screen {
                 Text.literal("Current Health: 100%"), 1) {
             @Override
             protected void updateMessage() {
-                this.setMessage(Text.literal("Current Health: " + Math.round(value * 100) + "%"));
+                setMessage(Text.literal("Current Health: " + Math.round(value * 100) + "%"));
             }
 
             @Override
             protected void applyValue() {
-                currentHealthPercent = Math.round(this.value * 100);
-                this.value = currentHealthPercent / 100.0;
+                currentHealthPercent = Math.round(value * 100);
+                value = currentHealthPercent / 100.0;
                 updateStats();
             }
         };
 
         buildClipboard = new ItemIconButtonWidget(30, 5, 20, 20, (button) -> buildClipboardButtonClicked(),
-                Arrays.asList(Text.literal("Build Clipboard").setStyle(Style.EMPTY.withColor(0xFFFFFFFF)),
-                        Text.literal("Click").setStyle(Style.EMPTY.withBold(true).withColor(ItemColors.TEXT_COLOR))
-                                .append(Text.literal(" to set a build from your clipboard").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR).withBold(false))),
-                        Text.literal(""),
-                        Text.literal("SHIFT + Click").setStyle(Style.EMPTY.withBold(true).withColor(ItemColors.TEXT_COLOR))
-                                .append(Text.literal(" to copy the build url of the current build").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR).withBold(false)))),
+                Arrays.asList(Text.literal("Build Clipboard").setStyle(Styles.WHITE),
+                        Text.literal("Click").setStyle(Styles.BOLD_TEXT)
+                                .append(Text.literal(" to set a build from your clipboard").setStyle(Styles.RESET_BOLD_TEXT)),
+                        Text.empty(),
+                        Text.literal("SHIFT + Click").setStyle(Styles.BOLD_TEXT)
+                                .append(Text.literal(" to copy the build url of the current build").setStyle(Styles.RESET_BOLD_TEXT))),
                 "name_tag", "");
 
         showBuildDictionaryButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10, 20, 20,
@@ -136,8 +136,8 @@ public class BuilderGui extends Screen {
                 Text.literal("Builds Data"), "diamond_chestplate", "");
 
         addBuildButton = new ItemIconButtonWidget(5, 5, 20, 20, (button) -> {
-                if (itemOnBuildButton == null) statusText = Text.literal("Please select an item to appear on your Build Icon").setStyle(Style.EMPTY.withColor(0xFFFF0000));
-                else if (nameBar.getText().isBlank()) statusText = Text.literal("Please put a name to your Build").setStyle(Style.EMPTY.withColor(0xFFFF0000));
+                if (itemOnBuildButton == null) statusText = Text.literal("Please select an item to appear on your Build Icon").setStyle(Styles.RED);
+                else if (nameBar.getText().isBlank()) statusText = Text.literal("Please put a name to your Build").setStyle(Styles.RED);
                 else {
                     String regionName = switch (region) {
                         case ARCHITECTS_RING -> "Ring";
@@ -193,7 +193,7 @@ public class BuilderGui extends Screen {
             put("perspicacity", false);
         }};
 
-        this.buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region.toString());
+        buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region.toString());
         updateButtons();
         updateGuiPositions();
     }
@@ -235,7 +235,7 @@ public class BuilderGui extends Screen {
 
         Clipboard clipboard = new Clipboard();
         clipboard.setClipboard(0, baseUrl.toString());
-        statusText = Text.literal("Build Url copied to your clipboard!").setStyle(Style.EMPTY.withColor(0xFF00FF00));
+        statusText = Text.literal("Build Url copied to your clipboard!").setStyle(Styles.GREEN);
     }
 
     private boolean isItemExalted(DictionaryItem itemToCheck) {
@@ -344,7 +344,7 @@ public class BuilderGui extends Screen {
                 charmsX + (int) (i % floor((double) (width - sideMenuWidth - charmsX) / (buttonSize + itemPadding))) * (buttonSize + itemPadding),
                 charmsY + (int) (i / floor((double) (width - sideMenuWidth - charmsX) / (buttonSize + itemPadding))) * (buttonSize + itemPadding) - scrollPixels,
                 buttonSize,
-                Text.literal(""),
+                Text.empty(),
                 (b) -> charmButtonClicked(charm, hasShiftDown(), hasControlDown()), charm,
                 () -> (charm != null) ? controller.charmGui.generateCharmLoreText(charm) : null, this);
         buildCharmButtons.add(charmsButton);
@@ -374,7 +374,7 @@ public class BuilderGui extends Screen {
         return new BuildItemButtonWidget(
                 (i < 2) ? halfWidth + halfWidthPadding : itemPadding,
                 labelMenuHeight + itemPadding + (buttonSize+itemPadding) * (i < 2 ? i : i - 2) - scrollPixels,
-                buttonSize, Text.literal(""),
+                buttonSize, Text.empty(),
                 (b) -> itemButtonClicked(item, itemType, hasShiftDown(), hasControlDown()),
                 item, () -> controller.itemGui.generateItemLoreText(item), this
         );
@@ -388,7 +388,7 @@ public class BuilderGui extends Screen {
         }
         else if (!shiftDown && item != null) {
             itemOnBuildButton = item;
-            statusText = Text.literal("");
+            statusText = Text.empty();
         }
         else if (item != null) {
             String wikiFormatted = item.name().replace(" ", "_").replace("'", "%27");
@@ -411,7 +411,7 @@ public class BuilderGui extends Screen {
         showBuildDictionaryButton.setX(width - sideMenuWidth + 10);
         showBuildDictionaryButton.setY(labelMenuHeight + 10);
 
-        nameBar.setWidth(width - 2 * itemPadding - (190 + textRenderer.getWidth(Text.literal("Monumenta Builder").setStyle(Style.EMPTY.withBold(true)))));
+        nameBar.setWidth(width - 2 * itemPadding - (190 + textRenderer.getWidth(Text.literal("Monumenta Builder").setStyle(Styles.BOLD))));
 
         classButton.setPosition(halfWidth + halfWidthPadding, labelMenuHeight + itemPadding + (itemPadding+buttonSize) * 2 - scrollPixels);
         classButton.setWidth(width - sideMenuWidth - halfWidth - halfWidthPadding - itemPadding);
@@ -586,9 +586,7 @@ public class BuilderGui extends Screen {
                 int x = ((i < 2) ? halfWidth + halfWidthPadding : itemPadding) + buttonSize + 2 * itemPadding;
                 int y = 10 + labelMenuHeight + itemPadding + (buttonSize + itemPadding) * (i < 2 ? i : i - 2) - scrollPixels;
                 String itemText = getSlidingText(item.name(), x, (i < 2) ? width - sideMenuWidth : width / 3, true);
-                context.drawTextWithShadow(textRenderer,
-                        Text.literal(itemText).setStyle(Style.EMPTY.withBold(true).withUnderline(true)),
-                        x, y, 0xFF000000 + getNameColor(item));
+                context.drawTextWithShadow(textRenderer, Text.literal(itemText).setStyle(Styles.BOLD_UNDERLINE), x, y, Colors.BLACK + getNameColor(item));
             }
         }
 
@@ -596,27 +594,21 @@ public class BuilderGui extends Screen {
             int x = ((i < 2) ? halfWidth + halfWidthPadding : itemPadding) + buttonSize + 2 * itemPadding;
             int y = labelMenuHeight + itemPadding + (buttonSize + itemPadding) * (i < 2 ? i : i - 2) - scrollPixels;
             String text = getSlidingText(itemTypesIndex.get(i), x, (i < 2) ? width - sideMenuWidth : width / 3, true);
-            context.drawTextWithShadow(textRenderer,
-                    Text.literal(text).setStyle(Style.EMPTY.withBold(true)),
-                    x, y, 0xFFFFFFFF);
+            context.drawTextWithShadow(textRenderer, Text.literal(text).setStyle(Styles.BOLD), x, y, Colors.WHITE);
         }
 
         String stars = "★".repeat(getCharmsListWithPower().size()) + "☆".repeat(MAX_CHARM_POWER - getCharmsListWithPower().size()) + " " + getCharmsListWithPower().size() + "/" + MAX_CHARM_POWER;
         stars = (textRenderer.getWidth(stars) > width - sideMenuWidth - charmsX) ? getCharmsListWithPower().size() + "/" + MAX_CHARM_POWER : stars;
-        context.drawTextWithShadow(textRenderer,
-                Text.literal("Charms"),
-                charmsX, charmsY - 20 - scrollPixels, 0xFFFFFFFF);
-        context.drawTextWithShadow(textRenderer,
-                Text.literal(stars),
-                charmsX, charmsY - 10 - scrollPixels, 0xFFFFFF00);
+        context.drawTextWithShadow(textRenderer, Text.literal("Charms"), charmsX, charmsY - 20 - scrollPixels, Colors.WHITE);
+        context.drawTextWithShadow(textRenderer, Text.literal(stars), charmsX, charmsY - 10 - scrollPixels, Colors.YELLOW);
         if (getCharmsListWithPower().size() == MAX_CHARM_POWER) {
             context.drawTextWithShadow(textRenderer,
-                    Text.literal(getSlidingText("Full Charms", charmsX, width - labelMenuHeight, true)).setStyle(Style.EMPTY.withBold(true).withUnderline(true)),
-                    charmsX, charmsY - 30 - scrollPixels, 0xFFFF0000);
+                    Text.literal(getSlidingText("Full Charms", charmsX, width - labelMenuHeight, true)).setStyle(Styles.BOLD_UNDERLINE),
+                    charmsX, charmsY - 30 - scrollPixels, Colors.RED);
         }
 
         if (!statusText.getString().isEmpty()) {
-            context.drawTextWithShadow(textRenderer, statusText, itemPadding, statusY - scrollPixels, 0xFFFF0000);
+            context.drawTextWithShadow(textRenderer, statusText, itemPadding, statusY - scrollPixels, Colors.RED);
         }
     }
 
@@ -672,12 +664,12 @@ public class BuilderGui extends Screen {
         int j = 0;
         for (List<String> stats : statsByType) {
             if (i == 4) j = 0;
-            context.drawTextWithShadow(textRenderer, Text.literal(statsTypes.get(i)).setStyle(Style.EMPTY.withBold(true)),
-                    itemPadding + (i / 4) * statsColumn, statsY + j * 10 - scrollPixels, 0xFF92BDA3);
+            context.drawTextWithShadow(textRenderer, Text.literal(statsTypes.get(i)).setStyle(Styles.BOLD),
+                    itemPadding + (i / 4) * statsColumn, statsY + j * 10 - scrollPixels, Colors.STAT_TITLE);
             for (String stat : stats) {
                 j++;
                 context.drawTextWithShadow(textRenderer, Text.literal(stat),
-                        itemPadding + (i / 4) * statsColumn, statsY + j * 10 - scrollPixels, 0xFFA1BA89);
+                        itemPadding + (i / 4) * statsColumn, statsY + j * 10 - scrollPixels, Colors.STAT_LINE);
             }
             j += 2;
             i++;
@@ -698,9 +690,9 @@ public class BuilderGui extends Screen {
         double bottomPercent = (double) scrollPixels / totalPixelHeight;
         double screenPercent = (double) (height - labelMenuHeight) / totalPixelHeight;
 
-        context.fill(width - sideMenuWidth - 2, labelMenuHeight, width - sideMenuWidth, height, 0x77AAAAAA);
+        context.fill(width - sideMenuWidth - 2, labelMenuHeight, width - sideMenuWidth, height, Colors.SCROLLBAR_BG);
         context.fill(width - sideMenuWidth - 2, (int) (labelMenuHeight + (height - labelMenuHeight) * bottomPercent),
-                width - sideMenuWidth, (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), 0xFFC3C3C3);
+                width - sideMenuWidth, (int) (labelMenuHeight + (height - labelMenuHeight) * (bottomPercent + screenPercent)), Colors.SCROLLBAR);
 
         updateGuiPositions();
         updateButtons();
@@ -712,13 +704,11 @@ public class BuilderGui extends Screen {
 
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 440);
-        context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
-        context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawTextWithShadow(textRenderer, Text.literal("Monumenta Builder").setStyle(Style.EMPTY.withBold(true)),
-                185, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
+        context.fill(0, 0, width, labelMenuHeight, Colors.GRAY);
+        context.drawHorizontalLine(0, width, labelMenuHeight, Colors.WHITE);
+        context.drawTextWithShadow(textRenderer, Text.literal("Monumenta Builder").setStyle(Styles.BOLD),
+                185, (labelMenuHeight - textRenderer.fontHeight) / 2, Colors.TITLE);
         context.getMatrices().pop();
-
-        context.fill(width - sideMenuWidth - 2, labelMenuHeight, width - sideMenuWidth, height, 0x77AAAAAA);
 
         currentHealthSlider.render(context, mouseX, mouseY, delta);
         context.getMatrices().push();

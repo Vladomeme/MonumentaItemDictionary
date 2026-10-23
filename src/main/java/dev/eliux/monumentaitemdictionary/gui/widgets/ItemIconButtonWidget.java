@@ -13,6 +13,7 @@ import net.minecraft.text.Text;
 import java.util.List;
 
 public class ItemIconButtonWidget extends ButtonWidget {
+
     private final ItemStack iconItem;
     private final List<Text> tooltipText;
 

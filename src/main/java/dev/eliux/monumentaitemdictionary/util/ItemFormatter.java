@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 public class ItemFormatter {
+
     public static final String[] modifiableSkills = {"alchemist_potions", "gruesome_alchemy", "iron_tincture", "volatile_reaction", "energizing_elixir", "brutal_alchemy", "alchemical_artillery", "unstable_amalgam", "bezoar", "taboo", "scorched_earth", "esoteric_enhancements", "panacea", "transmutation_ring", "warding_remedy",
             "crusade", "celestial_blessing", "divine_justice", "heavenly_boon", "illuminate", "cleansing_rain", "hand_of_light", "touch_of_radiance", "sanctified_armor", "unwavering", "holy_javelin", "choir_bells", "luminous_infusion", "rejuvenation", "ethereal_ascension", "hallowed_beam", "keeper_virtue",
             "channeling", "arcane_strike", "frost_nova", "mana_lance", "thunder_step", "elemental_arrows", "magma_shield", "spellshock", "prismatic_shield", "astral_omen", "cosmic_moonblade", "sage's_insight", "blizzard", "elemental_spirits", "starfall",
@@ -128,13 +129,13 @@ public class ItemFormatter {
     }
 
     public static Text getLocationText(String locationId) {
-        MutableText text;
         Location location = Mid.controller.locationData.get(locationId);
-        if (locationId.equals("twisted")) {
-            text = Text.literal("Twisted ").append(Text.literal("XXXXXXXX")
-                    .setStyle(Style.EMPTY.withObfuscated(true)));
-        }
+
+        MutableText text;
+        if (locationId.equals("twisted"))
+            text = Text.literal("Twisted ").append(Text.literal("XXXXXXXX").setStyle(Styles.OBFUSCATED));
         else text = Text.literal(location.displayName());
+
         return text.setStyle(Style.EMPTY.withColor(location.color()));
     }
 

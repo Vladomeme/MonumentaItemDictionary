@@ -1,5 +1,6 @@
 package dev.eliux.monumentaitemdictionary.gui.widgets;
 
+import dev.eliux.monumentaitemdictionary.util.Colors;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -9,6 +10,7 @@ import java.awt.Color;
 import java.util.function.Consumer;
 
 public class ColorPickerWidget extends ButtonWidget {
+
     private boolean isOpen = false;
 
     private final int popupWidth;
@@ -22,7 +24,7 @@ public class ColorPickerWidget extends ButtonWidget {
     private float brightness = 1;
 
     public ColorPickerWidget(int x, int y, int width, int height, int popupWidth, int popupHeight, Consumer<Integer> onSelect) {
-        super(x, y, width, height, Text.literal(""), (b) -> {}, DEFAULT_NARRATION_SUPPLIER);
+        super(x, y, width, height, Text.empty(), (b) -> {}, DEFAULT_NARRATION_SUPPLIER);
         this.onSelect = onSelect;
         this.popupWidth = popupWidth;
         this.popupHeight = popupHeight;
@@ -31,7 +33,7 @@ public class ColorPickerWidget extends ButtonWidget {
     public void renderMain(DrawContext context) {
         if (!visible) return;
 
-        int borderColor = isOpen ? 0xFFFFFFFF : 0xFFAAAAAA;
+        int borderColor = isOpen ? Colors.WHITE : Colors.LIGHT_GRAY;
 
         context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), displayColor);
         context.drawBorder(getX() - 1, getY() - 1, width, height, borderColor);
@@ -48,7 +50,7 @@ public class ColorPickerWidget extends ButtonWidget {
             }
         }
 
-        context.drawBorder(getX() - 1, getY() - 1, popupWidth, popupHeight, 0xFFFFFFFF);
+        context.drawBorder(getX() - 1, getY() - 1, popupWidth, popupHeight, Colors.WHITE);
 
         // hue box
         for (int x = 0; x < popupWidth; x++) {
@@ -56,7 +58,7 @@ public class ColorPickerWidget extends ButtonWidget {
             context.fill(getX() + x, getY() + getHeight() + popupHeight + 4, getX() + x + 1, getY() + getHeight() + popupHeight + 10, color);
         }
 
-        context.drawBorder(getX() - 1, getY() + height + popupHeight + 4, popupWidth, 6, 0xFFFFFFFF);
+        context.drawBorder(getX() - 1, getY() + height + popupHeight + 4, popupWidth, 6, Colors.WHITE);
     }
 
     public boolean willClick(double mouseX, double mouseY) {
@@ -73,23 +75,23 @@ public class ColorPickerWidget extends ButtonWidget {
                 saturation = (float) (mouseX - getX()) / popupWidth;
                 brightness = 1f - (float) (mouseY - getY() - getHeight()) / popupHeight;
 
-                this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                playDownSound(MinecraftClient.getInstance().getSoundManager());
 
-                int newColor = 0xFF000000 + Color.HSBtoRGB(hue, saturation, brightness);
+                int newColor = Colors.BLACK + Color.HSBtoRGB(hue, saturation, brightness);
                 onSelect.accept(newColor);
                 displayColor = newColor;
             }
             else if (mouseX >= getX() && mouseX <= getX() + popupWidth && mouseY >= getY() + getHeight() + popupHeight + 4 && mouseY <= getY() + getHeight() + popupHeight + 11) {
                 hue = (float) (mouseX - getX()) / popupWidth;
-                int newColor = 0xFF000000 + Color.HSBtoRGB(hue, saturation, brightness);
+                int newColor = Colors.BLACK + Color.HSBtoRGB(hue, saturation, brightness);
                 onSelect.accept(newColor);
                 displayColor = newColor;
 
-                this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                playDownSound(MinecraftClient.getInstance().getSoundManager());
             }
             else if (mouseX < getX() || mouseX > getX() + getWidth() || mouseY < getY() || mouseY > getY() + getHeight()) {
                 isOpen = false;
-                this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                playDownSound(MinecraftClient.getInstance().getSoundManager());
             }
         }
         return true;

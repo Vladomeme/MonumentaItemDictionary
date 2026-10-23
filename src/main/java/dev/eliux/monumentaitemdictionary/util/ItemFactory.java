@@ -33,6 +33,7 @@ import net.minecraft.util.Identifier;
 import java.util.*;
 
 public class ItemFactory {
+
     private static final ItemStack ERROR_ITEM = fromId("minecraft:red_concrete");
     private static final Item[] LEATHER_ARMOR = new Item[] {Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS};
     public static final Item[] POTIONS = new Item[] {Items.POTION, Items.SPLASH_POTION, Items.LINGERING_POTION, Items.TIPPED_ARROW};

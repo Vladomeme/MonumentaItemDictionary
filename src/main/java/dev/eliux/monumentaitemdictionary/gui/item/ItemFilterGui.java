@@ -3,8 +3,7 @@ package dev.eliux.monumentaitemdictionary.gui.item;
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
 import dev.eliux.monumentaitemdictionary.gui.widgets.DropdownWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
-import dev.eliux.monumentaitemdictionary.util.Filter;
-import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
+import dev.eliux.monumentaitemdictionary.util.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -13,7 +12,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
@@ -22,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class ItemFilterGui extends Screen {
+
     private final int labelMenuHeight = 30;
 
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
@@ -82,11 +81,11 @@ public class ItemFilterGui extends Screen {
             }).position(280, labelMenuHeight + 5 + index * 25).size(60, 20).tooltip(Tooltip.of(Text.literal("Click to cycle"))).build();
 
             DropdownWidget value = new DropdownWidget(textRenderer, 125, labelMenuHeight + 7 + index * 25, 150,
-                    Text.literal(""), "", List.of(), (v) -> {
+                    Text.empty(), "", List.of(), (v) -> {
                 filter.value = v;
                 updateFilterOutput();
             });
-            TextFieldWidget constant = new TextFieldWidget(textRenderer, 345, labelMenuHeight + 8 + index * 25, 30, 14, Text.literal(""));
+            TextFieldWidget constant = new TextFieldWidget(textRenderer, 345, labelMenuHeight + 8 + index * 25, 30, 14, Text.empty());
             constant.setText("0");
             constant.setChangedListener(c -> {
                 try {
@@ -97,7 +96,7 @@ public class ItemFilterGui extends Screen {
                 updateFilterOutput();
             });
             DropdownWidget options = new DropdownWidget(textRenderer, 30, labelMenuHeight + 7 + index * 25, 90,
-                    Text.literal(""), "Select Sort Type", Arrays.asList("Tier", "Region", "Location", "Type", "Stat", "Base Item"), (v) -> {
+                    Text.empty(), "Select Sort Type", Arrays.asList("Tier", "Region", "Location", "Type", "Stat", "Base Item"), (v) -> {
                 filter.setOption(v);
                     switch (v) {
                     case "Tier" -> {
@@ -146,7 +145,8 @@ public class ItemFilterGui extends Screen {
                 updateFilterOutput();
             });
             ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25, 20, 20,
-                    b -> removeIndex = filterListOption.indexOf(options), Text.literal("Delete").setStyle(Style.EMPTY.withColor(0xFF0000)),
+                    b -> removeIndex = filterListOption.indexOf(options),
+                    Text.literal("Delete").setStyle(Styles.RED),
                     "orange_stained_glass_pane", "Cancel");
 
             if (itemGui.isGettingBuildItem && !(itemGui.itemTypeLookingFor.equals("Mainhand")
@@ -193,7 +193,7 @@ public class ItemFilterGui extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
+        renderBackground(context, mouseX, mouseY, delta);
 
         // draw filter buttons and stuff
         boolean anyOpen = false;
@@ -226,10 +226,10 @@ public class ItemFilterGui extends Screen {
         // draw the label at the top
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 110);
-        context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
-        context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Item Filters").setStyle(Style.EMPTY.withBold(true)),
-                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFFFAA00);
+        context.fill(0, 0, width, labelMenuHeight, Colors.GRAY);
+        context.drawHorizontalLine(0, width, labelMenuHeight, Colors.WHITE);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Item Filters").setStyle(Styles.BOLD),
+                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, Colors.FILTER_TITLE);
         context.getMatrices().pop();
 
         // draw gui elements

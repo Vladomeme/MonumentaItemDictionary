@@ -3,6 +3,7 @@ package dev.eliux.monumentaitemdictionary.gui.widgets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.gui.item.ItemDictionaryGui;
+import dev.eliux.monumentaitemdictionary.util.Colors;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import dev.eliux.monumentaitemdictionary.util.ItemStat;
@@ -19,6 +20,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 
 public class ItemButtonWidget extends ButtonWidget {
+
     private final DictionaryItem item;
     private final ItemStack builtItem;
     private final Supplier<List<Text>> tooltipTextSupplier;
@@ -55,7 +57,6 @@ public class ItemButtonWidget extends ButtonWidget {
     }
 
     public void setMaximumMasterwork() {
-        // shownMasterworkTier = item.getMaxMasterwork();
         int max = 0;
         for (ArrayList<ItemStat> stats : item.stats()) {
             if (stats != null) max = item.stats().indexOf(stats);
@@ -64,7 +65,8 @@ public class ItemButtonWidget extends ButtonWidget {
     }
 
     public void scrolled(double mouseX, double mouseY, double amount) {
-        if (mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() - gui.getScrollPixels() && mouseY <= getY() + height - gui.getScrollPixels() && item.hasMasterwork()) {
+        if (mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() - gui.getScrollPixels()
+                && mouseY <= getY() + height - gui.getScrollPixels() && item.hasMasterwork()) {
             shownMasterworkTier += (int) amount;
             if (shownMasterworkTier < 0) shownMasterworkTier = 0;
             if (shownMasterworkTier > item.getMaxMasterwork() - 1) shownMasterworkTier = item.getMaxMasterwork() - 1;
@@ -80,15 +82,15 @@ public class ItemButtonWidget extends ButtonWidget {
         int maxX = minX + width;
         int maxY = minY + height;
 
-        // rendering breaks if I do not use this, what is this, why do I have to use this, I don't know
         RenderSystem.enableDepthTest();
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
-        int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
-        int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
+        int outlineColor = hovered ? Colors.OUTLINE_HOVERED : Colors.WHITE;
+        int fillOpacity = hovered ? Colors.OPACITY_HOVERED : Colors.OPACITY_DEFAULT;
 
-        context.fill(minX, minY, maxX, maxY, fillOpacity | ItemColors.getColorForTier(item.hasMasterwork() ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork()));
+        context.fill(minX, minY, maxX, maxY, fillOpacity | ItemColors.getColorForTier(
+                item.hasMasterwork() ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork()));
         context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.enableScissor(0, gui.labelMenuHeight + 1, gui.width, gui.height);

@@ -153,7 +153,7 @@ public class Stats {
             if (items.get(i) != null) {
                 DictionaryItem item = items.get(i);
                 List<ItemStat> itemStats = item.hasMasterwork() ? item.getStatsFromMasterwork(item.getMaxMasterwork() - 1) : item.getStatsNoMasterwork();
-                this.allItemStats.put(itemTypes.get(i), itemStats);
+                allItemStats.put(itemTypes.get(i), itemStats);
             }
         }
 
@@ -209,7 +209,7 @@ public class Stats {
         double maxDefStat;
         double regionMulti;
 
-        switch (this.currentRegion) {
+        switch (currentRegion) {
             case "KINGS_VALLEY" -> {
                 regionMulti = 0.2;
                 maxDefStat = 20;

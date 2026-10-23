@@ -3,6 +3,7 @@ package dev.eliux.monumentaitemdictionary.gui.widgets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.eliux.monumentaitemdictionary.gui.charm.CharmDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
+import dev.eliux.monumentaitemdictionary.util.Colors;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import java.util.List;
@@ -19,6 +20,7 @@ import net.minecraft.nbt.NbtString;
 import net.minecraft.text.Text;
 
 public class CharmButtonWidget extends ButtonWidget {
+
     private final DictionaryCharm charm;
     private final ItemStack builtItem;
     private final Supplier<List<Text>> tooltipTextSupplier;
@@ -66,13 +68,12 @@ public class CharmButtonWidget extends ButtonWidget {
         int maxX = minX + width;
         int maxY = minY + height;
 
-        // rendering breaks if I do not use this, what is this, why do I have to use this, I don't know
         RenderSystem.enableDepthTest();
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
-        int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
-        int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
+        int outlineColor = hovered ? Colors.OUTLINE_HOVERED : Colors.WHITE;
+        int fillOpacity = hovered ? Colors.OPACITY_HOVERED : Colors.OPACITY_DEFAULT;
 
         context.fill(minX, minY, maxX, maxY, fillOpacity + ItemColors.getColorForTier(charm.tier()));
         context.drawBorder(minX, minY, width, height, outlineColor);

@@ -3,6 +3,7 @@ package dev.eliux.monumentaitemdictionary.gui.widgets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
+import dev.eliux.monumentaitemdictionary.util.Colors;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
@@ -21,6 +22,7 @@ import java.util.function.Supplier;
 import static java.lang.Math.ceil;
 
 public class BuildItemButtonWidget extends ButtonWidget {
+
     private final Supplier<List<Text>> lore;
     public final DictionaryItem item;
     private final BuilderGui gui;
@@ -63,11 +65,11 @@ public class BuildItemButtonWidget extends ButtonWidget {
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
-        int outlineColor = hovered ?  0xFFC6C6C6 : 0xFFFFFFFF;
-        int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
+        int outlineColor = hovered ? Colors.OUTLINE_HOVERED : Colors.WHITE;
+        int fillOpacity = hovered ? Colors.OPACITY_HOVERED : Colors.OPACITY_DEFAULT;
 
-        context.fill(minX, minY, maxX, maxY, fillOpacity | (gui.itemOnBuildButton == item && item != null ? 0x000FF000 : 0x00000000)
-                        | (item != null ? (ItemColors.getColorForTier(item.hasMasterwork() ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork())) : 0x00000000));
+        context.fill(minX, minY, maxX, maxY, fillOpacity | (gui.itemOnBuildButton == item && item != null ? Colors.LIME_CLEAR : Colors.CLEAR)
+                        | (item != null ? (ItemColors.getColorForTier(item.hasMasterwork() ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork())) : Colors.CLEAR));
 
         context.drawBorder(minX, minY, width, height, outlineColor);
 

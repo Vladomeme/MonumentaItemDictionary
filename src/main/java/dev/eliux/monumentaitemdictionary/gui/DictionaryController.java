@@ -31,6 +31,7 @@ import java.nio.file.Path;
 
 @SuppressWarnings({"CallToPrintStackTrace", "unused"})
 public class DictionaryController {
+
     private String itemNameFilter;
     private boolean hasItemNameFilter = false;
     private String charmNameFilter;

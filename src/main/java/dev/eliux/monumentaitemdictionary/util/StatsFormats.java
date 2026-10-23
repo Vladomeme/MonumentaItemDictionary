@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StatsFormats {
+
     public static final Map<String, String> statFormats = new HashMap<>() {{
        put("armor", "Armor: ");
        put("agility", "Agility: ");

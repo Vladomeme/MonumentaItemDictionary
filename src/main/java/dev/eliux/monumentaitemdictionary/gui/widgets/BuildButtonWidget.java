@@ -4,9 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuildDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.builder.DictionaryBuild;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
-import dev.eliux.monumentaitemdictionary.util.ItemColors;
-import dev.eliux.monumentaitemdictionary.util.ItemFactory;
-import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
+import dev.eliux.monumentaitemdictionary.util.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -60,23 +58,22 @@ public class BuildButtonWidget extends ButtonWidget {
         int maxX = minX + width;
         int maxY = minY + height;
 
-        // rendering breaks if I do not use this, what is this, why do I have to use this, I don't know
         RenderSystem.enableDepthTest();
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
-        int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
-        int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
+        int outlineColor = hovered ? Colors.OUTLINE_HOVERED : Colors.WHITE;
+        int fillOpacity = hovered ? Colors.OPACITY_HOVERED : Colors.OPACITY_DEFAULT;
 
-        context.fill(minX, minY, maxX, maxY, favorite ? 0x88FFFF00
-                : fillOpacity | (!Objects.equals(build.className, "No Class") ? ItemColors.getColorForClass(build.className) : 0x00000000));
+        context.fill(minX, minY, maxX, maxY, favorite ? Colors.FAVORITE
+                : fillOpacity | (!Objects.equals(build.className, "No Class") ? ItemColors.getColorForClass(build.className) : Colors.CLEAR));
         context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);
 
         if (hovered) {
             List<Text> lines = new ArrayList<>();
-            lines.add(Text.literal(build.name).setStyle(Style.EMPTY.withBold(true)));
+            lines.add(Text.literal(build.name).setStyle(Styles.BOLD));
 
             for (DictionaryItem item : build.allItems) {
                 if (item == null) continue;
@@ -84,8 +81,8 @@ public class BuildButtonWidget extends ButtonWidget {
                 addNameLoreText(lines, item, itemTier);
             }
 
-            lines.add(Text.literal("SHIFT + Click to toggle favorite on this build").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
-            lines.add(Text.literal("CTRL + SHIFT + Click to delete this build").setStyle(Style.EMPTY.withColor(ItemColors.TEXT_COLOR)));
+            lines.add(Text.literal("SHIFT + Click to toggle favorite on this build").setStyle(Styles.TEXT));
+            lines.add(Text.literal("CTRL + SHIFT + Click to delete this build").setStyle(Styles.TEXT));
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, lines, mouseX, mouseY);
         }
     }
@@ -98,7 +95,7 @@ public class BuildButtonWidget extends ButtonWidget {
         if (nbt == null || !nbt.getCompound("display").contains("Name")) {
             //old method
             lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
-                    .withColor(0xFF000000 + ItemColors.getColorForLocation(item.locationId()))
+                    .withColor(Colors.BLACK + ItemColors.getColorForLocation(item.locationId()))
                     .withBold(ItemFormatter.shouldBold(itemTier))
                     .withUnderline(ItemFormatter.shouldUnderline(itemTier))));
             return;

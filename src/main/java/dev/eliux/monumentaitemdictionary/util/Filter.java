@@ -17,10 +17,10 @@ public class Filter {
     // 6 -> <
 
     public Filter() {
-        this.option = "";
-        this.value = "";
-        this.comparator = 0;
-        this.constant = 0.0;
+        option = "";
+        value = "";
+        comparator = 0;
+        constant = 0.0;
     }
 
     public void setOption(String option) {

@@ -4,54 +4,47 @@ import dev.eliux.monumentaitemdictionary.Mid;
 
 public class ItemColors {
 
-    public static final int DEFAULT_COLOR = 0xFFFFFF;
+    static final int DEFAULT_COLOR = 0xFFFFFF;
 
     public static final int TEXT_COLOR = 0x555555;
-    public static final int TEXT_ENCHANT_COLOR = 0xAAAAAA;
-    public static final int TEXT_STAT_COLOR = 0x5555FF;
-    public static final int TEXT_BASE_STAT_COLOR = 0x00AA00;
-    public static final int TEXT_DEFENSE_COLOR = 0x33CCFF;
-    public static final int TEXT_NEGATIVE_COLOR = 0xFF5555;
-    public static final int TEXT_MASTERWORK_COLOR = 0xFFB43E;
-    public static final int TEXT_CHARM_POWER_COLOR = 0xFFFA75;
-    @SuppressWarnings("unused")
-    public static final int TEXT_LORE_COLOR = 0xAA00AA;
-    public static final int TEXT_POSITIVE_CHARM_COLOR = 0x4AC2E5;
-    public static final int TEXT_NEGATIVE_CHARM_COLOR = 0xD02E28;
+    static final int TEXT_ENCHANT_COLOR = 0xAAAAAA;
+    static final int TEXT_STAT_COLOR = 0x5555FF;
+    static final int TEXT_BASE_STAT_COLOR = 0x00AA00;
+    static final int TEXT_DEFENSE_COLOR = 0x33CCFF;
+    static final int TEXT_NEGATIVE_COLOR = 0xFF5555;
+    static final int TEXT_MASTERWORK_COLOR = 0xFFB43E;
+    static final int TEXT_CHARM_POWER_COLOR = 0xFFFA75;
+    static final int TEXT_POSITIVE_CHARM_COLOR = 0x4AC2E5;
+    static final int TEXT_NEGATIVE_CHARM_COLOR = 0xD02E28;
 
-    public static final int LEGENDARY_COLOR = 0xFFD700;
-    public static final int EPIC_COLOR = 0xB314E3;
-    public static final int ARTIFACT_COLOR = 0xD02E28;
-    public static final int RARE_COLOR = 0x4AC2E5;
-    public static final int BASE_COLOR = 0xFFFA75;
-    public static final int UNIQUE_COLOR = 0xC8A2C8;
-    public static final int PATRON_COLOR = 0x82DB17;
-    public static final int EVENT_COLOR = 0x7FFFD4;
-    public static final int EVENT_CURRENCY_COLOR = 0xDCAE32;
-    public static final int CURRENCY_COLOR = 0xDCAE32;
-    public static final int TROPHY_COLOR = 0xCAFFFD;
-    public static final int KEY_COLOR = 0x47B6B5;
-    public static final int LEGACY_COLOR = 0xEEE6D6;
-    public static final int OBFUSCATED_COLOR = 0x5D2D87;
-    public static final int FISH_COLOR = 0x1DCC9A;
+    static final int LEGENDARY_COLOR = 0xFFD700;
+    static final int EPIC_COLOR = 0xB314E3;
+    static final int ARTIFACT_COLOR = 0xD02E28;
+    static final int RARE_COLOR = 0x4AC2E5;
+    static final int BASE_COLOR = 0xFFFA75;
+    static final int UNIQUE_COLOR = 0xC8A2C8;
+    static final int PATRON_COLOR = 0x82DB17;
+    static final int EVENT_COLOR = 0x7FFFD4;
+    static final int EVENT_CURRENCY_COLOR = 0xDCAE32;
+    static final int CURRENCY_COLOR = 0xDCAE32;
+    static final int TROPHY_COLOR = 0xCAFFFD;
+    static final int KEY_COLOR = 0x47B6B5;
+    static final int LEGACY_COLOR = 0xEEE6D6;
+    static final int OBFUSCATED_COLOR = 0x5D2D87;
+    static final int FISH_COLOR = 0x1DCC9A;
 
-    public static final int UNCOMMON_COLOR = 0xC0C0C0;
-    public static final int TIER5_COLOR = 0x555555;
-    public static final int TIER4_COLOR = 0x555555;
-    public static final int TIER3_COLOR = 0x555555;
-    public static final int TIER2_COLOR = 0x555555;
-    public static final int TIER1_COLOR = 0x555555;
-    public static final int TIER0_COLOR = 0x555555;
+    static final int UNCOMMON_COLOR = 0xC0C0C0;
+    static final int TIERED_COLOR = 0x555555;
 
-    public static final int ALCHEMIST_COLOR = 0x81D434;
-    public static final int WARRIOR_COLOR = 0xD32818;
-    public static final int CLERIC_COLOR = 0xFFC644;
-    public static final int ROGUE_COLOR = 0x36393D;
-    public static final int MAGE_COLOR = 0xA129D3;
-    public static final int SCOUT_COLOR = 0x59B4EB;
-    public static final int WARLOCK_COLOR = 0xF0489E;
-    public static final int SHAMAN_COLOR = 0x009900;
-    public static final int GENERALIST_COLOR = 0x9F8F91;
+    static final int ALCHEMIST_COLOR = 0x81D434;
+    static final int WARRIOR_COLOR = 0xD32818;
+    static final int CLERIC_COLOR = 0xFFC644;
+    static final int ROGUE_COLOR = 0x36393D;
+    static final int MAGE_COLOR = 0xA129D3;
+    static final int SCOUT_COLOR = 0x59B4EB;
+    static final int WARLOCK_COLOR = 0xF0489E;
+    static final int SHAMAN_COLOR = 0x009900;
+    static final int GENERALIST_COLOR = 0x9F8F91;
 
     public static int getColorForTier(String itemTier) {
         if (itemTier.isEmpty()) return DEFAULT_COLOR;
@@ -73,12 +66,7 @@ public class ItemColors {
             case "Legacy" -> LEGACY_COLOR;
             case "Obfuscated" -> OBFUSCATED_COLOR;
             case "Uncommon" -> UNCOMMON_COLOR;
-            case "Tier 5" -> TIER5_COLOR;
-            case "Tier 4" -> TIER4_COLOR;
-            case "Tier 3" -> TIER3_COLOR;
-            case "Tier 2" -> TIER2_COLOR;
-            case "Tier 1" -> TIER1_COLOR;
-            case "Tier 0" -> TIER0_COLOR;
+            case "Tier 0", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5" -> TIERED_COLOR;
             default -> DEFAULT_COLOR;
         };
     }

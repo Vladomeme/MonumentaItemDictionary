@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import dev.eliux.monumentaitemdictionary.util.Colors;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -11,6 +13,7 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 
 public class DropdownWidget extends TextFieldWidget {
+
     private final TextRenderer textRenderer;
 
     private ChoiceProvider choiceProvider;
@@ -65,7 +68,7 @@ public class DropdownWidget extends TextFieldWidget {
 
     private void updateMaxShown() {
         if (MinecraftClient.getInstance().currentScreen == null) return;
-        maxShown = (int) ((double) (MinecraftClient.getInstance().currentScreen.height - (this.getY() + this.height)) / (double) (this.height + 1));
+        maxShown = (int) ((double) (MinecraftClient.getInstance().currentScreen.height - (getY() + height)) / (double) (height + 1));
     }
 
     private void updateScrollLimits() {
@@ -79,13 +82,13 @@ public class DropdownWidget extends TextFieldWidget {
         if (isMouseOver(mouseX, mouseY) || isFocused()) {
             setFocused(true);
             for (int i = 0; i < Math.min(validChoices.size(), maxShown); i ++) {
-                if (mouseX >= this.getX() && mouseX <= this.getX() + this.width && mouseY >= this.getY() + this.height + ((this.height + 1) * i) && mouseY < this.getY() + this.height + ((this.height + 1) * (i + 1))) {
+                if (mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() + height + ((height + 1) * i) && mouseY < getY() + height + ((height + 1) * (i + 1))) {
                     lastChoice = validChoices.get(i + scrollAmount);
                     visualLastChoice = visualValidChoices.get(i + scrollAmount);
                     onUpdate.accept(lastChoice);
                     setFocused(false);
 
-                    this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                    playDownSound(MinecraftClient.getInstance().getSoundManager());
                 }
             }
         }
@@ -97,7 +100,7 @@ public class DropdownWidget extends TextFieldWidget {
         }
         else setText(visualLastChoice);
 
-        if (!isFocused() || !(mouseX >= this.getX()) || !(mouseX <= this.getX() + this.width) || !(mouseY >= this.getY()) || !(mouseY <= this.getY() + this.height)) {
+        if (!isFocused() || !(mouseX >= getX()) || !(mouseX <= getX() + width) || !(mouseY >= getY()) || !(mouseY <= getY() + height)) {
             super.mouseClicked(mouseX, mouseY, button);
         }
 
@@ -105,7 +108,7 @@ public class DropdownWidget extends TextFieldWidget {
     }
 
     public boolean willClick(double mouseX, double mouseY) {
-        return isFocused() && (mouseX >= this.getX() && mouseX <= this.getX() + this.width && mouseY >= this.getX() + this.height) && mouseY < this.getY() + this.height + ((this.height + 1) * (validChoices.size() + 1));
+        return isFocused() && (mouseX >= getX() && mouseX <= getX() + width && mouseY >= getX() + height) && mouseY < getY() + height + ((height + 1) * (validChoices.size() + 1));
     }
 
     // must be called manually
@@ -129,7 +132,7 @@ public class DropdownWidget extends TextFieldWidget {
     public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
         super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
-        if (mouseX >= this.getX() && mouseX <= this.getX() + this.width && mouseY >= this.getY() && mouseY <= this.getY() + ((this.height + 1) * (Math.min(validChoices.size(), maxShown) + 1))) {
+        if (mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() && mouseY <= getY() + ((height + 1) * (Math.min(validChoices.size(), maxShown) + 1))) {
             // mouse is in scroll area
             if (validChoices.size() > maxShown) {
                 // should be able to scroll
@@ -146,7 +149,7 @@ public class DropdownWidget extends TextFieldWidget {
     public void renderMain(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        if (lastChoice.isEmpty() && !isFocused()) context.drawTextWithShadow(textRenderer, defaultText, this.getX() + 3, this.getY() + 3, 0x666666);
+        if (lastChoice.isEmpty() && !isFocused()) context.drawTextWithShadow(textRenderer, defaultText, getX() + 3, getY() + 3, Colors.DROPDOWN_DEFAULT_TEXT);
     }
 
     // must be called manually
@@ -154,39 +157,39 @@ public class DropdownWidget extends TextFieldWidget {
     public void renderDropdown(DrawContext context, int mouseX, int mouseY) {
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 200);
-        if (this.isFocused() && !validChoices.isEmpty()) {
-            context.fill(this.getX() - 1, this.getY() + this.height, this.getX() + this.width + 1, this.getY() + this.height + ((this.height + 1) * Math.min(validChoices.size(), maxShown)) + 1, 0xFFA0A0A0);
-            context.fill(this.getX(), this.getY() + this.height + 1, this.getX() + this.width, this.getY() + this.height + ((this.height + 1) * Math.min(validChoices.size(), maxShown)), 0xFF000000);
+        if (isFocused() && !validChoices.isEmpty()) {
+            context.fill(getX() - 1, getY() + height, getX() + width + 1, getY() + height + ((height + 1) * Math.min(validChoices.size(), maxShown)) + 1, Colors.DROPDOWN_BORDER);
+            context.fill(getX(), getY() + height + 1, getX() + width, getY() + height + ((height + 1) * Math.min(validChoices.size(), maxShown)), Colors.BLACK);
 
             // draw highlight under mouse
             for (int i = 0; i < Math.min(validChoices.size(), maxShown); i ++) {
-                if (mouseX >= this.getX() && mouseX <= this.getX() + this.width && mouseY >= this.getY() + this.height + ((this.height + 1) * i) && mouseY < this.getY() + this.height + ((this.height + 1) * (i + 1))) {
-                    context.fill(this.getX(), this.getY() + this.height + ((this.height + 1) * i) + 1, this.getX() + this.width, this.getY() + this.height + ((this.height + 1) * (i + 1)), 0xFF212121);
+                if (mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() + height + ((height + 1) * i) && mouseY < getY() + height + ((height + 1) * (i + 1))) {
+                    context.fill(getX(), getY() + height + ((height + 1) * i) + 1, getX() + width, getY() + height + ((height + 1) * (i + 1)), Colors.DROPDOWN_HIGHLIGHT);
                 }
             }
 
             // draw dividing lines
             for (int i = 0; i < Math.min(validChoices.size(), maxShown) - 1; i ++) {
-                context.drawHorizontalLine(this.getX() + 3, this.getX() + this.width - 4, this.getY() + this.height + ((this.height + 1) * (i + 1)), 0xFFA0A0A0);
+                context.drawHorizontalLine(getX() + 3, getX() + width - 4, getY() + height + ((height + 1) * (i + 1)), Colors.DROPDOWN_DIVIDER);
             }
 
             // draw choice text
             for (int i = 0; i < Math.min(visualValidChoices.size(), maxShown); i ++) {
                 String finalText;
-                if (textRenderer.getWidth(visualValidChoices.get(i + scrollAmount)) > this.width - 8)
-                    finalText = textRenderer.trimToWidth(visualValidChoices.get(i + scrollAmount), this.width - 14) + "...";
+                if (textRenderer.getWidth(visualValidChoices.get(i + scrollAmount)) > width - 8)
+                    finalText = textRenderer.trimToWidth(visualValidChoices.get(i + scrollAmount), width - 14) + "...";
                 else
                     finalText = visualValidChoices.get(i + scrollAmount);
 
-                context.drawTextWithShadow(textRenderer, finalText, this.getX() + 4, this.getY() + this.height + ((this.height + 1) * i) + 4, 0xFFFFFFFF);
+                context.drawTextWithShadow(textRenderer, finalText, getX() + 4, getY() + height + ((height + 1) * i) + 4, Colors.WHITE);
             }
 
             // draw scroll bar if needed
             if (validChoices.size() > maxShown) {
-                context.drawVerticalLine(this.getX() + this.width - 1, this.getY() + this.height,  this.getY() + ((this.height + 1) * (maxShown + 1)) - 1, 0xFF303030);
-                int scrollBarPixels = ((this.height + 1) * (maxShown + 1)) - 1 - this.height;
-                context.drawVerticalLine(this.getX() + this.width - 1, this.getY() + this.height + (int) (scrollBarPixels * ((double) scrollAmount / validChoices.size())),
-                        this.getY() + this.height + (int) (scrollBarPixels * ((double) (scrollAmount + maxShown) / validChoices.size())), 0xFF505050);
+                context.drawVerticalLine(getX() + width - 1, getY() + height,  getY() + ((height + 1) * (maxShown + 1)) - 1, Colors.DROPDOWN_SCROLLBAR_BG);
+                int scrollBarPixels = ((height + 1) * (maxShown + 1)) - 1 - height;
+                context.drawVerticalLine(getX() + width - 1, getY() + height + (int) (scrollBarPixels * ((double) scrollAmount / validChoices.size())),
+                        getY() + height + (int) (scrollBarPixels * ((double) (scrollAmount + maxShown) / validChoices.size())), Colors.DROPDOWN_SCROLLBAR);
             }
         }
         context.getMatrices().pop();

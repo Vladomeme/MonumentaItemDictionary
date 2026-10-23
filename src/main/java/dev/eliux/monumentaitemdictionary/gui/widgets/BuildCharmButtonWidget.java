@@ -3,6 +3,7 @@ package dev.eliux.monumentaitemdictionary.gui.widgets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
+import dev.eliux.monumentaitemdictionary.util.Colors;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
@@ -24,6 +25,7 @@ import java.util.function.Supplier;
 import static java.lang.Math.ceil;
 
 public class BuildCharmButtonWidget extends ButtonWidget {
+
     private final Supplier<List<Text>> loreSupplier;
     private final DictionaryCharm charm;
     private final BuilderGui gui;
@@ -96,10 +98,10 @@ public class BuildCharmButtonWidget extends ButtonWidget {
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
-        int outlineColor = hovered ? 0xFFC6C6C6 : 0xFFFFFFFF;
-        int fillOpacity = hovered ? 0x6B000000 : 0x88000000;
+        int outlineColor = hovered ? Colors.OUTLINE_HOVERED : Colors.WHITE;
+        int fillOpacity = hovered ? Colors.OPACITY_HOVERED : Colors.OPACITY_DEFAULT;
 
-        context.fill(minX, minY, maxX, maxY, fillOpacity + (charm != null ? ItemColors.getColorForTier(charm.tier()) : 0x00000000));
+        context.fill(minX, minY, maxX, maxY, fillOpacity + (charm != null ? ItemColors.getColorForTier(charm.tier()) : Colors.CLEAR));
         context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.getMatrices().push();

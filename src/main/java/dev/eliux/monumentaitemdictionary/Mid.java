@@ -19,6 +19,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 public class Mid implements ModInitializer {
+
 	public static final Logger LOGGER = LoggerFactory.getLogger("Monumenta Item Dictionary");
 	private static KeyBinding openMenuKey;
 

@@ -7,17 +7,19 @@ import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.gui.widgets.BuildButtonWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
+import dev.eliux.monumentaitemdictionary.util.Colors;
+import dev.eliux.monumentaitemdictionary.util.Styles;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 import java.util.*;
 
 public class BuildDictionaryGui extends Screen {
+
     private ItemIconButtonWidget addBuildButton;
     private ItemIconButtonWidget showItemsButton;
     private ItemIconButtonWidget showCharmsButton;
@@ -58,12 +60,12 @@ public class BuildDictionaryGui extends Screen {
         showItemsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10,labelMenuHeight + 10, 20, 20,
                 (button) ->
                 controller.setItemDictionaryScreen(),
-                Text.literal("Item Data").setStyle(Style.EMPTY.withColor(0xFF00FFFF)),
+                Text.literal("Item Data").setStyle(Styles.BLUE),
                 "iron_chestplate", "");
 
         showCharmsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 38, 20, 20,
                 (button) -> controller.setCharmDictionaryScreen(),
-                Text.literal("Charm Data").setStyle(Style.EMPTY.withColor(0xFFFFFF00)),
+                Text.literal("Charm Data").setStyle(Styles.YELLOW),
                 "glowstone_dust", "");
 
         filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30, 20, 20,
@@ -120,22 +122,22 @@ public class BuildDictionaryGui extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
+        renderBackground(context, mouseX, mouseY, delta);
 
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 110);
-        context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
-        context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Build Dictionary").setStyle(Style.EMPTY.withBold(true)),
-                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFF2ca9d3);
+        context.fill(0, 0, width, labelMenuHeight, Colors.GRAY);
+        context.drawHorizontalLine(0, width, labelMenuHeight, Colors.WHITE);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Build Dictionary").setStyle(Styles.BOLD),
+                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, Colors.TITLE);
         context.getMatrices().pop();
 
-        context.fill(width - sideMenuWidth - 2, labelMenuHeight, width - sideMenuWidth, height, 0x77AAAAAA);
+        context.fill(width - sideMenuWidth - 2, labelMenuHeight, width - sideMenuWidth, height, Colors.SCROLLBAR_BG);
 
         buildsButtons.forEach((build, button) -> button.renderWidget(context, mouseX, mouseY, delta));
 
         if (buildsButtons.isEmpty()) {
-            context.drawCenteredTextWithShadow(textRenderer, "Found No Builds", width / 2, labelMenuHeight + 10, 0xFF2222);
+            context.drawCenteredTextWithShadow(textRenderer, "Found No Builds", width / 2, labelMenuHeight + 10, Colors.BRIGHT_RED);
         }
 
         context.getMatrices().push();

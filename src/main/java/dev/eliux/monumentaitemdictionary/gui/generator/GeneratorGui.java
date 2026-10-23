@@ -8,7 +8,9 @@ import dev.eliux.monumentaitemdictionary.gui.item.ItemDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ColorPickerWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.DropdownWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
+import dev.eliux.monumentaitemdictionary.util.Colors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
+import dev.eliux.monumentaitemdictionary.util.Styles;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
@@ -22,7 +24,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
@@ -32,6 +33,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class GeneratorGui extends Screen {
+
     public final int labelMenuHeight = 30;
 
     public final DictionaryController controller;
@@ -69,7 +71,7 @@ public class GeneratorGui extends Screen {
         giveButton = ButtonWidget.builder(Text.literal("Generate Item"), (button) -> {
             boolean generateFullStack = hasShiftDown();
             ItemFactory.giveItemToClientPlayer(generatedItem, generateFullStack ? generatedItem.getItem().getMaxCount() : 1);
-        }).dimensions(10, labelMenuHeight + 10, 90, 20).tooltip(Tooltip.of(Text.literal(""))).build();
+        }).dimensions(10, labelMenuHeight + 10, 90, 20).tooltip(Tooltip.of(Text.empty())).build();
 
         decreaseMasterworkButton = ButtonWidget.builder(Text.literal("<"), (button) -> {
             masterworkLevel--;
@@ -77,7 +79,7 @@ public class GeneratorGui extends Screen {
             updateMasterworkDisabled();
 
             updateGeneratedItem();
-        }).dimensions(10, labelMenuHeight + 60, 20, 20).tooltip(Tooltip.of(Text.literal(""))).build();
+        }).dimensions(10, labelMenuHeight + 60, 20, 20).tooltip(Tooltip.of(Text.empty())).build();
 
         increaseMasterworkButton = ButtonWidget.builder(Text.literal(">"), (button) -> {
             masterworkLevel++;
@@ -85,12 +87,12 @@ public class GeneratorGui extends Screen {
             updateMasterworkDisabled();
 
             updateGeneratedItem();
-        }).dimensions(40, labelMenuHeight + 60, 20, 20).tooltip(Tooltip.of(Text.literal(""))).build();
+        }).dimensions(40, labelMenuHeight + 60, 20, 20).tooltip(Tooltip.of(Text.empty())).build();
 
         ArrayList<String> possibleColors = new ArrayList<>(Arrays.asList("Default", "Undyed", "Custom"));
         for (DyeColor color : DyeColor.values()) possibleColors.add(color.asString());
 
-        colorSelectDropdown = new DropdownWidget(textRenderer, 10, 134, 90, Text.literal(""), "Default", possibleColors, (e) -> {
+        colorSelectDropdown = new DropdownWidget(textRenderer, 10, 134, 90, Text.empty(), "Default", possibleColors, (e) -> {
             customColorTextField.visible = e.equals("Custom");
             colorPicker.visible = e.equals("Custom");
 
@@ -102,7 +104,7 @@ public class GeneratorGui extends Screen {
             updateGeneratedItem();
         });
 
-        customColorTextField = new TextFieldWidget(textRenderer, 10, 154, 70, 14, Text.literal(""));
+        customColorTextField = new TextFieldWidget(textRenderer, 10, 154, 70, 14, Text.empty());
         customColorTextField.setText("FF0000");
         customColorTextField.setChangedListener((t) -> {
             long parsed;
@@ -112,7 +114,7 @@ public class GeneratorGui extends Screen {
             catch (NumberFormatException e) {
                 parsed = 0;
             }
-            dyeColor = Math.min((int)parsed, 0xFFFFFF);
+            dyeColor = Math.min((int) parsed, Colors.WHITE);
 
             updateGeneratedItem();
         });
@@ -120,7 +122,7 @@ public class GeneratorGui extends Screen {
         customColorTextField.visible = false;
         colorPicker = new ColorPickerWidget(86, 154, 14, 14, 120, 80, (i) -> {
             dyeColor = i;
-            customColorTextField.setText(Integer.toHexString(i&0xFFFFFF));
+            customColorTextField.setText(Integer.toHexString(i & Colors.WHITE));
 
             updateGeneratedItem();
         });
@@ -168,7 +170,7 @@ public class GeneratorGui extends Screen {
         this.renderBackground(context, mouseX, mouseY, delta);
         children().forEach(element -> ((Drawable) element).render(context, mouseX, mouseY, delta));
 
-        context.drawTextWrapped(textRenderer, StringVisitable.plain("Preview:"), 130, labelMenuHeight + 23, 60, 0xFFFFFFFF);
+        context.drawTextWrapped(textRenderer, StringVisitable.plain("Preview:"), 130, labelMenuHeight + 23, 60, Colors.WHITE);
         if (lastFocused != null && MinecraftClient.getInstance().currentScreen != null) {
 
             int minX = 175;
@@ -176,8 +178,8 @@ public class GeneratorGui extends Screen {
             int maxX = 199;
             int maxY = labelMenuHeight + 38;
 
-            context.fill(minX, minY, maxX, maxY, 0x6B666666);
-            context.drawBorder(minX, minY, 24, 24, 0xFFCCCCCC);
+            context.fill(minX, minY, maxX, maxY, Colors.GENERATOR_BG);
+            context.drawBorder(minX, minY, 24, 24, Colors.GENERATOR_BORDER);
 
             context.drawItem(generatedItem, 180, labelMenuHeight + 18);
 
@@ -188,7 +190,7 @@ public class GeneratorGui extends Screen {
         // draw vertical line
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 100);
-        context.drawVerticalLine(113, labelMenuHeight, height, 0xFFFFFFFF);
+        context.drawVerticalLine(113, labelMenuHeight, height, Colors.WHITE);
         context.getMatrices().pop();
 
         giveButton.render(context, mouseX, mouseY, delta);
@@ -196,7 +198,7 @@ public class GeneratorGui extends Screen {
         if (lastFocused == DictionaryItem.class && focusedItem.hasMasterwork()) {
             context.getMatrices().push();
             context.getMatrices().translate(0, 0, 500);
-            context.drawTextWrapped(textRenderer, StringVisitable.plain("Change Masterwork Level"), 10, labelMenuHeight + 40, 100, 0xFFFFFFFF);
+            context.drawTextWrapped(textRenderer, StringVisitable.plain("Change Masterwork Level"), 10, labelMenuHeight + 40, 100, Colors.WHITE);
             decreaseMasterworkButton.render(context, mouseX, mouseY, delta);
             increaseMasterworkButton.render(context, mouseX, mouseY, delta);
             context.getMatrices().pop();
@@ -205,7 +207,7 @@ public class GeneratorGui extends Screen {
         if (generatedItem.contains(DataComponentTypes.DYED_COLOR)) {
             context.getMatrices().push();
             context.getMatrices().translate(0, 0, 500);
-            context.drawTextWrapped(textRenderer, StringVisitable.plain("Set Dye Color"), 10, labelMenuHeight + 92, 100, 0xFFFFFFFF);
+            context.drawTextWrapped(textRenderer, StringVisitable.plain("Set Dye Color"), 10, labelMenuHeight + 92, 100, Colors.WHITE);
             colorSelectDropdown.renderMain(context, mouseX, mouseY, delta);
             customColorTextField.render(context, mouseX, mouseY, delta);
             colorPicker.renderMain(context);
@@ -217,10 +219,10 @@ public class GeneratorGui extends Screen {
         // draw the label at the tops
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 100);
-        context.fill(0, 0, width, labelMenuHeight, 0xFF555555);
-        context.drawHorizontalLine(0, width, labelMenuHeight, 0xFFFFFFFF);
-        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Monumenta Item Generator").setStyle(Style.EMPTY.withBold(true)),
-                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, 0xFFeb4034);
+        context.fill(0, 0, width, labelMenuHeight, Colors.GRAY);
+        context.drawHorizontalLine(0, width, labelMenuHeight, Colors.WHITE);
+        context.drawCenteredTextWithShadow(textRenderer, Text.literal("Monumenta Item Generator").setStyle(Styles.BOLD),
+                width / 2, (labelMenuHeight - textRenderer.fontHeight) / 2, Colors.GENERATOR_TITLE);
         context.getMatrices().pop();
 
         context.getMatrices().push();

@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DictionaryBuild {
+
     public final int id;
     public final DictionaryItem itemOnButton;
     public final String className;
