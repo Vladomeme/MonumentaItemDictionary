@@ -1,6 +1,9 @@
 package dev.eliux.monumentaitemdictionary.gui.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.eliux.monumentaitemdictionary.Mid;
+import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
+import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.CharmDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.util.Colors;
@@ -10,7 +13,10 @@ import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
@@ -18,8 +24,9 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.text.Text;
+import net.minecraft.util.Util;
 
-public class CharmButtonWidget extends ButtonWidget {
+public class CharmButtonWidget extends ClickableWidget {
 
     private final DictionaryCharm charm;
     private final ItemStack builtItem;
@@ -27,9 +34,9 @@ public class CharmButtonWidget extends ButtonWidget {
 
     private final CharmDictionaryGui gui;
 
-    public CharmButtonWidget(int x, int y, int charmSize, Text message, PressAction onPress, DictionaryCharm charm,
+    public CharmButtonWidget(int x, int y, int charmSize, Text message, DictionaryCharm charm,
                              Supplier<List<Text>> tooltipTextSupplier, CharmDictionaryGui gui) {
-        super(x, y, charmSize, charmSize, message, onPress, DEFAULT_NARRATION_SUPPLIER);
+        super(x, y, charmSize, charmSize, message);
         this.tooltipTextSupplier = tooltipTextSupplier;
         this.charm = charm;
 
@@ -85,5 +92,33 @@ public class CharmButtonWidget extends ButtonWidget {
         if (hovered) {
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltipTextSupplier.get(), mouseX, mouseY);
         }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (!clicked(mouseX, mouseY)) return false;
+
+        playDownSound(MinecraftClient.getInstance().getSoundManager());
+
+        if (button == 0) {
+            DictionaryController controller = Mid.controller;
+            if (Screen.hasShiftDown() && Screen.hasControlDown()) {
+                String wikiFormatted = charm.name().replace(" ", "_").replace("'", "%27");
+                Util.getOperatingSystem().open("https://monumenta.wiki.gg/wiki/" + wikiFormatted);
+            }
+            else if (!Screen.hasAltDown() && controller.charmGui.isGettingBuildCharm
+                    && charm.power() + controller.builderGui.getCharmsListWithPower().size() <= BuilderGui.MAX_CHARM_POWER && !Screen.hasAltDown())
+                controller.charmGui.returnCharm(charm);
+
+            ClientPlayerEntity player = MinecraftClient.getInstance().player;
+            if (player != null && Screen.hasAltDown() && player.getAbilities().creativeMode)
+                controller.setGeneratorScreen().setCharm(charm);
+        }
+        return true;
+    }
+
+    @Override
+    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+
     }
 }

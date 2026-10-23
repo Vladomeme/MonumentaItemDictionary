@@ -90,7 +90,7 @@ public class BuildButtonWidget extends ButtonWidget {
     public void addNameLoreText(List<Text> lines, DictionaryItem item, String itemTier) {
         if (MinecraftClient.getInstance().world == null) return;
 
-        NbtCompound nbt = ItemFactory.getItemNbt(item);
+        NbtCompound nbt = item.getNbt();
 
         if (nbt == null || !nbt.getCompound("display").contains("Name")) {
             //old method

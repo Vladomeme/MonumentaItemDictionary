@@ -616,7 +616,7 @@ public class BuilderGui extends Screen {
         if (MinecraftClient.getInstance().world == null)
             return ItemColors.getColorForLocation(item.locationId());
 
-        NbtCompound nbt = ItemFactory.getItemNbt(item);
+        NbtCompound nbt = item.getNbt();
 
         if (nbt == null || !nbt.getCompound("display").contains("Name"))
             return ItemColors.getColorForLocation(item.locationId());

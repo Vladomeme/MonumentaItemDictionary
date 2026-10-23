@@ -1,11 +1,18 @@
 package dev.eliux.monumentaitemdictionary.gui.item;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
 import dev.eliux.monumentaitemdictionary.util.ItemStat;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ingame.BookScreen;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.StringNbtReader;
 import org.jetbrains.annotations.NotNull;
 
 //Must be present: name, type, baseItem, lore, nbt, stats
@@ -90,6 +97,33 @@ public record DictionaryItem(String name, String type, String region, ArrayList<
             }
         }
         return highest;
+    }
+
+    public boolean hasNbt() {
+        for (String nbt : nbt()) {
+            if (nbt != null && !nbt.isEmpty()) return true;
+        }
+        return false;
+    }
+
+    public NbtCompound getNbt() {
+        for (String nbt : nbt()) {
+            if (nbt != null && !nbt.isEmpty()) {
+                try {
+                    return StringNbtReader.parse(nbt);
+                }
+                catch (CommandSyntaxException ignored) {}
+            }
+        }
+        return null;
+    }
+
+    public void openBook() {
+        ItemStack stack = ItemFactory.fromIdWithStringNbt(baseItem().toLowerCase().replace(" ", "_"), nbt.getFirst());
+        BookScreen.Contents contents = BookScreen.Contents.create(stack);
+        if (contents != null) {
+            MinecraftClient.getInstance().setScreen(new BookScreen(contents));
+        }
     }
 
     @Override

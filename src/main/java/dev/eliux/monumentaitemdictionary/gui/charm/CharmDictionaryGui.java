@@ -207,24 +207,11 @@ public class CharmDictionaryGui extends Screen {
             int x = (col + 1) * itemPadding + col * itemSize;
             int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
 
-            CharmButtonWidget button = new CharmButtonWidget(x, y, itemSize, Text.literal(charm.name()), (b) -> {
-                if (hasShiftDown() && hasControlDown()) {
-                    String wikiFormatted = charm.name().replace(" ", "_").replace("'", "%27");
-                    Util.getOperatingSystem().open("https://monumenta.wiki.gg/wiki/" + wikiFormatted);
-                }
-                else if (isGettingBuildCharm && charm.power() + controller.builderGui.getCharmsListWithPower().size() <= BuilderGui.MAX_CHARM_POWER && !hasAltDown())
-                    returnCharm(charm);
-
-                ClientPlayerEntity player = MinecraftClient.getInstance().player;
-                if (player != null && hasAltDown() && player.getAbilities().creativeMode)
-                    controller.setGeneratorScreen().setCharm(charm);
-            }, charm, () -> generateCharmLoreText(charm), this);
-
-            charmButtons.add(button);
+            charmButtons.add(new CharmButtonWidget(x, y, itemSize, Text.literal(charm.name()), charm, () -> generateCharmLoreText(charm), this));
         }
     }
 
-    private void returnCharm(DictionaryCharm charm) {
+    public void returnCharm(DictionaryCharm charm) {
         BuilderGui builderGui = controller.builderGui;
 
         builderGui.charms.add(charm);

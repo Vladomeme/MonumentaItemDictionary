@@ -244,17 +244,7 @@ public class ItemDictionaryGui extends Screen {
             int x = (col + 1) * itemPadding + col * itemSize;
             int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
 
-            ItemButtonWidget button = new ItemButtonWidget(x, y, itemSize, Text.literal(item.name()), (b) -> {
-                if (hasShiftDown() && hasControlDown()) {
-                    String wikiFormatted = item.name().replace(" ", "_").replace("'", "%27");
-                    Util.getOperatingSystem().open("https://monumenta.wiki.gg/wiki/" + wikiFormatted);
-                }
-                else if (isGettingBuildItem && !hasAltDown()) returnItem(item);
-
-                ClientPlayerEntity player = MinecraftClient.getInstance().player;
-                if (player != null && hasAltDown() && player.getAbilities().creativeMode)
-                    controller.setGeneratorScreen().setItem(item);
-            }, item, () -> generateItemLoreText(item), this);
+            ItemButtonWidget button = new ItemButtonWidget(x, y, itemSize, Text.literal(item.name()), item, () -> generateItemLoreText(item), this);
 
             itemButtons.computeIfAbsent(y, k -> new ArrayList<>()).add(button);
             widgetByItem.put(item, button);
@@ -267,7 +257,7 @@ public class ItemDictionaryGui extends Screen {
         }
     }
 
-    private void returnItem(DictionaryItem item) {
+    public void returnItem(DictionaryItem item) {
         BuilderGui builderGui = controller.builderGui;
 
         int index = builderGui.itemTypesIndex.indexOf(itemTypeLookingFor);
@@ -359,7 +349,7 @@ public class ItemDictionaryGui extends Screen {
         }
 
         String itemTier = item.hasMasterwork() ? item.getTierFromMasterwork(Math.max(masterworkTier, item.getMinMasterwork())) : item.getTierNoMasterwork();
-        NbtCompound nbt = ItemFactory.getItemNbt(item);
+        NbtCompound nbt = item.getNbt();
 
         List<Text> lines = new ArrayList<>();
 
@@ -474,6 +464,9 @@ public class ItemDictionaryGui extends Screen {
         Screen currentScreen = MinecraftClient.getInstance().currentScreen;
         if (currentScreen instanceof ItemDictionaryGui || currentScreen instanceof CharmDictionaryGui || currentScreen instanceof BuilderGui) {
             lines.add(Text.literal("[CTRL] [SHIFT] + Click to open in the wiki").setStyle(Styles.TEXT));
+
+            if (nbt != null && item.baseItem().equals("Written Book") && nbt.contains("pages"))
+                lines.add(Text.literal("Right Click to open the book").setStyle(Styles.TEXT));
 
             if (currentScreen instanceof BuilderGui) {
                 lines.add(Text.literal("[SHIFT] + Click to delete item").setStyle(Styles.TEXT));

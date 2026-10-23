@@ -2,7 +2,6 @@ package dev.eliux.monumentaitemdictionary.util;
 
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
@@ -46,27 +45,18 @@ public class ItemFactory {
     public static ItemStack fromItem(DictionaryItem item) {
         ItemStack stack = fromId(item.baseItem());
 
-        Item baseItem = stack.getItem();
+        if (item.hasNbt()) {
+            NbtCompound nbt = item.getNbt();
+            if (nbt == null) return stack; //parsing error
+            Item baseItem = stack.getItem();
 
-        if (baseItem == Items.PLAYER_HEAD)           applyProfileComponent(item, stack);
-        if (arrayContains(LEATHER_ARMOR, baseItem))  applyColorComponent(item, stack);
-        if (arrayContains(POTIONS, baseItem))        applyPotionContentsComponent(item, stack);
-        if (baseItem == Items.SHIELD)                applyPatternComponents(item, stack);
-        if (stack.isIn(ItemTags.BANNERS))            applyPatternComponents(item, stack);
-
-        return stack;
-    }
-
-    public static NbtCompound getItemNbt(DictionaryItem item) {
-        for (String nbt : item.nbt()) {
-            if (nbt != null && !nbt.isEmpty()) {
-                try {
-                    return StringNbtReader.parse(nbt);
-                }
-                catch (CommandSyntaxException ignored) {}
-            }
+            if (baseItem == Items.PLAYER_HEAD) applyProfileComponent(stack, nbt);
+            if (arrayContains(LEATHER_ARMOR, baseItem)) applyColorComponent(stack, nbt);
+            if (arrayContains(POTIONS, baseItem)) applyPotionContentsComponent(stack, nbt);
+            if (baseItem == Items.SHIELD) applyPatternComponents(stack, nbt);
+            if (stack.isIn(ItemTags.BANNERS)) applyPatternComponents(stack, nbt);
         }
-        return null;
+        return stack;
     }
 
     public static boolean arrayContains(Item[] array, Item item) {
@@ -76,9 +66,7 @@ public class ItemFactory {
         return false;
     }
 
-    private static void applyProfileComponent(DictionaryItem item, ItemStack stack) {
-        NbtCompound nbt = getItemNbt(item);
-        if (nbt == null) return;
+    private static void applyProfileComponent(ItemStack stack, NbtCompound nbt) {
         nbt = nbt.getCompound("SkullOwner");
 
         Optional<String> name = nbt.contains("Name") ? Optional.of(nbt.getString("Name")) : Optional.empty();
@@ -90,36 +78,27 @@ public class ItemFactory {
         stack.set(DataComponentTypes.PROFILE, new ProfileComponent(name, id, properties));
     }
 
-    private static void applyColorComponent(DictionaryItem item, ItemStack stack) {
-        NbtCompound nbt = getItemNbt(item);
-        if (nbt != null) {
-            nbt = nbt.getCompound("display");
-            if (nbt.contains("color"))
-                stack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(nbt.getInt("color"), false));
-        }
+    private static void applyColorComponent(ItemStack stack, NbtCompound nbt) {
+        nbt = nbt.getCompound("display");
+        if (nbt.contains("color"))
+            stack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(nbt.getInt("color"), false));
     }
 
-    private static void applyPotionContentsComponent(DictionaryItem item, ItemStack stack) {
-        NbtCompound nbt = getItemNbt(item);
-        if (nbt != null) {
-            Optional<RegistryEntry<Potion>> potion;
-            if (nbt.contains("Potion"))
-                potion = Optional.ofNullable(Registries.POTION.getEntry(Identifier.of(nbt.getString("Potion"))).orElse(null));
-            else
-                potion = Optional.empty();
+    private static void applyPotionContentsComponent(ItemStack stack, NbtCompound nbt) {
+        Optional<RegistryEntry<Potion>> potion;
+        if (nbt.contains("Potion"))
+            potion = Optional.ofNullable(Registries.POTION.getEntry(Identifier.of(nbt.getString("Potion"))).orElse(null));
+        else
+            potion = Optional.empty();
 
-            Optional<Integer> color = nbt.contains("CustomPotionColor") ? Optional.of(nbt.getInt("CustomPotionColor")) : Optional.empty();
-
-            stack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion, color, List.of()));
-        }
+        Optional<Integer> color = nbt.contains("CustomPotionColor") ? Optional.of(nbt.getInt("CustomPotionColor")) : Optional.empty();
+        stack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion, color, List.of()));
     }
 
-    private static void applyPatternComponents(DictionaryItem item, ItemStack stack) {
+    private static void applyPatternComponents(ItemStack stack, NbtCompound nbt) {
         ClientWorld world = MinecraftClient.getInstance().world;
-        if (world == null) return;
+        if (world == null || !nbt.contains("BlockEntityTag")) return;
 
-        NbtCompound nbt = getItemNbt(item);
-        if (nbt == null || !nbt.contains("BlockEntityTag")) return;
         nbt = nbt.getCompound("BlockEntityTag");
 
         if (nbt.contains("Base"))
