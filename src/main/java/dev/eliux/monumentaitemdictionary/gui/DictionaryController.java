@@ -387,15 +387,19 @@ public class DictionaryController {
 
             items.clear();
             JsonObject data = new Gson().fromJson(rawData, JsonObject.class);
-            for (JsonElement itemElement : data.asMap().values()) {
-                JsonObject itemData = (JsonObject) itemElement;
+            for (Map.Entry<String, JsonElement> itemEntry : data.asMap().entrySet()) {
+                JsonObject itemData = (JsonObject) itemEntry.getValue();
 
                 // Construct item information
                 if (itemData.get("type").getAsString().equals("Charm"))
                     continue;
 
-                if (!itemData.has("name")) continue; // if this element is not present, skip this item
-                String itemName = itemData.get("name").getAsString();
+                String itemName;
+                if (itemData.has("name"))
+                    itemName = itemData.get("name").getAsString();
+                else if (itemData.has("base_item") && itemData.get("base_item").getAsString().equals("Written Book"))
+                    itemName = itemEntry.getKey();
+                else continue; // if name is not present, and the item is not a Written Book, skip this item
 
                 if (!itemData.has("type")) continue; // if this element is not present, skip this item
                 String itemType = itemData.get("type").getAsString();
