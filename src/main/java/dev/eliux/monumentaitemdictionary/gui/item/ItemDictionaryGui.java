@@ -270,11 +270,7 @@ public class ItemDictionaryGui extends Screen {
     private void returnItem(DictionaryItem item) {
         BuilderGui builderGui = controller.builderGui;
 
-        int index;
-        for (index = 0; index < builderGui.itemTypesIndex.size(); index++) {
-            String itemType = builderGui.itemTypesIndex.get(index);
-            if (item.type().contains(itemType)) break;
-        }
+        int index = builderGui.itemTypesIndex.indexOf(itemTypeLookingFor);
         builderGui.buildItems.set(index, item);
 
         builderGui.updateButtons();
