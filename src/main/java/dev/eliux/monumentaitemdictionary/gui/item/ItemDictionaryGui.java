@@ -360,6 +360,7 @@ public class ItemDictionaryGui extends Screen {
         List<Text> lines = new ArrayList<>();
 
         addNameLoreText(lines, item, nbt, itemTier);
+        addBookAuthorLoreText(lines, item, nbt);
 
         ArrayList<Text> enchants = new ArrayList<>();
         ArrayList<Text> baseStats = new ArrayList<>();
@@ -495,6 +496,11 @@ public class ItemDictionaryGui extends Screen {
         String nameJson = nbt.getCompound("display").getString("Name");
         Text text = Text.Serialization.fromJson(nameJson, MinecraftClient.getInstance().world.getRegistryManager());
         lines.add(text);
+    }
+
+    private void addBookAuthorLoreText(List<Text> lines, DictionaryItem item, NbtCompound nbt) {
+        if (nbt != null && item.baseItem().equals("Written Book") && nbt.contains("author"))
+            lines.add(Text.literal("by " + nbt.getString("author")).setStyle(Styles.LIGHT_GRAY));
     }
 
     private void addPotionEffectLoreText(List<Text> lines, NbtCompound nbt) {
