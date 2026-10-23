@@ -75,7 +75,7 @@ public class BuilderGui extends Screen {
     private ItemIconButtonWidget addBuildButton;
     private CyclingButtonWidget<Regions> regionButton;
     private Map<String, Boolean> enabledSituationals;
-    private HashMap<String, Boolean> enabledInfusions;
+    private Map<String, Boolean> enabledInfusions;
     private final List<CheckBoxWidget> situationalCheckBoxList = new ArrayList<>();
     private final List<CheckBoxWidget> infusionsCheckBoxList = new ArrayList<>();
     private double currentHealthPercent = 100;
@@ -239,7 +239,7 @@ public class BuilderGui extends Screen {
     }
 
     private boolean isItemExalted(DictionaryItem itemToCheck) {
-        List<DictionaryItem> itemsWithSameName = controller.getItems().stream().filter(item -> item.name().equals(itemToCheck.name())).toList();
+        List<DictionaryItem> itemsWithSameName = controller.validItems.stream().filter(item -> item.name().equals(itemToCheck.name())).toList();
         return itemsWithSameName.size() > 1;
     }
 

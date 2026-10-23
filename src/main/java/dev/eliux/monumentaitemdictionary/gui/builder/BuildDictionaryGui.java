@@ -30,8 +30,8 @@ public class BuildDictionaryGui extends Screen {
     private long lastAltPressed = 0;
 
     public final DictionaryController controller;
-    public ArrayList<DictionaryBuild> buildsList;
-    public final HashMap<DictionaryBuild, BuildButtonWidget> buildsButtons = new HashMap<>();
+    public List<DictionaryBuild> buildsList;
+    public final Map<DictionaryBuild, BuildButtonWidget> buildsButtons = new HashMap<>();
     private TextFieldWidget searchBar;
     private ItemIconButtonWidget filterButton;
     public final List<String> itemTypesIndex = Arrays.asList("Mainhand", "Offhand", "Helmet", "Chestplate", "Leggings", "Boots");
@@ -45,7 +45,7 @@ public class BuildDictionaryGui extends Screen {
         searchBar = new TextFieldWidget(textRenderer, width / 2 + 90, 7, width / 2 - 100, 15, Text.literal("Search"));
         searchBar.setChangedListener(t -> {
             controller.setBuildNameFilter(searchBar.getText());
-            if (searchBar.getText().isEmpty()) controller.clearBuildNameFilter();
+            if (searchBar.getText().isEmpty()) controller.hasBuildNameFilter = false;
             buildBuildsList();
         });
         searchBar.setFocused(true);
@@ -78,7 +78,7 @@ public class BuildDictionaryGui extends Screen {
     public void buildBuildsList() {
         controller.loadBuilds();
         controller.refreshBuilds();
-        buildsList = controller.getBuilds();
+        buildsList = controller.validBuilds;
 
         buildsButtons.clear();
         for (int i = 0; i != buildsList.size(); i++) {
@@ -196,7 +196,7 @@ public class BuildDictionaryGui extends Screen {
 
         controller.writeJsonBuild(jsonBuild, build.id);
 
-        controller.addBuild(build);
+        controller.builds.add(build);
     }
 
     private JsonObject getBuildAsJSON(DictionaryBuild build) {
@@ -217,7 +217,7 @@ public class BuildDictionaryGui extends Screen {
             i++;
         }
 
-        ArrayList<DictionaryCharm> charmsWithoutDuplicates = new ArrayList<>(new HashSet<>(build.charms));
+        List<DictionaryCharm> charmsWithoutDuplicates = new ArrayList<>(new HashSet<>(build.charms));
         JsonArray charmsArray = new JsonArray();
 
         for (DictionaryCharm charm : charmsWithoutDuplicates) charmsArray.add(charm.name());

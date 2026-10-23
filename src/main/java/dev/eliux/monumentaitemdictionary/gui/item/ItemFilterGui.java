@@ -27,13 +27,13 @@ public class ItemFilterGui extends Screen {
 
     private ItemIconButtonWidget backButton;
     private ButtonWidget addFilterButton;
-    private final ArrayList<DropdownWidget> filterListOption;
-    private final ArrayList<DropdownWidget> filterListValue;
-    private final ArrayList<ButtonWidget> filterListComparator;
-    private final ArrayList<TextFieldWidget> filterListConstant;
-    private final ArrayList<ItemIconButtonWidget> filterListDelete;
+    private final List<DropdownWidget> filterListOption;
+    private final List<DropdownWidget> filterListValue;
+    private final List<ButtonWidget> filterListComparator;
+    private final List<TextFieldWidget> filterListConstant;
+    private final List<ItemIconButtonWidget> filterListDelete;
 
-    private final ArrayList<Filter> itemFilters = new ArrayList<>();
+    private final List<Filter> itemFilters = new ArrayList<>();
 
     private int removeIndex = -1;
 
@@ -96,48 +96,53 @@ public class ItemFilterGui extends Screen {
                 updateFilterOutput();
             });
             DropdownWidget options = new DropdownWidget(textRenderer, 30, labelMenuHeight + 7 + index * 25, 90,
-                    Text.empty(), "Select Sort Type", Arrays.asList("Tier", "Region", "Location", "Type", "Stat", "Base Item"), (v) -> {
+                    Text.empty(), "Select Sort Type", Arrays.asList("Tier", "Region", "Location", "Type", "Stat", "Base Item", "Effect"), (v) -> {
                 filter.setOption(v);
                     switch (v) {
                     case "Tier" -> {
-                        value.setChoices(controller.getAllItemTiers());
+                        value.setChoices(controller.allItemTiers);
                         value.setDefaultText("Select Tier");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Region" -> {
-                        value.setChoices(controller.getAllItemRegions());
+                        value.setChoices(controller.allItemRegions);
                         value.setDefaultText("Select Region");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Location" -> {
-                        value.setChoices(controller.getAllItemLocations());
+                        value.setChoices(controller.allItemLocations);
                         value.setDefaultText("Select Location");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Stat" -> {
-                        ArrayList<String> vc = new ArrayList<>();
-                        for (String s : controller.getAllItemStats()) vc.add(ItemFormatter.formatStat(s));
-                        value.setChoices(controller.getAllItemStats(), vc);
+                        List<String> vc = new ArrayList<>();
+                        for (String s : controller.allItemStats) vc.add(ItemFormatter.formatStat(s));
+                        value.setChoices(controller.allItemStats, vc);
                         value.setDefaultText("Select Stat");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Base Item" -> {
-                        value.setChoices(controller.getAllItemBaseItems());
+                        value.setChoices(controller.allItemBaseItems);
                         value.setDefaultText("Select Base Item");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Type" -> {
-                        ArrayList<String> allTypes = controller.getAllItemTypes();
-                        ArrayList<String> mainhandTypes = new ArrayList<>(Arrays.asList("Mainhand",
+                        List<String> allTypes = controller.allItemTypes;
+                        List<String> mainhandTypes = new ArrayList<>(Arrays.asList("Mainhand",
                                 "Mainhand Sword", "Mainhand Shield", "Wand", "Axe", "Pickaxe", "Trident",
                                 "Snowball", "Shovel", "Scythe", "Bow", "Crossbow"));
-                        ArrayList<String> offhandTypes = new ArrayList<>(Arrays.asList("Offhand", "Offhand Sword", "Offhand Shield"));
-                        ArrayList<String> oneType = new ArrayList<>(Collections.singletonList(itemGui.itemTypeLookingFor));
+                        List<String> offhandTypes = new ArrayList<>(Arrays.asList("Offhand", "Offhand Sword", "Offhand Shield"));
+                        List<String> oneType = new ArrayList<>(Collections.singletonList(itemGui.itemTypeLookingFor));
                         if (itemGui.isGettingBuildItem && itemGui.itemTypeLookingFor.equals("Mainhand")) value.setChoices(mainhandTypes);
                         else if (itemGui.isGettingBuildItem && itemGui.itemTypeLookingFor.equals("Offhand")) value.setChoices(offhandTypes);
                         else if (itemGui.isGettingBuildItem) value.setChoices(oneType);
                         else value.setChoices(allTypes);
                         value.setDefaultText("Select Type");
+                        comparator.setMessage(Text.literal("Matches"));
+                    }
+                    case "Effect" -> {
+                        value.setChoices(controller.allItemEffects);
+                        value.setDefaultText("Select Effect");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                 }
@@ -151,7 +156,7 @@ public class ItemFilterGui extends Screen {
 
             if (itemGui.isGettingBuildItem && !(itemGui.itemTypeLookingFor.equals("Mainhand")
                     || itemGui.itemTypeLookingFor.equals("Offhand")))
-                options.setChoices(Arrays.asList("Tier", "Region", "Location", "Stat", "Base Item"));
+                options.setChoices(Arrays.asList("Tier", "Region", "Location", "Stat", "Base Item", "Effect"));
 
             filterListOption.add(options);
             filterListValue.add(value);
@@ -188,7 +193,7 @@ public class ItemFilterGui extends Screen {
     }
 
     private void updateFilterOutput() {
-        controller.updateItemFilters(itemFilters);
+        controller.itemFilters = new ArrayList<>(itemFilters);
     }
 
     @Override

@@ -33,37 +33,37 @@ import java.nio.file.Path;
 public class DictionaryController {
 
     private String itemNameFilter;
-    private boolean hasItemNameFilter = false;
+    public boolean hasItemNameFilter = false;
     private String charmNameFilter;
-    private boolean hasCharmNameFilter = false;
+    public boolean hasCharmNameFilter = false;
     private String buildNameFilter;
-    private boolean hasBuildNameFilter = false;
-    private ArrayList<Filter> itemFilters = new ArrayList<>();
-    private ArrayList<Filter> charmFilters = new ArrayList<>();
-    private ArrayList<Filter> buildFilters = new ArrayList<>();
+    public boolean hasBuildNameFilter = false;
+    public List<Filter> itemFilters = new ArrayList<>();
+    public List<Filter> charmFilters = new ArrayList<>();
+    public List<Filter> buildFilters = new ArrayList<>();
 
-    private ArrayList<String> allItemTypes;
-    private ArrayList<String> allItemRegions;
-    private ArrayList<String> allItemTiers;
-    private Map<String, String> allItemLocations;
-    private ArrayList<String> allItemStats;
-    private ArrayList<String> allItemBaseItems;
+    public List<String> allItemTypes;
+    public List<String> allItemRegions;
+    public List<String> allItemTiers;
+    public Map<String, String> allItemLocations;
+    public List<String> allItemStats;
+    public List<String> allItemBaseItems;
+    public List<String> allItemEffects;
 
-    @SuppressWarnings("FieldCanBeLocal")
-    private ArrayList<String> allCharmRegions;
-    private ArrayList<String> allCharmTiers;
-    private Map<String, String> allCharmLocations;
-    private ArrayList<String> allCharmSkillMods;
-    private ArrayList<String> allCharmClasses;
-    private ArrayList<String> allCharmStats;
-    private ArrayList<String> allCharmBaseItems;
+    public List<String> allCharmRegions;
+    public List<String> allCharmTiers;
+    public Map<String, String> allCharmLocations;
+    public List<String> allCharmSkillMods;
+    public List<String> allCharmClasses;
+    public List<String> allCharmStats;
+    public List<String> allCharmBaseItems;
 
-    private final ArrayList<DictionaryItem> items;
-    private ArrayList<DictionaryItem> validItems;
-    private final ArrayList<DictionaryCharm> charms;
-    private ArrayList<DictionaryCharm> validCharms;
-    private ArrayList<DictionaryBuild> builds;
-    private ArrayList<DictionaryBuild> validBuilds;
+    public final List<DictionaryItem> items;
+    public List<DictionaryItem> validItems;
+    public final List<DictionaryCharm> charms;
+    public List<DictionaryCharm> validCharms;
+    public List<DictionaryBuild> builds;
+    public List<DictionaryBuild> validBuilds;
 
     public Map<String, Location> locationData;
 
@@ -295,7 +295,7 @@ public class DictionaryController {
 
     public void loadBuilds() {
         try {
-            ArrayList<DictionaryBuild> buildsInFile = new ArrayList<>();
+            List<DictionaryBuild> buildsInFile = new ArrayList<>();
 
             JsonElement jsonBuilds = JsonParser.parseString(readJsonBuild());
             if (jsonBuilds instanceof JsonNull) return;
@@ -318,7 +318,7 @@ public class DictionaryController {
 
                 DictionaryItem buildItemToShow = getItemByName(itemToShowName, itemToShowIsExalted);
 
-                ArrayList<DictionaryItem> buildItems = new ArrayList<>();
+                List<DictionaryItem> buildItems = new ArrayList<>();
                 JsonObject rawItems = buildData.get("items").getAsJsonObject();
 
                 for (String item : rawItems.asMap().keySet()) {
@@ -333,7 +333,7 @@ public class DictionaryController {
                     buildItems.add(getItemByName(itemName, isExalted));
                 }
 
-                ArrayList<DictionaryCharm> buildCharms = new ArrayList<>();
+                List<DictionaryCharm> buildCharms = new ArrayList<>();
                 JsonArray rawCharms = buildData.get("charms").getAsJsonArray();
                 for (JsonElement charm : rawCharms.asList()) {
                     buildCharms.add(getCharmByName(charm.getAsString()));
@@ -382,6 +382,7 @@ public class DictionaryController {
         allItemLocations = new HashMap<>();
         allItemStats = new ArrayList<>();
         allItemBaseItems = new ArrayList<>();
+        allItemEffects = new ArrayList<>();
 
         try {
             String rawData = readStringData("config/mid/items.json");
@@ -457,7 +458,7 @@ public class DictionaryController {
                     itemLore = lorePrimitive.getAsString();
                 }
 
-                ArrayList<ItemStat> itemStats = new ArrayList<>();
+                List<ItemStat> itemStats = new ArrayList<>();
                 JsonObject statObject = itemData.get("stats").getAsJsonObject();
                 for (Map.Entry<String, JsonElement> statEntry : statObject.entrySet()) {
                     String statKey = statEntry.getKey();
@@ -467,6 +468,26 @@ public class DictionaryController {
 
                     if (!allItemStats.contains(statKey)) allItemStats.add(statKey);
                 }
+
+                List<String> itemEffects = new ArrayList<>();
+                if (itemData.has("effects")) {
+                    JsonArray effectArray = itemData.get("effects").getAsJsonArray();
+                    for (JsonElement effectElement : effectArray) {
+                        JsonObject effectObject = (JsonObject) effectElement;
+                        if (effectObject.has("EffectType")) {
+                            String effectType = effectObject.get("EffectType").getAsString();
+                            String effectEnchant = null;
+                            if (effectObject.has("EffectEnchant"))
+                                effectEnchant = effectObject.get("EffectEnchant").getAsString();
+
+                            String effectName = ItemFormatter.formatEffect(effectType, effectEnchant);
+
+                            itemEffects.add(effectName);
+                            if (!allItemEffects.contains(effectName)) allItemEffects.add(effectName);
+                        }
+                    }
+                }
+                if (itemEffects.isEmpty()) itemEffects = List.of();
 
                 String itemNbt = "{}";
                 JsonPrimitive nbtPrimitive = itemData.getAsJsonPrimitive("nbt");
@@ -489,9 +510,9 @@ public class DictionaryController {
                     }
                     if (!hasItem) {
                         // if the item does not already exist
-                        ArrayList<String> totalTierList = new ArrayList<>();
-                        ArrayList<ArrayList<ItemStat>> totalStatsList = new ArrayList<>();
-                        ArrayList<String> totalNbtList = new ArrayList<>();
+                        List<String> totalTierList = new ArrayList<>();
+                        List<List<ItemStat>> totalStatsList = new ArrayList<>();
+                        List<String> totalNbtList = new ArrayList<>();
 
                         for (int i = 0; i < ItemFormatter.getMasterworkForRarity(itemTier) + 1; i++) {
                             totalTierList.add(null);
@@ -506,22 +527,22 @@ public class DictionaryController {
                             totalNbtList.set(level, itemNbt);
 
                             items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId,
-                                    fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, true));
+                                    fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, itemEffects, true));
                         }
                     }
                 }
                 else {
                     // if the item does not have masterwork
-                    ArrayList<String> totalTierList = new ArrayList<>();
-                    ArrayList<ArrayList<ItemStat>> totalStatsList = new ArrayList<>();
-                    ArrayList<String> totalNbtList = new ArrayList<>();
+                    List<String> totalTierList = new ArrayList<>();
+                    List<List<ItemStat>> totalStatsList = new ArrayList<>();
+                    List<String> totalNbtList = new ArrayList<>();
 
                     if (!itemTier.isEmpty()) totalTierList.add(itemTier);
                     totalStatsList.add(itemStats);
                     totalNbtList.add(itemNbt);
 
                     items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId,
-                            fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, false));
+                            fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, itemEffects, false));
                 }
             }
         }
@@ -582,7 +603,7 @@ public class DictionaryController {
                 String charmNbt = "{}";
                 if (charmData.has("nbt")) charmNbt = charmData.get("nbt").getAsString();
 
-                ArrayList<CharmStat> charmStats = new ArrayList<>();
+                List<CharmStat> charmStats = new ArrayList<>();
                 JsonObject statsObject = charmData.get("stats").getAsJsonObject();
                 for (Map.Entry<String, JsonElement> statEntry : statsObject.entrySet()) {
                     JsonElement statElement = statEntry.getValue();
@@ -614,30 +635,6 @@ public class DictionaryController {
         });
     }
 
-    public ArrayList<String> getAllItemTypes() {
-        return allItemTypes;
-    }
-
-    public ArrayList<String> getAllItemRegions() {
-        return allItemRegions;
-    }
-
-    public ArrayList<String> getAllItemTiers() {
-        return allItemTiers;
-    }
-
-    public Map<String, String> getAllItemLocations() {
-        return allItemLocations;
-    }
-
-    public ArrayList<String> getAllItemStats() {
-        return allItemStats;
-    }
-
-    public ArrayList<String> getAllItemBaseItems() {
-        return allItemBaseItems;
-    }
-
     public void setItemNameFilter(String nameFilter) {
         this.itemNameFilter = nameFilter;
         hasItemNameFilter = true;
@@ -648,37 +645,7 @@ public class DictionaryController {
         hasBuildNameFilter = true;
     }
 
-    public void clearBuildNameFilter() { hasBuildNameFilter = false; }
-
-    public void clearItemNameFilter() {
-        hasItemNameFilter = false;
-    }
-
-    public void updateItemFilters(ArrayList<Filter> filters) {
-        itemFilters = new ArrayList<>(filters);
-    }
-
-    public void updateBuildFilters(ArrayList<Filter> filters){
-        buildFilters = new ArrayList<>(filters);
-    }
-
-    public ArrayList<String> getAllCharmTiers() {
-        return allCharmTiers;
-    }
-
-    public Map<String, String> getAllCharmLocations() {
-        return allCharmLocations;
-    }
-
-    public ArrayList<String> getAllCharmSkillMods() {
-        return allCharmSkillMods;
-    }
-
-    public ArrayList<String> getAllCharmClasses() {
-        return allCharmClasses;
-    }
-
-    public ArrayList<String> getAllSpecializations() {
+    public List<String> getAllSpecializations() {
         return new ArrayList<>(Arrays.asList(
                 "Arcanist",
                 "Elementalist",
@@ -699,28 +666,13 @@ public class DictionaryController {
         ));
     }
 
-    public ArrayList<String> getAllCharmStats() {
-        return allCharmStats;
-    }
-
-    public ArrayList<String> getAllCharmBaseItems() {
-        return allCharmBaseItems;
-    }
-
     public void setCharmNameFilter(String nameFilter) {
         this.charmNameFilter = nameFilter;
         hasCharmNameFilter = true;
     }
 
-    public void clearCharmNameFilter() {
-        hasCharmNameFilter = false;
-    }
-
-    public void updateCharmFilters(ArrayList<Filter> filters) {
-        charmFilters = new ArrayList<>(filters);
-    }
     public void refreshItems() {
-        ArrayList<DictionaryItem> filteredItems = new ArrayList<>(items);
+        List<DictionaryItem> filteredItems = new ArrayList<>(items);
 
         for (Filter filter : itemFilters) {
             if (filter != null) {
@@ -780,6 +732,14 @@ public class DictionaryController {
                             }
                         }
                     }
+                    case "Effect" -> {
+                        if (!filter.value.isEmpty()) {
+                            switch (filter.comparator) {
+                                case 0 -> filteredItems.removeIf(i -> !i.hasEffects() || !i.effects().contains(filter.value));
+                                case 1 -> filteredItems.removeIf(i -> i.hasEffects() && i.effects().contains(filter.value));
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -817,7 +777,7 @@ public class DictionaryController {
     }
 
     public void refreshCharms() {
-        ArrayList<DictionaryCharm> filteredCharms = new ArrayList<>(charms);
+        List<DictionaryCharm> filteredCharms = new ArrayList<>(charms);
 
         for (Filter filter : charmFilters) {
             if (filter != null) {
@@ -910,7 +870,7 @@ public class DictionaryController {
     }
 
     public void refreshBuilds() {
-        ArrayList<DictionaryBuild> filteredBuilds = new ArrayList<>(builds);
+        List<DictionaryBuild> filteredBuilds = new ArrayList<>(builds);
 
         for (Filter filter : buildFilters) {
             if (filter != null) {
@@ -954,29 +914,6 @@ public class DictionaryController {
         validBuilds = filteredBuilds;
     }
 
-    public ArrayList<DictionaryItem> getItems() {
-        return validItems;
-    }
-
-    public ArrayList<DictionaryCharm> getCharms() {
-        return validCharms;
-    }
-
-    public ArrayList<DictionaryBuild> getBuilds() {
-        return validBuilds;
-    }
-    public void addBuild(DictionaryBuild build) {
-        builds.add(build);
-    }
-
-    public boolean anyItems() {
-        return items.isEmpty();
-    }
-
-    public boolean anyCharms() {
-        return charms.isEmpty();
-    }
-
     public DictionaryItem getItemByName(String itemName, boolean isExalted) {
         List<DictionaryItem> possibleItems = new ArrayList<>();
         for (DictionaryItem item : items) {
@@ -1018,7 +955,7 @@ public class DictionaryController {
         itemGui.postInit();
         itemGui.isGettingBuildItem = true;
         itemGui.itemTypeLookingFor = itemType;
-        clearItemNameFilter();
+        hasItemNameFilter = false;
         itemGui.clearSearchBar();
         itemFilterGui.clearFilters();
         setItemDictionaryScreen();
@@ -1028,7 +965,7 @@ public class DictionaryController {
         charmGui.postInit();
         charmGui.isGettingBuildCharm = true;
         if (charmGuiPreviouslyOpened) {
-            clearCharmNameFilter();
+            hasCharmNameFilter = false;
             charmGui.clearSearchBar();
             charmFilterGui.clearFilters();
         }

@@ -46,7 +46,7 @@ public class ItemFormatter {
     private static final Set<String> baseStats = new HashSet<>(List.of("projectile_damage_base", "projectile_speed_base", "potion_damage_flat", "potion_radius_flat",
             "attack_speed_base", "attack_damage_base", "throw_rate_base", "potion_recharge_rate_percent"));
 
-    private static final Set<String> hiddenStats = new HashSet<>(List.of("noglint", "hideenchants", "hideinfo"));
+    private static final Set<String> hiddenStats = new HashSet<>(List.of("noglint", "hideenchants", "hideinfo", "utility_item_for_armory"));
 
     public static boolean shouldBold(String inTier) {
         return boldTiers.contains(inTier);
@@ -173,6 +173,56 @@ public class ItemFormatter {
             }
         }
         return stat;
+    }
+    
+    public static String formatEffect(String effect, String enchant) {
+        return switch (effect) {
+            case "damage", "Weakness" -> "Damage";
+            case "MeleeWeakness" -> "Melee Damage";
+            case "NegativeAttackSpeed" -> "Attack Speed";
+            case "NegativeKnockbackResist", "KnockbackResist" -> "Knockback Resistance";
+            case "AbilityCooldownDecrease", "AbilityCooldownIncrease" -> "Ability Cooldowns";
+
+            case "AntiHeal", "Heal" -> "Healing Rate";
+            case "HealOverTime" -> "Health Over Time";
+            case "InstantHealthPercent" -> "Instant Health";
+            case "MaxHealthDecrease", "MaxHealthIncrease" -> "Max Health";
+            case "InstantDamagePercent" -> "Instant Damage";
+
+            case "VanillaFireRes" -> "Fire Immunity";
+            case "Vulnerability" -> "Resistance";
+            case "FireVulnerability" -> "Fire Resistance";
+            case "ProjectileVulnerability" -> "Projectile Resistance";
+            case "BlastVulnerability" -> "Blast Resistance";
+            case "FallVulnerability" -> "Fall Resistance";
+            case "MeleeVulnerability" -> "Melee Resistance";
+            case "MagicVulnerability" -> "Magic Resistance";
+
+            case "SoulThreadReduction", "SoulThreadBonus" -> "Soul Thread Chance";
+            case "ArrowSaving" -> "Arrow Save Chance";
+            case "ExpLoss", "ExpBonus" -> "Experience";
+            case "DurabilityLoss", "DurabilitySave" -> "Durability";
+            case "WaterBreath" -> "Water Breathing";
+            case "Slow" -> "Speed";
+
+            case "FireDamageNegate" -> "Fire Hits Blocked";
+            case "FallDamageNegate" -> "Falling Hits Blocked";
+            case "MeleeDamageNegate" -> "Melee Hits Blocked";
+
+            case "EnchantEffect" -> enchant + " Levels";
+
+            default -> { //"AbilityCooldownDecrease" -> "Ability Cooldown Decrease"
+                StringBuilder builder = new StringBuilder();
+                char[] chars = effect.toCharArray();
+
+                builder.append(chars[0]);
+                for (int i = 1; i != chars.length; i++) {
+                    if (chars[i] < 'a') builder.append(" ");
+                    builder.append(chars[i]);
+                }
+                yield builder.toString();
+            }
+        };
     }
 
     public static String getSkillFromCharmStat(String stat) {

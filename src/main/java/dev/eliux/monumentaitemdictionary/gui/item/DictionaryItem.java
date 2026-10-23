@@ -5,7 +5,7 @@ import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
 import dev.eliux.monumentaitemdictionary.util.ItemStat;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import net.minecraft.client.MinecraftClient;
@@ -16,9 +16,9 @@ import net.minecraft.nbt.StringNbtReader;
 import org.jetbrains.annotations.NotNull;
 
 //Must be present: name, type, baseItem, lore, nbt, stats
-public record DictionaryItem(String name, String type, String region, ArrayList<String> tier, String locationId,
-                             int fishTier, boolean isFish, String baseItem, String lore, ArrayList<String> nbt,
-                             ArrayList<ArrayList<ItemStat>> stats, boolean hasMasterwork) implements Comparable<DictionaryItem> {
+public record DictionaryItem(String name, String type, String region, List<String> tier, String locationId,
+                             int fishTier, boolean isFish, String baseItem, String lore, List<String> nbt,
+                             List<List<ItemStat>> stats, List<String> effects, boolean hasMasterwork) implements Comparable<DictionaryItem> {
 
     public boolean hasRegion() {
         return !region.isEmpty();
@@ -32,17 +32,28 @@ public record DictionaryItem(String name, String type, String region, ArrayList<
         return !locationId.isEmpty();
     }
 
-    public void addMasterworkTier(String newTier, ArrayList<ItemStat> newStats, String newNbt, int level) {
+    public boolean hasEffects() {
+        return !effects.isEmpty();
+    }
+
+    public boolean hasNbt() {
+        for (String nbt : nbt()) {
+            if (nbt != null && !nbt.isEmpty()) return true;
+        }
+        return false;
+    }
+
+    public void addMasterworkTier(String newTier, List<ItemStat> newStats, String newNbt, int level) {
         tier.set(level, newTier);
         stats.set(level, newStats);
         nbt.set(level, newNbt);
     }
 
-    public ArrayList<ItemStat> getStatsNoMasterwork() {
+    public List<ItemStat> getStatsNoMasterwork() {
         return stats.getFirst();
     }
 
-    public ArrayList<ItemStat> getStatsFromMasterwork(int level) {
+    public List<ItemStat> getStatsFromMasterwork(int level) {
         return stats.get(level);
     }
 
@@ -76,7 +87,7 @@ public record DictionaryItem(String name, String type, String region, ArrayList<
     }
 
     public boolean hasStat(String stat) {
-        for (ArrayList<ItemStat> itemStatsList : stats) {
+        for (List<ItemStat> itemStatsList : stats) {
             if (itemStatsList == null) continue;
 
             for (ItemStat itemStat : itemStatsList) {
@@ -88,7 +99,7 @@ public record DictionaryItem(String name, String type, String region, ArrayList<
 
     public double getStat(String stat) {
         double highest = -1.0;
-        for (ArrayList<ItemStat> itemStatsList : stats) {
+        for (List<ItemStat> itemStatsList : stats) {
             if (itemStatsList == null) continue;
 
             for (ItemStat itemStat : itemStatsList) {
@@ -97,13 +108,6 @@ public record DictionaryItem(String name, String type, String region, ArrayList<
             }
         }
         return highest;
-    }
-
-    public boolean hasNbt() {
-        for (String nbt : nbt()) {
-            if (nbt != null && !nbt.isEmpty()) return true;
-        }
-        return false;
     }
 
     public NbtCompound getNbt() {

@@ -8,7 +8,7 @@ import dev.eliux.monumentaitemdictionary.util.Colors;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import dev.eliux.monumentaitemdictionary.util.ItemStat;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.client.MinecraftClient;
@@ -58,7 +58,7 @@ public class ItemButtonWidget extends ClickableWidget {
 
     public void setMaximumMasterwork() {
         int max = 0;
-        for (ArrayList<ItemStat> stats : item.stats()) {
+        for (List<ItemStat> stats : item.stats()) {
             if (stats != null) max = item.stats().indexOf(stats);
         }
         shownMasterworkTier = max;

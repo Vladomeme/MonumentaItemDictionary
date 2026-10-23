@@ -23,12 +23,12 @@ public class BuildFilterGui extends Screen {
     private final DictionaryController controller;
     private ItemIconButtonWidget backButton;
     private ButtonWidget addFilterButton;
-    private final ArrayList<DropdownWidget> filterListOption;
-    private final ArrayList<DropdownWidget> filterListValue;
-    private final ArrayList<ButtonWidget> filterListComparator;
-    private final ArrayList<TextFieldWidget> filterListConstant;
-    private final ArrayList<ItemIconButtonWidget> filterListDelete;
-    private final ArrayList<Filter> buildFilters = new ArrayList<>();
+    private final List<DropdownWidget> filterListOption;
+    private final List<DropdownWidget> filterListValue;
+    private final List<ButtonWidget> filterListComparator;
+    private final List<TextFieldWidget> filterListConstant;
+    private final List<ItemIconButtonWidget> filterListDelete;
+    private final List<Filter> buildFilters = new ArrayList<>();
     private final int labelMenuHeight = 30;
     private int removeIndex = -1;
 
@@ -91,12 +91,12 @@ public class BuildFilterGui extends Screen {
                 filter.setOption(v);
                 switch (v) {
                     case "Region" -> {
-                        value.setChoices(controller.getAllItemRegions());
+                        value.setChoices(controller.allItemRegions);
                         value.setDefaultText("Select Region");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Class" -> {
-                        value.setChoices(controller.getAllCharmClasses());
+                        value.setChoices(controller.allCharmClasses);
                         value.setDefaultText("Select Class");
                         comparator.setMessage(Text.literal("Matches"));
                     }
@@ -148,7 +148,9 @@ public class BuildFilterGui extends Screen {
         }
     }
 
-    private void updateFilterOutput() {controller.updateBuildFilters(buildFilters);}
+    private void updateFilterOutput() {
+        controller.buildFilters = new ArrayList<>(buildFilters);
+    }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {

@@ -37,7 +37,7 @@ public class CharmDictionaryGui extends Screen {
 
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
-    private final ArrayList<CharmButtonWidget> charmButtons = new ArrayList<>();
+    private final List<CharmButtonWidget> charmButtons = new ArrayList<>();
 
     private TextFieldWidget searchBar;
     private ItemIconButtonWidget reloadCharmsButton;
@@ -64,7 +64,7 @@ public class CharmDictionaryGui extends Screen {
             scrollPixels = 0;
             controller.setCharmNameFilter(searchBar.getText());
             if (searchBar.getText().isEmpty())
-                controller.clearCharmNameFilter();
+                controller.hasCharmNameFilter = false;
 
             buildCharmList();
             updateScrollLimits();
@@ -152,7 +152,7 @@ public class CharmDictionaryGui extends Screen {
             else {
                 context.drawCenteredTextWithShadow(textRenderer, "Found No Charms", width / 2, labelMenuHeight + 10, Colors.BRIGHT_RED);
 
-                if (controller.anyCharms()) {
+                if (controller.charms.isEmpty()) {
                     context.drawCenteredTextWithShadow(textRenderer, "It seems like there were no charms to begin with...",
                             width / 2, labelMenuHeight + 30, Colors.BRIGHT_RED);
                     context.drawCenteredTextWithShadow(textRenderer, "Try clicking the Reload All Data button in the top left",
@@ -195,7 +195,7 @@ public class CharmDictionaryGui extends Screen {
 
     public void buildCharmList() {
         controller.refreshCharms();
-        ArrayList<DictionaryCharm> toBuildCharms = controller.getCharms();
+        List<DictionaryCharm> toBuildCharms = controller.validCharms;
 
         charmButtons.clear();
         int columns = (width - sideMenuWidth - 5) / (itemSize + itemPadding);

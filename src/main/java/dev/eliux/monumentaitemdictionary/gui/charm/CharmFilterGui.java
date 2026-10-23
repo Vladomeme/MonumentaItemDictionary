@@ -26,12 +26,12 @@ public class CharmFilterGui extends Screen {
 
     private ItemIconButtonWidget backButton;
     private ButtonWidget addFilterButton;
-    private final ArrayList<DropdownWidget> filterListOption;
-    private final ArrayList<DropdownWidget> filterListValue;
-    private final ArrayList<ButtonWidget> filterListComparator;
-    private final ArrayList<TextFieldWidget> filterListConstant;
-    private final ArrayList<ItemIconButtonWidget> filterListDelete;
-    private final ArrayList<Filter> charmFilters = new ArrayList<>();
+    private final List<DropdownWidget> filterListOption;
+    private final List<DropdownWidget> filterListValue;
+    private final List<ButtonWidget> filterListComparator;
+    private final List<TextFieldWidget> filterListConstant;
+    private final List<ItemIconButtonWidget> filterListDelete;
+    private final List<Filter> charmFilters = new ArrayList<>();
     private int removeIndex = -1;
     public final DictionaryController controller;
 
@@ -99,37 +99,37 @@ public class CharmFilterGui extends Screen {
 
                 switch (v) {
                     case "Tier" -> {
-                        value.setChoices(controller.getAllCharmTiers());
+                        value.setChoices(controller.allCharmTiers);
                         value.setDefaultText("Select Tier");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Location" -> {
-                        value.setChoices(controller.getAllCharmLocations());
+                        value.setChoices(controller.allCharmLocations);
                         value.setDefaultText("Select Location");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Skill Modifier" -> {
-                        ArrayList<String> vc = new ArrayList<>();
-                        for (String s : controller.getAllCharmSkillMods()) vc.add(ItemFormatter.formatCharmSkill(s));
-                        value.setChoices(controller.getAllCharmSkillMods(), vc);
+                        List<String> vc = new ArrayList<>();
+                        for (String s : controller.allCharmSkillMods) vc.add(ItemFormatter.formatCharmSkill(s));
+                        value.setChoices(controller.allCharmSkillMods, vc);
                         value.setDefaultText("Select Skill Modifiers");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Class" -> {
-                        value.setChoices(controller.getAllCharmClasses());
+                        value.setChoices(controller.allCharmClasses);
                         value.setDefaultText("Select Class");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Charm Power" -> comparator.setMessage(Text.literal(">="));
                     case "Stat" -> {
-                        ArrayList<String> vc = new ArrayList<>();
-                        for (String s : controller.getAllCharmStats()) vc.add(ItemFormatter.formatCharmStat(s));
-                        value.setChoices(controller.getAllCharmStats(), vc);
+                        List<String> vc = new ArrayList<>();
+                        for (String s : controller.allCharmStats) vc.add(ItemFormatter.formatCharmStat(s));
+                        value.setChoices(controller.allCharmStats, vc);
                         value.setDefaultText("Select Stat");
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Base Item" -> {
-                        value.setChoices(controller.getAllCharmBaseItems());
+                        value.setChoices(controller.allCharmBaseItems);
                         value.setDefaultText("Select Base Item");
                         comparator.setMessage(Text.literal("Matches"));
                     }
@@ -177,7 +177,7 @@ public class CharmFilterGui extends Screen {
     }
 
     private void updateFilterOutput() {
-        controller.updateCharmFilters(charmFilters);
+        controller.charmFilters = new ArrayList<>(charmFilters);
     }
 
     @Override

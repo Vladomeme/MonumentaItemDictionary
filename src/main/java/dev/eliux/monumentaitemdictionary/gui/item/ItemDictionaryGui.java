@@ -8,8 +8,7 @@ import dev.eliux.monumentaitemdictionary.gui.widgets.ItemButtonWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.*;
 
-import java.util.HashMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -21,16 +20,10 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.registry.Registries;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class ItemDictionaryGui extends Screen {
 
@@ -43,8 +36,8 @@ public class ItemDictionaryGui extends Screen {
 
     private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 
-    private final TreeMap<Integer, ArrayList<ItemButtonWidget>> itemButtons = new TreeMap<>();
-    private final HashMap<DictionaryItem, ItemButtonWidget> widgetByItem = new HashMap<>();
+    private final TreeMap<Integer, List<ItemButtonWidget>> itemButtons = new TreeMap<>();
+    private final Map<DictionaryItem, ItemButtonWidget> widgetByItem = new HashMap<>();
 
     private TextFieldWidget searchBar;
     private ItemIconButtonWidget reloadItemsButton;
@@ -74,7 +67,7 @@ public class ItemDictionaryGui extends Screen {
             scrollPixels = 0;
             controller.setItemNameFilter(searchBar.getText());
             if (searchBar.getText().isEmpty())
-                controller.clearItemNameFilter();
+                controller.hasItemNameFilter = false;
 
             buildItemList();
             updateScrollLimits();
@@ -187,7 +180,7 @@ public class ItemDictionaryGui extends Screen {
             else {
                 context.drawCenteredTextWithShadow(textRenderer, "Found No Items", width / 2, labelMenuHeight + 10, Colors.BRIGHT_RED);
 
-                if (controller.anyItems()) {
+                if (controller.items.isEmpty()) {
                     context.drawCenteredTextWithShadow(textRenderer, "It seems like there were no items to begin with...",
                             width / 2, labelMenuHeight + 30, Colors.BRIGHT_RED);
                     context.drawCenteredTextWithShadow(textRenderer, "Try clicking the Reload All Data button in the top left",
@@ -231,7 +224,7 @@ public class ItemDictionaryGui extends Screen {
 
     public void buildItemList() {
         controller.refreshItems();
-        ArrayList<DictionaryItem> toBuildItems = controller.getItems();
+        List<DictionaryItem> toBuildItems = controller.validItems;
 
         itemButtons.clear();
         widgetByItem.clear();
@@ -356,11 +349,11 @@ public class ItemDictionaryGui extends Screen {
         addNameLoreText(lines, item, nbt, itemTier);
         addBookAuthorLoreText(lines, item, nbt);
 
-        ArrayList<Text> enchants = new ArrayList<>();
-        ArrayList<Text> baseStats = new ArrayList<>();
-        ArrayList<Text> stats = new ArrayList<>();
+        List<Text> enchants = new ArrayList<>();
+        List<Text> baseStats = new ArrayList<>();
+        List<Text> stats = new ArrayList<>();
 
-        ArrayList<ItemStat> showStats = item.hasMasterwork() ? item.getStatsFromMasterwork(masterworkTier) : item.getStatsNoMasterwork();
+        List<ItemStat> showStats = item.hasMasterwork() ? item.getStatsFromMasterwork(masterworkTier) : item.getStatsNoMasterwork();
 
         if (showStats == null) {
             if (masterworkTier > item.getMinMasterwork())
@@ -376,7 +369,6 @@ public class ItemDictionaryGui extends Screen {
                     isAlchemicalUtensil = true;
                     continue;
                 }
-                if (stat.statName().equals("utility_item_for_armory")) continue;
 
                 Text line = Text.literal(ItemFormatter.buildStatString(stat.statName(), stat.statValue()))
                         .setStyle(Style.EMPTY.withColor(ItemColors.getColorForStat(stat.statName(), stat.statValue())));
@@ -442,8 +434,7 @@ public class ItemDictionaryGui extends Screen {
             else lines.add(Text.literal("Press [SHIFT] to show lore.").setStyle(Styles.TEXT));
         }
 
-        if (ItemFactory.arrayContains(ItemFactory.POTIONS, Registries.ITEM.get(Identifier.of(item.baseItem().toLowerCase().replace(" ", "_")))))
-            addPotionEffectLoreText(lines, nbt);
+        addPotionEffectLoreText(lines, nbt);
 
         if (showStats != null) {
             if (!stats.isEmpty() || !baseStats.isEmpty()) {
