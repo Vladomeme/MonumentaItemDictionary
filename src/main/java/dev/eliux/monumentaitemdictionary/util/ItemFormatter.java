@@ -225,6 +225,23 @@ public class ItemFormatter {
         };
     }
 
+    // Fix for Event Currency tier (and maybe others in the future) being formatted as "Event_currency"
+    public static String formatTierPrimitive(String tier) {
+        if (tier.indexOf('_') == -1) return tier;
+
+        StringBuilder builder = new StringBuilder();
+        char[] chars = tier.toCharArray();
+
+        for (int i = 0; i != chars.length; i++) {
+            if (chars[i] == '_') {
+                builder.append(' ');
+                i++;
+                builder.append(chars[i] < 'a' ? chars[i] : chars[i] - 32);
+            }
+        }
+        return builder.toString();
+    }
+
     public static String getSkillFromCharmStat(String stat) {
         for (String s : modifiableSkills) {
             if (stat.startsWith(s)) return s;

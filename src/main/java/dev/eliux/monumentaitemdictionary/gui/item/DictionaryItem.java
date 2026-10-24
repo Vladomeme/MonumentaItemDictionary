@@ -50,7 +50,7 @@ public record DictionaryItem(String name, String type, String region, List<Strin
     }
 
     public List<ItemStat> getStatsNoMasterwork() {
-        return stats.getFirst();
+        return stats.isEmpty() ? List.of() : stats.getFirst();
     }
 
     public List<ItemStat> getStatsFromMasterwork(int level) {
@@ -58,7 +58,7 @@ public record DictionaryItem(String name, String type, String region, List<Strin
     }
 
     public String getNbtNoMasterwork() {
-        return nbt.getFirst();
+        return nbt.isEmpty() ? "{}" : nbt.getFirst();
     }
 
     public String getNbtFromMasterwork(int level) {

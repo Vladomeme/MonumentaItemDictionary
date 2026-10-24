@@ -127,16 +127,17 @@ public class ItemFilterGui extends Screen {
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Type" -> {
-                        List<String> allTypes = controller.allItemTypes;
                         List<String> mainhandTypes = new ArrayList<>(Arrays.asList("Mainhand",
                                 "Mainhand Sword", "Mainhand Shield", "Wand", "Axe", "Pickaxe", "Trident",
                                 "Snowball", "Shovel", "Scythe", "Bow", "Crossbow"));
                         List<String> offhandTypes = new ArrayList<>(Arrays.asList("Offhand", "Offhand Sword", "Offhand Shield"));
                         List<String> oneType = new ArrayList<>(Collections.singletonList(itemGui.itemTypeLookingFor));
+
                         if (itemGui.isGettingBuildItem && itemGui.itemTypeLookingFor.equals("Mainhand")) value.setChoices(mainhandTypes);
                         else if (itemGui.isGettingBuildItem && itemGui.itemTypeLookingFor.equals("Offhand")) value.setChoices(offhandTypes);
                         else if (itemGui.isGettingBuildItem) value.setChoices(oneType);
-                        else value.setChoices(allTypes);
+                        else value.setChoices(controller.allItemTypes);
+
                         value.setDefaultText("Select Type");
                         comparator.setMessage(Text.literal("Matches"));
                     }

@@ -358,9 +358,9 @@ public class DictionaryController {
         for (JsonElement jsonElement : jsonArray) {
             JsonObject jsonObject = (JsonObject) jsonElement;
 
-            if (!jsonObject.has("name")) continue;
-            if (!jsonObject.has("displayName")) continue;
-            if (!jsonObject.has("color")) continue;
+            if (!jsonObject.has("name")
+                    || !jsonObject.has("displayName")
+                    || !jsonObject.has("color")) continue;
 
             String name = jsonObject.get("name").getAsString();
             String displayName = jsonObject.get("displayName").getAsString();
@@ -376,13 +376,15 @@ public class DictionaryController {
     }
 
     public void loadItems() {
-        allItemTypes = new ArrayList<>();
-        allItemRegions = new ArrayList<>();
-        allItemTiers = new ArrayList<>();
+        Set<String> itemTypeSet = new HashSet<>();
+        Set<String> itemRegionSet = new HashSet<>();
+        Set<String> itemTierSet = new HashSet<>();
+        Set<String> itemStatSet = new HashSet<>();
+        Set<String> itemBaseSet = new HashSet<>();
+        Set<String> itemEffectSet = new HashSet<>();
         allItemLocations = new HashMap<>();
-        allItemStats = new ArrayList<>();
-        allItemBaseItems = new ArrayList<>();
-        allItemEffects = new ArrayList<>();
+
+        Map<String, DictionaryItem> masterworkItems = new HashMap<>();
 
         try {
             String rawData = readStringData("config/mid/items.json");
@@ -392,46 +394,43 @@ public class DictionaryController {
             for (Map.Entry<String, JsonElement> itemEntry : data.asMap().entrySet()) {
                 JsonObject itemData = (JsonObject) itemEntry.getValue();
 
-                // Construct item information
-                if (itemData.get("type").getAsString().equals("Charm"))
-                    continue;
+                if (!itemData.has("type")
+                        || !itemData.has("base_item")) continue;
 
+                // TYPE (must be present)
+                String itemType = itemData.get("type").getAsString();
+                if (itemType.equals("Charm")) continue;
+                itemTypeSet.add(itemType);
+
+                // BASE ITEM (must be present)
+                String itemBaseItem = itemData.get("base_item").getAsString();
+                itemBaseSet.add(itemBaseItem);
+
+                // NAME (must be present; exception - written books)
                 String itemName;
                 if (itemData.has("name"))
                     itemName = itemData.get("name").getAsString();
                 else if (itemData.has("base_item") && itemData.get("base_item").getAsString().equals("Written Book"))
                     itemName = itemEntry.getKey();
-                else continue; // if name is not present, and the item is not a Written Book, skip this item
+                else continue;
 
-                if (!itemData.has("type")) continue; // if this element is not present, skip this item
-                String itemType = itemData.get("type").getAsString();
-                if (itemType.equals("Charm")) continue;
-                if (!allItemTypes.contains(itemType)) allItemTypes.add(itemType);
-
+                // REGION
                 String itemRegion = "";
                 JsonPrimitive regionPrimitive = itemData.getAsJsonPrimitive("region");
                 if (regionPrimitive != null) {
                     itemRegion = regionPrimitive.getAsString();
-
-                    if (!allItemRegions.contains(itemRegion)) allItemRegions.add(itemRegion);
+                    itemRegionSet.add(itemRegion);
                 }
 
+                // TIER
                 String itemTier = "";
                 JsonPrimitive tierPrimitive = itemData.getAsJsonPrimitive("tier");
                 if (tierPrimitive != null) {
-                    List<String> plainSplit = Arrays.asList(tierPrimitive.getAsString().replace("_", " ").split(" ")); // janky code to patch Event Currency appearing as Event_currency and other future similar events
-                    StringBuilder formattedSplit = new StringBuilder();
-                    for (String s : plainSplit) {
-                        if (!s.isEmpty())
-                            formattedSplit.append(s.substring(0, 1).toUpperCase()).append(s.substring(1).toLowerCase());
-                        if (plainSplit.indexOf(s) != plainSplit.size() - 1)
-                            formattedSplit.append(" ");
-                    }
-                    itemTier = formattedSplit.toString();
-
-                    if (!allItemTiers.contains(itemTier)) allItemTiers.add(itemTier);
+                    itemTier = ItemFormatter.formatTierPrimitive(tierPrimitive.getAsString());
+                    itemTierSet.add(itemTier);
                 }
 
+                // LOCATION
                 String itemLocationId = "";
                 JsonPrimitive locationIdPrimitive = itemData.getAsJsonPrimitive("locationId");
                 if (locationIdPrimitive != null) {
@@ -440,6 +439,7 @@ public class DictionaryController {
                     if (location != null) allItemLocations.put(itemLocationId, location.displayName());
                 }
 
+                // FISH TIER
                 int fishTier = -1;
                 boolean isFish = false;
                 JsonPrimitive fishQualityPrimitive = itemData.getAsJsonPrimitive("fish_quality");
@@ -448,27 +448,24 @@ public class DictionaryController {
                     isFish = true;
                 }
 
-                if (!itemData.has("base_item")) continue; // if this element is not present, skip this item
-                String itemBaseItem = itemData.get("base_item").getAsString();
-                if (!allItemBaseItems.contains(itemBaseItem)) allItemBaseItems.add(itemBaseItem);
-
+                // LORE
                 String itemLore = "";
                 JsonPrimitive lorePrimitive = itemData.getAsJsonPrimitive("lore");
-                if (lorePrimitive != null) {
-                    itemLore = lorePrimitive.getAsString();
-                }
+                if (lorePrimitive != null) itemLore = lorePrimitive.getAsString();
 
+                // STATS
                 List<ItemStat> itemStats = new ArrayList<>();
                 JsonObject statObject = itemData.get("stats").getAsJsonObject();
                 for (Map.Entry<String, JsonElement> statEntry : statObject.entrySet()) {
-                    String statKey = statEntry.getKey();
-                    if (ItemFormatter.isHiddenStat(statKey)) continue;
+                    String statName = statEntry.getKey();
+                    if (ItemFormatter.isHiddenStat(statName)) continue;
 
-                    itemStats.add(new ItemStat(statKey, statEntry.getValue().getAsDouble()));
-
-                    if (!allItemStats.contains(statKey)) allItemStats.add(statKey);
+                    itemStats.add(new ItemStat(statName, statEntry.getValue().getAsDouble()));
+                    itemStatSet.add(statName);
                 }
+                if (itemStats.isEmpty()) itemStats = List.of();
 
+                // EFFECTS
                 List<String> itemEffects = new ArrayList<>();
                 if (itemData.has("effects")) {
                     JsonArray effectArray = itemData.get("effects").getAsJsonArray();
@@ -483,66 +480,57 @@ public class DictionaryController {
                             String effectName = ItemFormatter.formatEffect(effectType, effectEnchant);
 
                             itemEffects.add(effectName);
-                            if (!allItemEffects.contains(effectName)) allItemEffects.add(effectName);
+                            itemEffectSet.add(effectName);
                         }
                     }
                 }
                 if (itemEffects.isEmpty()) itemEffects = List.of();
 
-                String itemNbt = "{}";
+                // NBT
+                String itemNbt = "";
                 JsonPrimitive nbtPrimitive = itemData.getAsJsonPrimitive("nbt");
                 if (nbtPrimitive != null) itemNbt = nbtPrimitive.getAsString();
 
-                // Build the item
+                // ------------------
+                // BUILDING THE ITEM
                 JsonPrimitive masterworkPrimitive = itemData.getAsJsonPrimitive("masterwork");
-                if (masterworkPrimitive != null) {
-                    // if the item has masterwork
-                    // attempt to add a tier to the item
-                    boolean hasItem = false;
-                    for (DictionaryItem dictionaryItem : items) {
-                        if (!dictionaryItem.hasMasterwork()) continue;
-
-                        if (dictionaryItem.name().equals(itemName) && masterworkPrimitive.getAsInt() <= ItemFormatter.getMasterworkForRarity(itemTier)) {
-                            // if the item already exists
-                            hasItem = true;
-                            dictionaryItem.addMasterworkTier(itemTier, itemStats, itemNbt, masterworkPrimitive.getAsInt());
-                        }
-                    }
-                    if (!hasItem) {
-                        // if the item does not already exist
-                        List<String> totalTierList = new ArrayList<>();
-                        List<List<ItemStat>> totalStatsList = new ArrayList<>();
-                        List<String> totalNbtList = new ArrayList<>();
-
-                        for (int i = 0; i < ItemFormatter.getMasterworkForRarity(itemTier) + 1; i++) {
-                            totalTierList.add(null);
-                            totalStatsList.add(null);
-                            totalNbtList.add(null);
-                        }
-
-                        int level = masterworkPrimitive.getAsInt();
-                        if (level <= ItemFormatter.getMasterworkForRarity(itemTier)) { // prevent adding a tier above the believed cap
-                            totalTierList.set(level, itemTier);
-                            totalStatsList.set(level, itemStats);
-                            totalNbtList.set(level, itemNbt);
-
-                            items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId,
-                                    fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, itemEffects, true));
-                        }
-                    }
-                }
-                else {
-                    // if the item does not have masterwork
-                    List<String> totalTierList = new ArrayList<>();
-                    List<List<ItemStat>> totalStatsList = new ArrayList<>();
-                    List<String> totalNbtList = new ArrayList<>();
-
-                    if (!itemTier.isEmpty()) totalTierList.add(itemTier);
-                    totalStatsList.add(itemStats);
-                    totalNbtList.add(itemNbt);
+                if (masterworkPrimitive == null) {
+                    // Item doesn't have masterwork
+                    List<String> totalTierList = itemTier.isEmpty() ? List.of() : List.of(itemTier);
+                    List<List<ItemStat>> totalStatsList = itemStats.isEmpty() ? List.of() : List.of(itemStats);
+                    List<String> totalNbtList = itemNbt.isEmpty() ? List.of() : List.of(itemNbt);
 
                     items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId,
                             fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, itemEffects, false));
+                }
+                else {
+                    // Item has masterwork
+                    if (itemNbt.isEmpty()) itemNbt = "{}";
+                    int maxLevel = ItemFormatter.getMasterworkForRarity(itemTier);
+                    int level = masterworkPrimitive.getAsInt();
+
+                    if (level > maxLevel) continue; // Masterwork level exceeds current cap
+
+                    DictionaryItem masterworkItem = masterworkItems.get(itemName);
+                    if (masterworkItem != null) {
+                        // Item already exists, add a masterwork tier
+                        masterworkItem.addMasterworkTier(itemTier, itemStats, itemNbt, level);
+                    }
+                    else {
+                        // Item doesn't exist yet
+                        List<String> totalTierList = Arrays.asList(new String[maxLevel + 1]);
+                        @SuppressWarnings("unchecked")
+                        List<List<ItemStat>> totalStatsList = Arrays.asList(new List[maxLevel + 1]);
+                        List<String> totalNbtList = Arrays.asList(new String[maxLevel + 1]);
+
+                        totalTierList.set(level, itemTier);
+                        totalStatsList.set(level, itemStats);
+                        totalNbtList.set(level, itemNbt);
+
+                        items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId,
+                                fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, itemEffects, true));
+                        masterworkItems.put(itemName, items.getLast());
+                    }
                 }
             }
         }
@@ -550,16 +538,23 @@ public class DictionaryController {
             e.printStackTrace();
         }
         items.sort(DictionaryItem::compareTo);
+
+        allItemTypes = new ArrayList<>(itemTypeSet);
+        allItemRegions = new ArrayList<>(itemRegionSet);
+        allItemTiers = new ArrayList<>(itemTierSet);
+        allItemStats = new ArrayList<>(itemStatSet);
+        allItemBaseItems = new ArrayList<>(itemBaseSet);
+        allItemEffects = new ArrayList<>(itemEffectSet);
     }
 
     public void loadCharms() {
-        allCharmRegions = new ArrayList<>();
-        allCharmTiers = new ArrayList<>();
+        Set<String> charmTierSet = new HashSet<>();
+        Set<String> charmSkillModSet = new HashSet<>();
+        Set<String> charmClassSet = new HashSet<>();
+        Set<String> charmStatSet = new HashSet<>();
+        Set<String> charmBaseSet = new HashSet<>();
+        allCharmRegions = List.of("Architect's Ring"); // Only one region (for now?)
         allCharmLocations = new HashMap<>();
-        allCharmSkillMods = new ArrayList<>();
-        allCharmClasses = new ArrayList<>();
-        allCharmStats = new ArrayList<>();
-        allCharmBaseItems = new ArrayList<>();
 
         try {
             String rawData = readStringData("config/mid/items.json");
@@ -569,37 +564,39 @@ public class DictionaryController {
             for (JsonElement charmElement : data.asMap().values()) {
                 JsonObject charmData = (JsonObject) charmElement;
 
-                // Construct charm information
-                if (!charmData.get("type").getAsString().equals("Charm"))
-                    continue;
+                if (!charmData.get("type").getAsString().equals("Charm")) continue;
 
-                if (!charmData.has("name")) continue; // if this element is not present, skip this item
+                if (!charmData.has("name")
+                        || !charmData.has("locationId")
+                        || !charmData.has("tier")
+                        || !charmData.has("power")
+                        || !charmData.has("class_name")
+                        || !charmData.has("base_item")) continue;
+
+                // NAME (must be present)
                 String charmName = charmData.get("name").getAsString();
 
-                // only one region for charms, for now
-                String charmRegion = "Architect's Ring";
-                if (!allCharmRegions.contains(charmRegion)) allCharmRegions.add(charmRegion);
-
-                if (!charmData.has("locationId")) continue; // if this element is not present, skip this item
+                // LOCATION (must be present)
                 String charmLocationId = charmData.get("locationId").getAsString();
                 Location location = locationData.get(charmLocationId);
                 if (location != null) allCharmLocations.put(charmLocationId, location.displayName());
 
-                if (!charmData.has("tier")) continue; // if this element is not present, skip this item
-                String charmTier = charmData.get("tier").getAsString().replace("_", " ");
-                if (!allCharmTiers.contains(charmTier)) allCharmTiers.add(charmTier);
+                // TIER (must be present)
+                String charmTier = charmData.get("tier").getAsString();
+                charmTierSet.add(charmTier);
 
-                if (!charmData.has("power")) continue; // if this element is not present, skip this item
+                // POWER (must be present)
                 int charmPower = charmData.get("power").getAsInt();
 
-                if (!charmData.has("class_name")) continue; // if this element is not present, skip this item
+                // CLASS (must be present)
                 String charmClass = charmData.get("class_name").getAsString();
-                if (!allCharmClasses.contains(charmClass)) allCharmClasses.add(charmClass);
+                charmClassSet.add(charmClass);
 
-                if (!charmData.has("base_item")) continue; // if this element is not present, skip this item
+                // BASE ITEM (must be present)
                 String charmBaseItem = charmData.get("base_item").getAsString();
-                if (!allCharmBaseItems.contains(charmBaseItem)) allCharmBaseItems.add(charmBaseItem);
+                charmBaseSet.add(charmBaseItem);
 
+                // NBT
                 String charmNbt = "{}";
                 if (charmData.has("nbt")) charmNbt = charmData.get("nbt").getAsString();
 
@@ -608,20 +605,21 @@ public class DictionaryController {
                 for (Map.Entry<String, JsonElement> statEntry : statsObject.entrySet()) {
                     JsonElement statElement = statEntry.getValue();
 
-                    String statKey = statEntry.getKey();
-                    String skillMod = ItemFormatter.getSkillFromCharmStat(statKey);
-                    if (!allCharmSkillMods.contains(skillMod)) allCharmSkillMods.add(skillMod);
-                    if (!allCharmStats.contains(statKey)) allCharmStats.add(statKey);
+                    String statName = statEntry.getKey();
+                    String skillMod = ItemFormatter.getSkillFromCharmStat(statName);
+                    charmSkillModSet.add(skillMod);
+                    charmStatSet.add(statName);
 
                     if (statElement instanceof JsonPrimitive)
-                        charmStats.add(new CharmStat(statKey, skillMod, false, statElement.getAsDouble()));
+                        charmStats.add(new CharmStat(statName, skillMod, false, statElement.getAsDouble()));
                     else {
                         JsonObject statObject = (JsonObject) statElement;
-                        charmStats.add(new CharmStat(statKey, skillMod, statObject.get("locked").getAsBoolean(), statObject.get("value").getAsDouble()));
+                        charmStats.add(new CharmStat(statName, skillMod, statObject.get("locked").getAsBoolean(), statObject.get("value").getAsDouble()));
                     }
                 }
+                if (charmStats.isEmpty()) charmStats = List.of();
 
-                charms.add(new DictionaryCharm(charmName, charmRegion, charmLocationId, charmTier, charmPower, charmClass, charmBaseItem, charmNbt, charmStats));
+                charms.add(new DictionaryCharm(charmName, "Architect's Ring", charmLocationId, charmTier, charmPower, charmClass, charmBaseItem, charmNbt, charmStats));
             }
         }
         catch (Exception e) {
@@ -633,6 +631,12 @@ public class DictionaryController {
                 return -(ItemFormatter.getNumberForTier(o1.tier()) - ItemFormatter.getNumberForTier(o2.tier()));
             return 0;
         });
+
+        allCharmTiers = new ArrayList<>(charmTierSet);
+        allCharmSkillMods = new ArrayList<>(charmSkillModSet);
+        allCharmClasses = new ArrayList<>(charmClassSet);
+        allCharmStats = new ArrayList<>(charmStatSet);
+        allCharmBaseItems = new ArrayList<>(charmBaseSet);
     }
 
     public void setItemNameFilter(String nameFilter) {
@@ -915,19 +919,13 @@ public class DictionaryController {
     }
 
     public DictionaryItem getItemByName(String itemName, boolean isExalted) {
-        List<DictionaryItem> possibleItems = new ArrayList<>();
         for (DictionaryItem item : items) {
-            if (item.name().equals(itemName)) possibleItems.add(item);
-        }
-
-        if (possibleItems.size() == 1) return possibleItems.getFirst();
-        else if (possibleItems.size() > 1) {
-            for (DictionaryItem item : possibleItems) {
-                if (isExalted && item.region().equals("Ring") || (!isExalted && !item.region().equals("Ring"))) return item;
-            }
+            if (item.name().equals(itemName)
+                    && (isExalted && item.region().equals("Ring") || (!isExalted && !item.region().equals("Ring")))) return item;
         }
         return null;
     }
+
     public DictionaryCharm getCharmByWeirdName(String rawCharm) {
         String[] rawCharmParts = rawCharm.split("-");
 
