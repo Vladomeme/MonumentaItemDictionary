@@ -65,11 +65,11 @@ public class ItemFormatter {
         };
     }
 
-    public static String buildStatString(String name, double value) {
+    public static String buildStatString(String name, float value) {
         if (isStat(name))
             return (value < 0 ? "" : (isBaseStat(name) ? " " : "+")) + (name.equals("knockback_resistance_flat") ? 10 * value
                     : (name.equals("potion_recharge_rate_percent")) ? value / 100 : value) + (isPercentStat(name) ? "" : " ") + formatStat(name);
-        else return formatStat(name) + " " + (isSingleEnchant(name) ? "" : (int)value);
+        else return formatStat(name) + " " + (isSingleEnchant(name) ? "" : (int) value);
     }
 
     public static int getMasterworkForRarity(String rarity) {

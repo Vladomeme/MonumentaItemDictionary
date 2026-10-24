@@ -23,11 +23,11 @@ public record DictionaryCharm(String name, String region, String locationId, Str
         return false;
     }
 
-    public double getStat(String stat) {
+    public float getStat(String stat) {
         for (CharmStat charmStat : stats) {
             if (charmStat.statNameFull().equals(stat)) return charmStat.statValue();
         }
-        return -1.0;
+        return -1.0f;
     }
 
     @Override

@@ -114,7 +114,7 @@ public class ItemColors {
         return location != null ? location.color() : DEFAULT_COLOR;
     }
 
-    public static int getColorForStat(String itemStat, double value) {
+    public static int getColorForStat(String itemStat, float value) {
         if (value < 0 || ItemFormatter.isCurseEnchant(itemStat))
             return TEXT_NEGATIVE_COLOR;
         if (itemStat.equals("armor") || itemStat.equals("agility"))

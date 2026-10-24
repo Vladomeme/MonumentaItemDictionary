@@ -110,15 +110,6 @@ public class Stats {
     private final Map<String, List<ItemStat>> allItemStats = new HashMap<>();
     private final String currentRegion;
 
-    public Stats(List<DictionaryItem> items, Map<String, Boolean> enabledSituationals, Map<String, Boolean> infusions, double currentHealthPercent, int region) {
-        this(items, enabledSituationals, infusions, currentHealthPercent, switch (region) {
-            case 1 -> "KINGS_VALLEY";
-            case 2 -> "CELSIAN_ISLES";
-            case 3 -> "ARCHITECTS_RING";
-            default -> throw new IllegalArgumentException("Region must be 1, 2, or 3");
-        });
-    }
-
     public Stats(List<DictionaryItem> items, Map<String, Boolean> enabledSituationals, Map<String, Boolean> infusions,
                  double currentHealthPercent, String currentRegion) {
         this.enabledSituationals = enabledSituationals;

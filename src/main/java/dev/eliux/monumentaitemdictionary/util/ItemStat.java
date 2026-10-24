@@ -1,5 +1,5 @@
 package dev.eliux.monumentaitemdictionary.util;
 
-public record ItemStat(String statName, double statValue) {
+public record ItemStat(String statName, float statValue) {
 
 }

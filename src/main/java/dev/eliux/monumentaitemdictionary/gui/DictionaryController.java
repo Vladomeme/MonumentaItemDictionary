@@ -460,7 +460,7 @@ public class DictionaryController {
                     String statName = statEntry.getKey();
                     if (ItemFormatter.isHiddenStat(statName)) continue;
 
-                    itemStats.add(new ItemStat(statName, statEntry.getValue().getAsDouble()));
+                    itemStats.add(new ItemStat(statName, statEntry.getValue().getAsFloat()));
                     itemStatSet.add(statName);
                 }
                 if (itemStats.isEmpty()) itemStats = List.of();
@@ -611,10 +611,10 @@ public class DictionaryController {
                     charmStatSet.add(statName);
 
                     if (statElement instanceof JsonPrimitive)
-                        charmStats.add(new CharmStat(statName, skillMod, false, statElement.getAsDouble()));
+                        charmStats.add(new CharmStat(statName, skillMod, false, statElement.getAsFloat()));
                     else {
                         JsonObject statObject = (JsonObject) statElement;
-                        charmStats.add(new CharmStat(statName, skillMod, statObject.get("locked").getAsBoolean(), statObject.get("value").getAsDouble()));
+                        charmStats.add(new CharmStat(statName, skillMod, statObject.get("locked").getAsBoolean(), statObject.get("value").getAsFloat()));
                     }
                 }
                 if (charmStats.isEmpty()) charmStats = List.of();
@@ -860,7 +860,7 @@ public class DictionaryController {
         filteredCharms.sort((o1, o2) -> {
             for (Filter f : charmFilters) {
                 if (f.getOption().equals("Stat")) {
-                    double val = o2.getStat(f.value) - o1.getStat(f.value);
+                    float val = o2.getStat(f.value) - o1.getStat(f.value);
 
                     if (val == 0) continue;
                     if (val < 0) return -1;
