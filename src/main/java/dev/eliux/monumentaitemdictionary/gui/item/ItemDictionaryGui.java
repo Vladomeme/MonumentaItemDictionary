@@ -224,13 +224,12 @@ public class ItemDictionaryGui extends Screen {
 
     public void buildItemList() {
         controller.refreshItems();
-        List<DictionaryItem> toBuildItems = controller.validItems;
 
         itemButtons.clear();
         widgetByItem.clear();
         int columns = (width - sideMenuWidth - 5) / (itemSize + itemPadding);
-        for (int i = 0; i != toBuildItems.size(); i++) {
-            DictionaryItem item = toBuildItems.get(i);
+        for (int i = 0; i != controller.validItems.size(); i++) {
+            DictionaryItem item = controller.validItems.get(i);
             int row = i / columns;
             int col = i % columns;
 
@@ -245,7 +244,7 @@ public class ItemDictionaryGui extends Screen {
 
         if (isGettingBuildItem) {
             for (List<ItemButtonWidget> row : itemButtons.values()) {
-                row.forEach(ItemButtonWidget::setMaximumMasterwork);
+                for (ItemButtonWidget button : row) button.setMaximumMasterwork();
             }
         }
     }

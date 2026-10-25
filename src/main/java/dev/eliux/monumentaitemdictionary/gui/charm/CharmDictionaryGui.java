@@ -195,12 +195,11 @@ public class CharmDictionaryGui extends Screen {
 
     public void buildCharmList() {
         controller.refreshCharms();
-        List<DictionaryCharm> toBuildCharms = controller.validCharms;
 
         charmButtons.clear();
         int columns = (width - sideMenuWidth - 5) / (itemSize + itemPadding);
-        for (int i = 0; i != toBuildCharms.size(); i++) {
-            DictionaryCharm charm = toBuildCharms.get(i);
+        for (int i = 0; i != controller.validCharms.size(); i++) {
+            DictionaryCharm charm = controller.validCharms.get(i);
             int row = i / columns;
             int col = i % columns;
 

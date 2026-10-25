@@ -11,6 +11,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
+import org.apache.commons.lang3.StringUtils;
 
 public class DropdownWidget extends TextFieldWidget {
 
@@ -247,9 +248,10 @@ public class DropdownWidget extends TextFieldWidget {
                     visualValidChoices = new ArrayList<>(visualChoices);
                 }
                 else {
-                    for (String choice : visualChoices) {
-                        if (choice.toLowerCase().contains(getText().toLowerCase())) {
-                            validChoices.add(choices.get(visualChoices.indexOf(choice)));
+                    for (int i = 0; i < visualChoices.size(); i++) {
+                        String choice = visualChoices.get(i);
+                        if (StringUtils.containsIgnoreCase(choice, getText())) {
+                            validChoices.add(choices.get(i));
                             visualValidChoices.add(choice);
                         }
                     }
@@ -305,8 +307,7 @@ public class DropdownWidget extends TextFieldWidget {
                 }
                 else {
                     for (Map.Entry<String, String> entry : choices.entrySet()) {
-                        String input = getText().toLowerCase();
-                        if (entry.getKey().toLowerCase().contains(input) || entry.getValue().toLowerCase().contains(input)) {
+                        if (StringUtils.containsIgnoreCase(entry.getKey(), getText()) || StringUtils.containsIgnoreCase(entry.getKey(), getText())) {
                             validChoices.add(entry.getValue());
                             visualValidChoices.add(entry.getValue());
                         }

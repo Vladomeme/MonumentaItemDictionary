@@ -87,27 +87,27 @@ public record DictionaryItem(String name, String type, String region, List<Strin
     }
 
     public boolean hasStat(String stat) {
-        for (List<ItemStat> itemStatsList : stats) {
-            if (itemStatsList == null) continue;
+        for (int i = stats.size() - 1; i >= 0; i--) {
+            List<ItemStat> statList = stats.get(i);
+            if (statList == null) continue;
 
-            for (ItemStat itemStat : itemStatsList) {
+            for (ItemStat itemStat : statList) {
                 if (itemStat.statName().equals(stat)) return true;
             }
         }
         return false;
     }
 
-    public double getStat(String stat) {
-        double highest = -1.0;
-        for (List<ItemStat> itemStatsList : stats) {
-            if (itemStatsList == null) continue;
+    public float getStat(String stat) {
+        for (int i = stats.size() - 1; i >= 0; i--) {
+            List<ItemStat> statList = stats.get(i);
+            if (statList == null) continue;
 
-            for (ItemStat itemStat : itemStatsList) {
-                if (itemStat.statName().equals(stat) && itemStat.statValue() > highest)
-                    highest = itemStat.statValue();
+            for (ItemStat itemStat : statList) {
+                if (itemStat.statName().equals(stat)) return itemStat.statValue();
             }
         }
-        return highest;
+        return -1.0f;
     }
 
     public NbtCompound getNbt() {

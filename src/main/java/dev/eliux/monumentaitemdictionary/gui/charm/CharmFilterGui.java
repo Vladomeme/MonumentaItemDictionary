@@ -168,11 +168,11 @@ public class CharmFilterGui extends Screen {
         if (controller.charmFilterGuiPreviouslyOpened) {
             addFilterButton.setY(labelMenuHeight + 5 + filterListOption.size() * 25);
 
-            filterListOption.forEach(i -> i.setY(labelMenuHeight + 8 + filterListOption.indexOf(i) * 25));
-            filterListValue.forEach(i -> i.setY(labelMenuHeight + 8 + filterListValue.indexOf(i) * 25));
-            filterListComparator.forEach(i -> i.setY(labelMenuHeight + 5 + filterListComparator.indexOf(i) * 25));
-            filterListConstant.forEach(i -> i.setY(labelMenuHeight + 8 + filterListConstant.indexOf(i) * 25));
-            filterListDelete.forEach(i -> i.setY(labelMenuHeight + 5 + filterListDelete.indexOf(i) * 25));
+            for (int i = 0; i != filterListOption.size(); i++) filterListOption.get(i).setY(labelMenuHeight + 8 + i * 25);
+            for (int i = 0; i != filterListValue.size(); i++) filterListValue.get(i).setY(labelMenuHeight + 8 + i * 25);
+            for (int i = 0; i != filterListComparator.size(); i++) filterListComparator.get(i).setY(labelMenuHeight + 5 + i * 25);
+            for (int i = 0; i != filterListConstant.size(); i++) filterListConstant.get(i).setY(labelMenuHeight + 8 + i * 25);
+            for (int i = 0; i != filterListDelete.size(); i++) filterListDelete.get(i).setY(labelMenuHeight + 5 + i * 25);
         }
     }
 
@@ -186,34 +186,35 @@ public class CharmFilterGui extends Screen {
 
         // draw filter buttons and stuff
         boolean anyOpen = false;
-        for (DropdownWidget o : filterListOption) if (o.willClick(mouseX, mouseY)) anyOpen = true;
+        for (DropdownWidget widget : filterListOption) {
+            if (widget.willClick(mouseX, mouseY)) {
+                anyOpen = true;
+                break;
+            }
+        }
 
         if (anyOpen) addFilterButton.render(context, 0, 0, delta); // funny band-aid fix for rendering white outline while in dropdown menu
         else addFilterButton.render(context, mouseX, mouseY, delta);
 
-
-        for (DropdownWidget o : filterListOption) o.renderMain(context, mouseX, mouseY, delta);
-        for (DropdownWidget v : filterListValue) {
-            if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty()
-                    && !filterListOption.get(filterListValue.indexOf(v)).getLastChoice().equals("Charm Power"))
-                v.renderMain(context, mouseX, mouseY, delta);
+        for (DropdownWidget widget : filterListOption) widget.renderMain(context, mouseX, mouseY, delta);
+        for (int i = 0; i != filterListValue.size(); i++) {
+            if (!filterListOption.get(i).getLastChoice().isEmpty() && !filterListOption.get(i).getLastChoice().equals("Charm Power"))
+                filterListValue.get(i).renderMain(context, mouseX, mouseY, delta);
         }
-        for (TextFieldWidget c : filterListConstant) {
-            if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat")
-                    && !(charmFilters.get(filterListConstant.indexOf(c)).comparator < 2)
-                    || filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Charm Power"))
-                c.render(context, mouseX, mouseY, delta);
+        for (int i = 0; i != filterListConstant.size(); i++) {
+            if (filterListOption.get(i).getLastChoice().equals("Stat") && !(charmFilters.get(i).comparator < 2)
+                    || filterListOption.get(i).getLastChoice().equals("Charm Power"))
+                filterListConstant.get(i).render(context, mouseX, mouseY, delta);
         }
-        for (ButtonWidget c : filterListComparator) {
-            if (!filterListOption.get(filterListComparator.indexOf(c)).getLastChoice().isEmpty())
-                c.render(context, mouseX, mouseY, delta);
+        for (int i = 0; i != filterListComparator.size(); i++) {
+            if (!filterListOption.get(i).getLastChoice().isEmpty())
+                filterListComparator.get(i).render(context, mouseX, mouseY, delta);
         }
-        filterListDelete.forEach(i -> i.render(context, mouseX, mouseY, delta));
-
-        for (DropdownWidget o : filterListOption) o.renderDropdown(context, mouseX, mouseY);
-        for (DropdownWidget v : filterListValue) {
-            if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty())
-                v.renderDropdown(context, mouseX, mouseY);
+        for (ItemIconButtonWidget widget : filterListDelete) widget.render(context, mouseX, mouseY, delta);
+        for (DropdownWidget widget : filterListOption) widget.renderDropdown(context, mouseX, mouseY);
+        for (int i = 0; i != filterListValue.size(); i++) {
+            if (!filterListOption.get(i).getLastChoice().isEmpty())
+                filterListValue.get(i).renderDropdown(context, mouseX, mouseY);
         }
 
         // draw the label at the top
@@ -240,34 +241,34 @@ public class CharmFilterGui extends Screen {
 
         backButton.mouseClicked(mouseX, mouseY, button);
 
-        for (DropdownWidget o : filterListOption) {
-            if (o.willClick(mouseX, mouseY)) {
-                o.mouseClicked(mouseX, mouseY, button);
+        for (DropdownWidget widget : filterListOption) {
+            if (widget.willClick(mouseX, mouseY)) {
+                widget.mouseClicked(mouseX, mouseY, button);
                 return false;
             }
-            o.mouseClicked(mouseX, mouseY, button);
+            widget.mouseClicked(mouseX, mouseY, button);
         }
-        for (DropdownWidget v : filterListValue) {
-            if (v.willClick(mouseX, mouseY)) {
-                if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty()
-                        && !filterListOption.get(filterListValue.indexOf(v)).getLastChoice().equals("Charm Power"))
-                    v.mouseClicked(mouseX, mouseY, button);
+        for (int i = 0; i < filterListValue.size(); i++) {
+            DropdownWidget widget = filterListValue.get(i);
+            if (widget.willClick(mouseX, mouseY)) {
+                if (!filterListOption.get(i).getLastChoice().isEmpty() && !filterListOption.get(i).getLastChoice().equals("Charm Power"))
+                    widget.mouseClicked(mouseX, mouseY, button);
                 return false;
             }
-            if (!filterListOption.get(filterListValue.indexOf(v)).getLastChoice().isEmpty())
-                v.mouseClicked(mouseX, mouseY, button);
+            if (!filterListOption.get(i).getLastChoice().isEmpty())
+                widget.mouseClicked(mouseX, mouseY, button);
         }
-        for (ButtonWidget c : filterListComparator) {
-            if (!filterListOption.get(filterListComparator.indexOf(c)).getLastChoice().isEmpty())
-                c.mouseClicked(mouseX, mouseY, button);
+        for (int i = 0; i < filterListComparator.size(); i++) {
+            if (!filterListOption.get(i).getLastChoice().isEmpty())
+                filterListComparator.get(i).mouseClicked(mouseX, mouseY, button);
         }
-        for (TextFieldWidget c : filterListConstant) {
-            if (filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Stat")
-                    && !(charmFilters.get(filterListConstant.indexOf(c)).comparator < 2)
-                    || filterListOption.get(filterListConstant.indexOf(c)).getLastChoice().equals("Charm Power"))
-                c.setFocused(c.mouseClicked(mouseX, mouseY, button));
+        for (int i = 0; i < filterListConstant.size(); i++) {
+            TextFieldWidget widget = filterListConstant.get(i);
+            if (filterListOption.get(i).getLastChoice().equals("Stat") && !(charmFilters.get(i).comparator < 2)
+                    || filterListOption.get(i).getLastChoice().equals("Charm Power"))
+                widget.setFocused(widget.mouseClicked(mouseX, mouseY, button));
         }
-        filterListDelete.forEach(i -> i.mouseClicked(mouseX, mouseY, button));
+        for (ItemIconButtonWidget widget : filterListDelete) widget.mouseClicked(mouseX, mouseY, button);
 
         addFilterButton.mouseClicked(mouseX, mouseY, button);
 
@@ -291,9 +292,9 @@ public class CharmFilterGui extends Screen {
     public boolean charTyped(char chr, int modifiers) {
         super.charTyped(chr, modifiers);
 
-        filterListOption.forEach(i -> i.charTyped(chr, modifiers));
-        filterListValue.forEach(i -> i.charTyped(chr, modifiers));
-        filterListConstant.forEach(i -> i.charTyped(chr, modifiers));
+        for (DropdownWidget widget : filterListOption) widget.charTyped(chr, modifiers);
+        for (DropdownWidget widget : filterListValue) widget.charTyped(chr, modifiers);
+        for (TextFieldWidget widget : filterListConstant) widget.charTyped(chr, modifiers);
 
         return true;
     }
@@ -302,9 +303,9 @@ public class CharmFilterGui extends Screen {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         super.keyPressed(keyCode, scanCode, modifiers);
 
-        filterListOption.forEach(i -> i.keyPressed(keyCode, scanCode, modifiers));
-        filterListValue.forEach(i -> i.keyPressed(keyCode, scanCode, modifiers));
-        filterListConstant.forEach(i -> i.keyPressed(keyCode, scanCode, modifiers));
+        for (DropdownWidget widget : filterListOption) widget.keyPressed(keyCode, scanCode, modifiers);
+        for (DropdownWidget widget : filterListValue) widget.keyPressed(keyCode, scanCode, modifiers);
+        for (TextFieldWidget widget : filterListConstant) widget.keyPressed(keyCode, scanCode, modifiers);
 
         return true;
     }
@@ -313,8 +314,8 @@ public class CharmFilterGui extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double hAmount, double vAmount) {
         super.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
-        filterListOption.forEach(i -> i.mouseScrolled(mouseX, mouseY, hAmount, vAmount));
-        filterListValue.forEach(i -> i.mouseScrolled(mouseX, mouseY, hAmount, vAmount));
+        for (DropdownWidget widget : filterListOption) widget.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
+        for (DropdownWidget widget : filterListValue) widget.mouseScrolled(mouseX, mouseY, hAmount, vAmount);
 
         return true;
     }

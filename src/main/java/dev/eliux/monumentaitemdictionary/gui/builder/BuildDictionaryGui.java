@@ -103,7 +103,7 @@ public class BuildDictionaryGui extends Screen {
             controller.deleteBuildFromJson(build.id);
             buildsList.remove(build);
         }
-        else if (hasShiftDown()){
+        else if (hasShiftDown()) {
             toggleFavorite(build);
             buildsButtons.get(build).updateFavorite();
             controller.refreshBuilds();
@@ -116,7 +116,6 @@ public class BuildDictionaryGui extends Screen {
 
     private void toggleFavorite(DictionaryBuild build) {
         build.favorite = !build.favorite;
-
         controller.toggleJsonBuildFavorite(build.id);
     }
 

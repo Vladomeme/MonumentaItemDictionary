@@ -24,6 +24,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -676,95 +677,89 @@ public class DictionaryController {
     }
 
     public void refreshItems() {
-        List<DictionaryItem> filteredItems = new ArrayList<>(items);
+        validItems = new ArrayList<>();
 
-        for (Filter filter : itemFilters) {
-            if (filter != null) {
-                switch (filter.getOption()) {
-                    case "Stat" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredItems.removeIf(i -> !i.hasStat(filter.value));
-                                case 1 -> filteredItems.removeIf(i -> i.hasStat(filter.value));
-                                case 2 -> filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) >= filter.constant));
-                                case 3 -> filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) > filter.constant));
-                                case 4 -> filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) == filter.constant));
-                                case 5 -> filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) <= filter.constant));
-                                case 6 -> filteredItems.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) < filter.constant));
-                            }
-                        }
-                    }
-                    case "Tier" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredItems.removeIf(i -> !i.hasTier() || !i.tier().contains(filter.value));
-                                case 1 -> filteredItems.removeIf(i -> i.hasTier() && i.tier().contains(filter.value));
-                            }
-                        }
-                    }
-                    case "Region" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredItems.removeIf(i -> !i.hasRegion() || !i.region().equals(filter.value));
-                                case 1 -> filteredItems.removeIf(i -> i.hasRegion() && i.region().equals(filter.value));
-                            }
-                        }
-                    }
-                    case "Type" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredItems.removeIf(i -> !i.type().equals(filter.value));
-                                case 1 -> filteredItems.removeIf(i -> i.type().equals(filter.value));
-                            }
-                        }
-                    }
-                    case "Location" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredItems.removeIf(i -> !i.hasLocation()
-                                                || !locationData.containsKey(i.locationId()) || !locationData.get(i.locationId()).displayName().equals(filter.value));
-                                case 1 -> filteredItems.removeIf(i -> i.hasLocation()
-                                                && locationData.containsKey(i.locationId()) && locationData.get(i.locationId()).displayName().equals(filter.value));
-                            }
-                        }
-                    }
-                    case "Base Item" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredItems.removeIf(i -> !i.baseItem().equals(filter.value));
-                                case 1 -> filteredItems.removeIf(i -> i.baseItem().equals(filter.value));
-                            }
-                        }
-                    }
-                    case "Effect" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredItems.removeIf(i -> !i.hasEffects() || !i.effects().contains(filter.value));
-                                case 1 -> filteredItems.removeIf(i -> i.hasEffects() && i.effects().contains(filter.value));
-                            }
-                        }
-                    }
-                }
+        Set<String> mainhandTypes = new HashSet<>(List.of("Mainhand", "Mainhand Sword", "Mainhand Shield", "Wand",
+                "Axe", "Pickaxe", "Trident", "Snowball", "Shovel", "Scythe", "Bow", "Crossbow"));
+        Set<String> offhandTypes = new HashSet<>(List.of("Offhand", "Offhand Sword", "Offhand Shield"));
+
+        itemLoop:
+        for (DictionaryItem item : items) {
+            for (Filter filter : itemFilters) {
+                if (filter == null || filter.value.isEmpty()) continue;
+
+                String value = filter.value;
+                double constant = filter.constant;
+                int comparator = filter.comparator;
+
+                if (!switch (filter.getOption()) {
+                    case "Stat" -> switch (comparator) {
+                        case 0 -> item.hasStat(value);
+                        case 1 -> !item.hasStat(value);
+                        case 2 -> item.hasStat(value) && item.getStat(value) >= constant;
+                        case 3 -> item.hasStat(value) && item.getStat(value) > constant;
+                        case 4 -> item.hasStat(value) && item.getStat(value) == constant;
+                        case 5 -> item.hasStat(value) && item.getStat(value) <= constant;
+                        case 6 -> item.hasStat(value) && item.getStat(value) < constant;
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Tier" -> switch (comparator) {
+                        case 0 -> item.hasTier() && item.tier().contains(value);
+                        case 1 -> !item.hasTier() || !item.tier().contains(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Region" -> switch (comparator) {
+                        case 0 -> item.hasRegion() && item.region().equals(value);
+                        case 1 -> !item.hasRegion() || !item.region().equals(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Type" -> switch (comparator) {
+                        case 0 -> item.type().equals(value);
+                        case 1 -> !item.type().equals(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Location" -> switch (comparator) {
+                        case 0 -> item.hasLocation() && locationData.containsKey(item.locationId()) && locationData.get(item.locationId()).displayName().equals(value);
+                        case 1 -> !item.hasLocation() || !locationData.containsKey(item.locationId()) || !locationData.get(item.locationId()).displayName().equals(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Base Item" -> switch (comparator) {
+                        case 0 -> item.baseItem().equals(value);
+                        case 1 -> !item.baseItem().equals(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Effect" -> switch (comparator) {
+                        case 0 -> item.hasEffects() && item.effects().contains(value);
+                        case 1 -> !item.hasEffects() || !item.effects().contains(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    default -> throw new AssertionError();
+                }) continue itemLoop;
             }
+
+            if (hasItemNameFilter && !StringUtils.containsIgnoreCase(item.name(), itemNameFilter)) continue;
+
+            if (itemGui.isGettingBuildItem) {
+                if (itemGui.itemTypeLookingFor.equals("Mainhand")) {
+                    if (!mainhandTypes.contains(item.type())) continue;
+                }
+                else if (itemGui.itemTypeLookingFor.equals("Offhand")) {
+                    if (!offhandTypes.contains(item.type())) continue;
+                }
+                else if (!item.type().equals(itemGui.itemTypeLookingFor)) continue;
+            }
+
+            validItems.add(item);
         }
 
-        if (hasItemNameFilter)
-            filteredItems.removeIf(i -> !i.name().toLowerCase().contains(itemNameFilter.toLowerCase()));
-
-
-        if (itemGui.isGettingBuildItem) {
-            if (itemGui.itemTypeLookingFor.equals("Mainhand"))
-                filteredItems.removeIf(i -> !i.type().equals("Mainhand") && !i.type().equals("Mainhand Sword")
-                        && !i.type().equals("Mainhand Shield") && !i.type().equals("Wand") && !i.type().equals("Axe")
-                        && !i.type().equals("Pickaxe") && !i.type().equals("Trident") && !i.type().equals("Snowball")
-                        && !i.type().equals("Shovel") && !i.type().equals("Scythe") && !i.type().equals("Bow") && !i.type().equals("Crossbow"));
-            else if (itemGui.itemTypeLookingFor.equals("Offhand"))
-                filteredItems.removeIf(i -> !i.type().equals("Offhand") && !i.type().equals("Offhand Sword") && !i.type().equals("Offhand Shield"));
-            else
-                filteredItems.removeIf(i -> !i.type().equals(itemGui.itemTypeLookingFor));
-        }
-
-        filteredItems.sort((o1, o2) -> {
+        validItems.sort((o1, o2) -> {
             for (Filter f : itemFilters) {
                 if (f.getOption().equals("Stat")) {
                     double val = o2.getStat(f.value) - o1.getStat(f.value);
@@ -776,88 +771,81 @@ public class DictionaryController {
             }
             return 0;
         });
-
-        validItems = filteredItems;
     }
 
     public void refreshCharms() {
-        List<DictionaryCharm> filteredCharms = new ArrayList<>(charms);
+        validCharms = new ArrayList<>();
 
-        for (Filter filter : charmFilters) {
-            if (filter != null) {
-                switch (filter.getOption()) {
-                    case "Stat" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value));
-                                case 1 -> filteredCharms.removeIf(i -> i.hasStat(filter.value));
-                                case 2 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) >= filter.constant));
-                                case 3 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) > filter.constant));
-                                case 4 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) == filter.constant));
-                                case 5 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) <= filter.constant));
-                                case 6 -> filteredCharms.removeIf(i -> !i.hasStat(filter.value) || !(i.getStat(filter.value) < filter.constant));
-                            }
-                        }
-                    }
-                    case "Tier" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredCharms.removeIf(i -> !i.tier().equals(filter.value));
-                                case 1 -> filteredCharms.removeIf(i -> i.tier().equals(filter.value));
-                            }
-                        }
-                    }
-                    case "Class" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredCharms.removeIf(i -> !i.className().equals(filter.value));
-                                case 1 -> filteredCharms.removeIf(i -> i.className().equals(filter.value));
-                            }
-                        }
-                    }
-                    case "Skill Modifier" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredCharms.removeIf(i -> !i.hasStatModifier(filter.value));
-                                case 1 -> filteredCharms.removeIf(i -> i.hasStatModifier(filter.value));
-                            }
-                        }
-                    }
-                    case "Charm Power" -> {
-                        switch (filter.comparator) {
-                            case 2 -> filteredCharms.removeIf(i -> !(i.power() >= filter.constant));
-                            case 3 -> filteredCharms.removeIf(i -> !(i.power() > filter.constant));
-                            case 4 -> filteredCharms.removeIf(i -> !(i.power() == filter.constant));
-                            case 5 -> filteredCharms.removeIf(i -> !(i.power() <= filter.constant));
-                            case 6 -> filteredCharms.removeIf(i -> !(i.power() < filter.constant));
-                        }
-                    }
-                    case "Location" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredCharms.removeIf(i -> !locationData.containsKey(i.locationId())
-                                        || !locationData.get(i.locationId()).displayName().equals(filter.value));
-                                case 1 -> filteredCharms.removeIf(i -> locationData.containsKey(i.locationId())
-                                        && locationData.get(i.locationId()).displayName().equals(filter.value));
-                            }
-                        }
-                    }
-                    case "Base Item" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredCharms.removeIf(i -> !i.baseItem().equals(filter.value));
-                                case 1 -> filteredCharms.removeIf(i -> i.baseItem().equals(filter.value));
-                            }
-                        }
-                    }
-                }
+        charmLoop:
+        for (DictionaryCharm charm : charms) {
+            for (Filter filter : charmFilters) {
+                if (filter == null || (filter.value.isEmpty() && !filter.getOption().equals("Charm Power"))) continue;
+
+                String value = filter.value;
+                double constant = filter.constant;
+                int comparator = filter.comparator;
+
+                if(!switch (filter.getOption()) {
+                    case "Stat" -> switch (comparator) {
+                        case 0 -> charm.hasStat(value);
+                        case 1 -> !charm.hasStat(value);
+                        case 2 -> charm.hasStat(value) && charm.getStat(value) >= constant;
+                        case 3 -> charm.hasStat(value) && charm.getStat(value) > constant;
+                        case 4 -> charm.hasStat(value) && charm.getStat(value) == constant;
+                        case 5 -> charm.hasStat(value) && charm.getStat(value) <= constant;
+                        case 6 -> charm.hasStat(value) && charm.getStat(value) < constant;
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Tier" -> switch (comparator) {
+                        case 0 -> charm.tier().equals(value);
+                        case 1 -> !charm.tier().equals(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Class" -> switch (comparator) {
+                        case 0 -> charm.className().equals(value);
+                        case 1 -> !charm.className().equals(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Skill Modifier" -> switch (comparator) {
+                        case 0 -> charm.hasStatModifier(value);
+                        case 1 -> !charm.hasStatModifier(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Charm Power" -> switch (comparator) {
+                        case 2 -> charm.power() >= constant;
+                        case 3 -> charm.power() > constant;
+                        case 4 -> charm.power() == constant;
+                        case 5 -> charm.power() <= constant;
+                        case 6 -> charm.power() < constant;
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Location" -> switch (comparator) {
+                        case 0 -> locationData.containsKey(charm.locationId()) && locationData.get(charm.locationId()).displayName().equals(value);
+                        case 1 -> !locationData.containsKey(charm.locationId()) || !locationData.get(charm.locationId()).displayName().equals(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Base Item" -> switch (comparator) {
+                        case 0 -> charm.baseItem().equals(value);
+                        case 1 -> !charm.baseItem().equals(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    default -> throw new AssertionError();
+                }) continue charmLoop;
             }
+
+            if (hasCharmNameFilter && !StringUtils.containsIgnoreCase(charm.name(), charmNameFilter)) continue;
+
+            validCharms.add(charm);
         }
 
-        if (hasCharmNameFilter)
-            filteredCharms.removeIf(i -> !i.name().toLowerCase().contains(charmNameFilter.toLowerCase()));
-
-        filteredCharms.sort((o1, o2) -> {
+        validCharms.sort((o1, o2) -> {
             for (Filter f : charmFilters) {
                 if (f.getOption().equals("Stat")) {
                     float val = o2.getStat(f.value) - o1.getStat(f.value);
@@ -869,53 +857,52 @@ public class DictionaryController {
             }
             return 0;
         });
-
-        validCharms = filteredCharms;
     }
 
     public void refreshBuilds() {
-        List<DictionaryBuild> filteredBuilds = new ArrayList<>(builds);
+        validBuilds = new ArrayList<>();
 
-        for (Filter filter : buildFilters) {
-            if (filter != null) {
-                switch (filter.getOption()) {
-                    case "Region" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredBuilds.removeIf(build -> !build.region.equals(filter.value));
-                                case 1 -> filteredBuilds.removeIf(build -> build.region.equals(filter.value));
-                            }
-                        }
-                    }
-                    case "Class" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredBuilds.removeIf(build -> !build.className.equals(filter.value));
-                                case 1 -> filteredBuilds.removeIf(build -> build.className.equals(filter.value));
-                            }
-                        }
-                    }
-                    case "Specialization" -> {
-                        if (!filter.value.isEmpty()) {
-                            switch (filter.comparator) {
-                                case 0 -> filteredBuilds.removeIf(build -> !build.specialization.equals(filter.value));
-                                case 1 -> filteredBuilds.removeIf(build -> build.specialization.equals(filter.value));
-                            }
-                        }
-                    }
-                }
+        buildLoop:
+        for (DictionaryBuild build : builds) {
+            for (Filter filter : buildFilters) {
+                if (filter == null || filter.value.isEmpty()) continue;
+
+                String value = filter.value;
+                int comparator = filter.comparator;
+
+                if(!switch (filter.getOption()) {
+                    case "Region" -> switch (comparator) {
+                        case 0 -> build.region.equals(value);
+                        case 1 -> !build.region.equals(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Class" -> switch (comparator) {
+                        case 0 -> build.className.equals(value);
+                        case 1 -> !build.className.equals(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    case "Specialization" -> switch (comparator) {
+                        case 0 -> build.specialization.equals(value);
+                        case 1 -> !build.specialization.equals(value);
+
+                        default -> throw new AssertionError();
+                    };
+                    default -> throw new AssertionError();
+                }) continue buildLoop;
             }
+
+            if (hasBuildNameFilter && !StringUtils.containsIgnoreCase(build.name, buildNameFilter)) continue;
+
+            validBuilds.add(build);
         }
 
-        if (hasBuildNameFilter) filteredBuilds.removeIf(build -> !build.name.toLowerCase().contains(buildNameFilter.toLowerCase()));
-
-        filteredBuilds.sort((b1, b2) -> {
-            if (b1.favorite && b2.favorite) return 0;
+        validBuilds.sort((b1, b2) -> {
+            if (b1.favorite == b2.favorite) return 0;
             else if (b1.favorite) return -1;
             else return 1;
         });
-
-        validBuilds = filteredBuilds;
     }
 
     public DictionaryItem getItemByName(String itemName, boolean isExalted) {

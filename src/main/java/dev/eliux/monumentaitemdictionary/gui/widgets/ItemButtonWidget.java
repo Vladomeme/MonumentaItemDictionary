@@ -7,7 +7,6 @@ import dev.eliux.monumentaitemdictionary.gui.item.ItemDictionaryGui;
 import dev.eliux.monumentaitemdictionary.util.Colors;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
-import dev.eliux.monumentaitemdictionary.util.ItemStat;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -57,11 +56,13 @@ public class ItemButtonWidget extends ClickableWidget {
     }
 
     public void setMaximumMasterwork() {
-        int max = 0;
-        for (List<ItemStat> stats : item.stats()) {
-            if (stats != null) max = item.stats().indexOf(stats);
+        for (int i = item.stats().size() - 1; i >= 0; i--) {
+            if (item.stats().get(i) != null) {
+                shownMasterworkTier = i;
+                return;
+            }
         }
-        shownMasterworkTier = max;
+        shownMasterworkTier = 0;
     }
 
     public void scrolled(double mouseX, double mouseY, double amount) {

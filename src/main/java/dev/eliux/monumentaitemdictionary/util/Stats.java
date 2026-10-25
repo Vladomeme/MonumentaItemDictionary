@@ -332,28 +332,22 @@ public class Stats {
         thorns *= (int) thornsPercent.val;
     }
 
-    private Double sumNumberStat(List<ItemStat> itemStats, String statName, double defaultIncrement) {
-        if (itemStats == null) return 0.0;
-        double statValue = 0.0;
+    private double sumNumberStat(List<ItemStat> itemStats, String statName, double defaultIncrement) {
+        if (itemStats == null) return 0.0d;
+
         for (ItemStat stat : itemStats) {
-            if (stat.statName().equals(statName)) {
-                statValue = stat.statValue();
-                break;
-            }
+            if (stat.statName().equals(statName)) return stat.statValue();
         }
-        return (statValue != 0.0) ? statValue : defaultIncrement;
+        return defaultIncrement;
     }
 
     private double sumEnchantmentStat(List<ItemStat> itemStats, String enchName, double perLevelMultiplier) {
         if (itemStats == null) return perLevelMultiplier;
-        double enchLevel = 0.0;
+
         for (ItemStat stat : itemStats) {
-            if (stat.statName().equals(enchName)) {
-                enchLevel = stat.statValue();
-                break;
-            }
+            if (stat.statName().equals(enchName)) return stat.statValue() * perLevelMultiplier;
         }
-        return (enchLevel != 0.0) ? enchLevel * perLevelMultiplier : perLevelMultiplier;
+        return perLevelMultiplier;
     }
 
     private void sumAllStats() {
@@ -366,7 +360,7 @@ public class Stats {
             speedPercent.add(sumNumberStat(itemStats, "speed_percent", 0), true);
             speedFlat += sumNumberStat(itemStats, "speed_flat", 0);
             knockbackRes.add(sumNumberStat(itemStats, "knockback_resistance_flat", 0), false);
-            thorns += sumNumberStat(itemStats, "thorns_flat", 0);
+            thorns += (int) sumNumberStat(itemStats, "thorns_flat", 0);
             throwRatePercent.add(sumNumberStat(itemStats, "throw_rate_percent", 0), true);
             fireTickDamage += sumNumberStat(itemStats, "inferno", 0);
 
