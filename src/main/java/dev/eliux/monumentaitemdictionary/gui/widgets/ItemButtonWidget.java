@@ -8,8 +8,6 @@ import dev.eliux.monumentaitemdictionary.util.Colors;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 
-import java.util.List;
-import java.util.function.Supplier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -27,16 +25,13 @@ public class ItemButtonWidget extends ClickableWidget {
 
     private final DictionaryItem item;
     private final ItemStack builtItem;
-    private final Supplier<List<Text>> tooltipTextSupplier;
 
     public int shownMasterworkTier;
 
     private final ItemDictionaryGui gui;
 
-    public ItemButtonWidget(int x, int y, int itemSize, Text message, DictionaryItem item,
-                            Supplier<List<Text>> tooltipTextSupplier, ItemDictionaryGui gui) {
-        super(x, y, itemSize, itemSize, message);
-        this.tooltipTextSupplier = tooltipTextSupplier;
+    public ItemButtonWidget(int x, int y, Text message, DictionaryItem item, ItemDictionaryGui gui) {
+        super(x, y, gui.itemSize, gui.itemSize, message);
         this.item = item;
         shownMasterworkTier = item.getMinMasterwork();
 
@@ -87,19 +82,28 @@ public class ItemButtonWidget extends ClickableWidget {
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
-        int outlineColor = hovered ? Colors.OUTLINE_HOVERED : Colors.WHITE;
-        int fillOpacity = hovered ? Colors.OPACITY_HOVERED : Colors.OPACITY_DEFAULT;
+        int outlineColor;
+        int fillOpacity;
+        if (hovered) {
+            outlineColor = Colors.OUTLINE_HOVERED;
+            fillOpacity = Colors.OPACITY_HOVERED;
+        }
+        else {
+            outlineColor = Colors.WHITE;
+            fillOpacity = Colors.OPACITY_DEFAULT;
+        }
 
         context.fill(minX, minY, maxX, maxY, fillOpacity | ItemColors.getColorForTier(
                 item.hasMasterwork() ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork()));
         context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.enableScissor(0, gui.labelMenuHeight + 1, gui.width, gui.height);
-        context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);
+        //(minX + (width / 2) - 7, minY + (height / 2) - 7), change if w/h becomes non-constant
+        context.drawItem(builtItem, minX + 5, minY + 5);
         context.disableScissor();
 
         if (hovered) {
-            context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltipTextSupplier.get(), mouseX, mouseY);
+            context.drawTooltip(MinecraftClient.getInstance().textRenderer, gui.generateItemLoreText(item), mouseX, mouseY);
         }
     }
 
@@ -115,8 +119,8 @@ public class ItemButtonWidget extends ClickableWidget {
                 Util.getOperatingSystem().open("https://monumenta.wiki.gg/wiki/" + wikiFormatted);
                 return true;
             }
-            else if (Mid.controller.itemGui.isGettingBuildItem && !Screen.hasAltDown()) {
-                Mid.controller.itemGui.returnItem(item);
+            else if (gui.isGettingBuildItem && !Screen.hasAltDown()) {
+                gui.returnItem(item);
                 return true;
             }
 

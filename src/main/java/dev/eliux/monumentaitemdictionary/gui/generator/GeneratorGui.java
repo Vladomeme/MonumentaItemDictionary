@@ -61,12 +61,13 @@ public class GeneratorGui extends Screen {
     }
 
     public void postInit() {
-        backButton = new ItemIconButtonWidget(5, 5, 20, 20, (button) -> {
-            if (controller.lastOpenedScreen instanceof ItemDictionaryGui)
-                controller.setItemDictionaryScreen();
-            else if (controller.lastOpenedScreen instanceof CharmDictionaryGui)
-                controller.setCharmDictionaryScreen();
-        }, Text.literal("Go Back"), "arrow", "");
+        backButton = new ItemIconButtonWidget(5, 5,
+                (button) -> {
+                    if (controller.lastOpenedScreen instanceof ItemDictionaryGui)
+                        controller.setItemDictionaryScreen();
+                    else if (controller.lastOpenedScreen instanceof CharmDictionaryGui)
+                        controller.setCharmDictionaryScreen();
+                }, Text.literal("Go Back"), "arrow", "");
 
         giveButton = ButtonWidget.builder(Text.literal("Generate Item"), (button) -> {
             boolean generateFullStack = hasShiftDown();

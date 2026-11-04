@@ -131,7 +131,7 @@ public class ItemFactory {
         ClientPlayNetworkHandler nh = MinecraftClient.getInstance().getNetworkHandler();
         if (nh == null) return ERROR_ITEM;
 
-        nbt = nbt.replaceAll("minecraft:sweeping", "minecraft:sweeping_edge");
+        nbt = nbt.replace("minecraft:sweeping", "minecraft:sweeping_edge");
 
         try {
             NbtCompound itemNbt = new NbtCompound();

@@ -65,8 +65,16 @@ public class BuildItemButtonWidget extends ButtonWidget {
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
-        int outlineColor = hovered ? Colors.OUTLINE_HOVERED : Colors.WHITE;
-        int fillOpacity = hovered ? Colors.OPACITY_HOVERED : Colors.OPACITY_DEFAULT;
+        int outlineColor;
+        int fillOpacity;
+        if (hovered) {
+            outlineColor = Colors.OUTLINE_HOVERED;
+            fillOpacity = Colors.OPACITY_HOVERED;
+        }
+        else {
+            outlineColor = Colors.WHITE;
+            fillOpacity = Colors.OPACITY_DEFAULT;
+        }
 
         context.fill(minX, minY, maxX, maxY, fillOpacity | (gui.itemOnBuildButton == item && item != null ? Colors.LIME_CLEAR : Colors.CLEAR)
                         | (item != null ? (ItemColors.getColorForTier(item.hasMasterwork() ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork())) : Colors.CLEAR));

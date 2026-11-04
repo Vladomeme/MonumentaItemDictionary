@@ -150,49 +150,63 @@ public class DropdownWidget extends TextFieldWidget {
     public void renderMain(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        if (lastChoice.isEmpty() && !isFocused()) context.drawTextWithShadow(textRenderer, defaultText, getX() + 3, getY() + 3, Colors.DROPDOWN_DEFAULT_TEXT);
+        if (lastChoice.isEmpty() && !isFocused())
+            context.drawTextWithShadow(textRenderer, defaultText, getX() + 3, getY() + 3, Colors.DROPDOWN_DEFAULT_TEXT);
     }
 
     // must be called manually
     // called after other render calls
     public void renderDropdown(DrawContext context, int mouseX, int mouseY) {
+        if (!isFocused() || validChoices.isEmpty()) return;
+
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 200);
-        if (isFocused() && !validChoices.isEmpty()) {
-            context.fill(getX() - 1, getY() + height, getX() + width + 1, getY() + height + ((height + 1) * Math.min(validChoices.size(), maxShown)) + 1, Colors.DROPDOWN_BORDER);
-            context.fill(getX(), getY() + height + 1, getX() + width, getY() + height + ((height + 1) * Math.min(validChoices.size(), maxShown)), Colors.BLACK);
 
-            // draw highlight under mouse
-            for (int i = 0; i < Math.min(validChoices.size(), maxShown); i ++) {
-                if (mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() + height + ((height + 1) * i) && mouseY < getY() + height + ((height + 1) * (i + 1))) {
-                    context.fill(getX(), getY() + height + ((height + 1) * i) + 1, getX() + width, getY() + height + ((height + 1) * (i + 1)), Colors.DROPDOWN_HIGHLIGHT);
-                }
-            }
+        int optionCount = Math.min(validChoices.size(), maxShown);
+        int minX = getX();
+        int minY = getY();
+        int maxX = minX + width;
+        int maxY = minY + height;
+        int optionHeight = height + 1;
 
+        int areaY = maxY + (optionHeight * optionCount);
+        //background
+        context.fill(minX - 1, maxY, maxX + 1, areaY + 1, Colors.DROPDOWN_BORDER);
+        context.fill(minX, maxY + 1, maxX, areaY, Colors.BLACK);
+
+        int optionTopY = maxY;
+        int optionBottomY = maxY + optionHeight;
+        for (int i = 0; i < optionCount; i++) {
             // draw dividing lines
-            for (int i = 0; i < Math.min(validChoices.size(), maxShown) - 1; i ++) {
-                context.drawHorizontalLine(getX() + 3, getX() + width - 4, getY() + height + ((height + 1) * (i + 1)), Colors.DROPDOWN_DIVIDER);
-            }
+            context.drawHorizontalLine(minX + 3, maxX - 4, optionBottomY, Colors.DROPDOWN_DIVIDER);
 
-            // draw choice text
-            for (int i = 0; i < Math.min(visualValidChoices.size(), maxShown); i ++) {
-                String finalText;
-                if (textRenderer.getWidth(visualValidChoices.get(i + scrollAmount)) > width - 8)
-                    finalText = textRenderer.trimToWidth(visualValidChoices.get(i + scrollAmount), width - 14) + "...";
-                else
-                    finalText = visualValidChoices.get(i + scrollAmount);
+            // highlight hovered option
+            if (mouseX >= minX && mouseX <= maxX && mouseY >= optionTopY && mouseY < optionBottomY)
+                context.fill(minX, optionTopY + 1, maxX, optionBottomY, Colors.DROPDOWN_HIGHLIGHT);
 
-                context.drawTextWithShadow(textRenderer, finalText, getX() + 4, getY() + height + ((height + 1) * i) + 4, Colors.WHITE);
-            }
-
-            // draw scroll bar if needed
-            if (validChoices.size() > maxShown) {
-                context.drawVerticalLine(getX() + width - 1, getY() + height,  getY() + ((height + 1) * (maxShown + 1)) - 1, Colors.DROPDOWN_SCROLLBAR_BG);
-                int scrollBarPixels = ((height + 1) * (maxShown + 1)) - 1 - height;
-                context.drawVerticalLine(getX() + width - 1, getY() + height + (int) (scrollBarPixels * ((double) scrollAmount / validChoices.size())),
-                        getY() + height + (int) (scrollBarPixels * ((double) (scrollAmount + maxShown) / validChoices.size())), Colors.DROPDOWN_SCROLLBAR);
-            }
+            optionTopY += optionHeight;
+            optionBottomY += optionHeight;
         }
+
+        // draw choice text
+        for (int i = 0; i < Math.min(visualValidChoices.size(), maxShown); i++) {
+            String finalText;
+            if (textRenderer.getWidth(visualValidChoices.get(i + scrollAmount)) > width - 8)
+                finalText = textRenderer.trimToWidth(visualValidChoices.get(i + scrollAmount), width - 14) + "...";
+            else
+                finalText = visualValidChoices.get(i + scrollAmount);
+
+            context.drawTextWithShadow(textRenderer, finalText, minX + 4, maxY + (optionHeight * i) + 4, Colors.WHITE);
+        }
+
+        // draw scroll bar if needed
+        if (validChoices.size() > maxShown) {
+            context.drawVerticalLine(maxX - 1, maxY, minY + (optionHeight * (maxShown + 1)) - 1, Colors.DROPDOWN_SCROLLBAR_BG);
+            int scrollBarPixels = (optionHeight * (maxShown + 1)) - 1 - height;
+            context.drawVerticalLine(maxX - 1, maxY + (int) (scrollBarPixels * ((double) scrollAmount / validChoices.size())),
+                    maxY + (int) (scrollBarPixels * ((double) (scrollAmount + maxShown) / validChoices.size())), Colors.DROPDOWN_SCROLLBAR);
+        }
+
         context.getMatrices().pop();
     }
 

@@ -44,7 +44,7 @@ public class BuildFilterGui extends Screen {
     }
 
     public void postInit() {
-        backButton = new ItemIconButtonWidget(5, 5, 20, 20, button -> controller.setBuildDictionaryScreen(),
+        backButton = new ItemIconButtonWidget(5, 5, button -> controller.setBuildDictionaryScreen(),
                 Text.literal("Go back"), "arrow", "");
 
         addFilterButton = ButtonWidget.builder(Text.literal("Add New Filter"), button -> {
@@ -109,7 +109,7 @@ public class BuildFilterGui extends Screen {
 
                 updateFilterOutput();
             });
-            ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25, 20, 20,
+            ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25,
                     b -> removeIndex = filterListOption.indexOf(options),
                     Text.literal("Delete").setStyle(Styles.RED),
                     "orange_stained_glass_pane", "Cancel");

@@ -31,18 +31,44 @@ import java.util.List;
 import java.util.Objects;
 
 @Mixin(Screen.class)
-public abstract class ScreenHandlerMixin {
+public abstract class ScreenMixin {
 
     @SuppressWarnings("UnusedReturnValue")
     @Shadow protected abstract <T extends Element & Selectable> T addSelectableChild(T child);
+
     @SuppressWarnings("UnusedReturnValue")
     @Shadow protected abstract <T extends Element & Drawable & Selectable> T addDrawableChild(T drawableElement);
 
     @Shadow public abstract void close();
 
+    @Inject(method = "init(Lnet/minecraft/client/MinecraftClient;II)V", at = @At("TAIL"))
+    private void mid$init(MinecraftClient client, int width, int height, CallbackInfo ci) {
+        if (client.currentScreen == null) return;
+        String inventoryTitle = client.currentScreen.getTitle().getString();
+        if (client.currentScreen instanceof GenericContainerScreen && (inventoryTitle.equals("Player Stats Calculator") || inventoryTitle.equals("Mechanical Armory"))) {
+            int x = ((HandledScreenAccessor) client.currentScreen).mid$getX() + ((HandledScreenAccessor) client.currentScreen).mid$getBackGroundWidth() - 20;
+            int y = ((HandledScreenAccessor) client.currentScreen).mid$getY() - 20;
+
+            buildFromInventoryButton = new ItemIconButtonWidget(x, y, button -> {
+                DefaultedList<Slot> slots = ((HandledScreenAccessor) client.currentScreen).mid$getHandler().slots;
+                DictionaryController controller = new DictionaryController();
+
+                DictionaryBuild buildFromInventory =
+                        (inventoryTitle.equals("Mechanical Armory")) ? getBuildFromMechanicalArmory(client,
+                                slots, controller) : getBuildFromPlayerStats(client, slots, controller);
+                close();
+                controller.setBuilderScreen();
+                controller.builderGui.loadItems(buildFromInventory);
+            }, Text.literal("Add build from current inventory"), "name_tag", "");
+
+            addSelectableChild(buildFromInventoryButton);
+            addDrawableChild(buildFromInventoryButton);
+        }
+    }
+
     @Unique private ButtonWidget buildFromInventoryButton = null;
     @Inject(method = "render", at = @At("HEAD"))
-    private void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    private void mid$render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
         Screen currentScreen = client.currentScreen;
         if (currentScreen instanceof GenericContainerScreen && buildFromInventoryButton != null) {
@@ -53,29 +79,21 @@ public abstract class ScreenHandlerMixin {
         }
     }
 
-    @Inject(method = "init(Lnet/minecraft/client/MinecraftClient;II)V", at = @At("TAIL"))
-    private void init(MinecraftClient client, int width, int height, CallbackInfo ci) {
-        if (client.currentScreen == null) return;
-        String inventoryTitle = client.currentScreen.getTitle().getString();
-        if (client.currentScreen instanceof GenericContainerScreen && (inventoryTitle.equals("Player Stats Calculator") || inventoryTitle.equals("Mechanical Armory"))) {
+    @Inject(method = "resize", at = @At("TAIL"))
+    private void mid$resize(MinecraftClient client, int width, int height, CallbackInfo ci) {
+        if (buildFromInventoryButton != null && client.currentScreen != null) {
             int x = ((HandledScreenAccessor) client.currentScreen).mid$getX() + ((HandledScreenAccessor) client.currentScreen).mid$getBackGroundWidth() - 20;
             int y = ((HandledScreenAccessor) client.currentScreen).mid$getY() - 20;
-
-            buildFromInventoryButton = new ItemIconButtonWidget(x, y, 20, 20, button -> {
-                        DefaultedList<Slot> slots = ((HandledScreenAccessor) client.currentScreen).mid$getHandler().slots;
-                        DictionaryController controller = new DictionaryController();
-
-                        DictionaryBuild buildFromInventory =
-                                (inventoryTitle.equals("Mechanical Armory")) ? getBuildFromMechanicalArmory(client,
-                                        slots, controller) : getBuildFromPlayerStats(client, slots, controller);
-                        close();
-                        controller.setBuilderScreen();
-                        controller.builderGui.loadItems(buildFromInventory);
-                    }, Text.literal("Add build from current inventory"), "name_tag", "");
-
+            buildFromInventoryButton.setX(x);
+            buildFromInventoryButton.setY(y);
             addSelectableChild(buildFromInventoryButton);
             addDrawableChild(buildFromInventoryButton);
         }
+    }
+
+    @Inject(method = "close", at = @At("HEAD"))
+    private void mid$close(CallbackInfo ci) {
+        buildFromInventoryButton = null;
     }
 
     @Unique
@@ -151,22 +169,5 @@ public abstract class ScreenHandlerMixin {
         }
 
         return itemsFromBuild;
-    }
-
-    @Inject(method = "close", at = @At("HEAD"))
-    private void onClose(CallbackInfo ci) {
-        buildFromInventoryButton = null;
-    }
-
-    @Inject(method = "resize", at = @At("TAIL"))
-    private void onResize(MinecraftClient client, int width, int height, CallbackInfo ci) {
-        if (buildFromInventoryButton != null && client.currentScreen != null) {
-            int x = ((HandledScreenAccessor) client.currentScreen).mid$getX() + ((HandledScreenAccessor) client.currentScreen).mid$getBackGroundWidth() - 20;
-            int y = ((HandledScreenAccessor) client.currentScreen).mid$getY() - 20;
-            buildFromInventoryButton.setX(x);
-            buildFromInventoryButton.setY(y);
-            addSelectableChild(buildFromInventoryButton);
-            addDrawableChild(buildFromInventoryButton);
-        }
     }
 }

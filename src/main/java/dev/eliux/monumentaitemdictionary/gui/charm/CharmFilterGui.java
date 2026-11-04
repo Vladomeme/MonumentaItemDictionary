@@ -47,7 +47,7 @@ public class CharmFilterGui extends Screen {
     }
 
     public void postInit() {
-        backButton = new ItemIconButtonWidget(5, 5, 20, 20,
+        backButton = new ItemIconButtonWidget(5, 5,
                 (button) -> controller.setCharmDictionaryScreen(),
                 Text.literal("Go Back"), "arrow", "");
 
@@ -137,7 +137,7 @@ public class CharmFilterGui extends Screen {
 
                 updateFilterOutput();
             });
-            ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25, 20, 20,
+            ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25,
                     b -> removeIndex = filterListOption.indexOf(options),
                     Text.literal("Delete").setStyle(Styles.RED),
                     "orange_stained_glass_pane", "Cancel");

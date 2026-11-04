@@ -52,23 +52,23 @@ public class BuildDictionaryGui extends Screen {
 
         buildsList = new ArrayList<>();
 
-        addBuildButton = new ItemIconButtonWidget(5, 5, 20, 20, (button) -> {
-            controller.setBuilderScreen();
-            controller.builderGui.resetBuild();
-            }, Text.literal("Add Build"), "paper", "");
+        addBuildButton = new ItemIconButtonWidget(5, 5,
+                (button) -> {
+                    controller.setBuilderScreen();
+                    controller.builderGui.resetBuild();
+                }, Text.literal("Add Build"), "paper", "");
 
-        showItemsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10,labelMenuHeight + 10, 20, 20,
-                (button) ->
-                controller.setItemDictionaryScreen(),
+        showItemsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10,
+                (button) -> controller.setItemDictionaryScreen(),
                 Text.literal("Item Data").setStyle(Styles.BLUE),
                 "iron_chestplate", "");
 
-        showCharmsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 38, 20, 20,
+        showCharmsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 38,
                 (button) -> controller.setCharmDictionaryScreen(),
                 Text.literal("Charm Data").setStyle(Styles.YELLOW),
                 "glowstone_dust", "");
 
-        filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30, 20, 20,
+        filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30,
                 button -> controller.setBuildFilterScreen(),
                 Text.literal("Filter"), "chest", "");
 
@@ -95,7 +95,7 @@ public class BuildDictionaryGui extends Screen {
         int x = (col + 1) * itemPadding + col * itemSize;
         int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
 
-        return new BuildButtonWidget(x, y, itemSize, Text.literal(build.name), b -> buildButtonClicked(build), build, this);
+        return new BuildButtonWidget(x, y, Text.literal(build.name), b -> buildButtonClicked(build), build, this);
     }
 
     private void buildButtonClicked(DictionaryBuild build) {

@@ -75,34 +75,34 @@ public class ItemDictionaryGui extends Screen {
         searchBar.setPlaceholder(Text.of("Search..."));
         searchBar.setFocused(true);
 
-        reloadItemsButton = new ItemIconButtonWidget(5, 5, 20, 20,
+        reloadItemsButton = new ItemIconButtonWidget(5, 5,
                 (button) -> controller.requestAndUpdate(),
                 Text.literal("Reload All Data"),
                 "globe_banner_pattern", "");
 
-        builderGuiButton = new ItemIconButtonWidget(55, 5, 20, 20,
+        builderGuiButton = new ItemIconButtonWidget(55, 5,
                 (button) -> controller.setBuildDictionaryScreen(),
                 Text.literal("Open Builder GUI"),
                 "iron_chestplate", "");
 
-        builderButton = new ItemIconButtonWidget(55, 5, 20, 20,
+        builderButton = new ItemIconButtonWidget(55, 5,
                 (button) -> {
                     isGettingBuildItem = false;
                     controller.setBuilderScreen();
                 }, Text.literal("Go Back To Builder"),
                 "arrow", "");
 
-        showCharmsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10, 20, 20,
+        showCharmsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10,
                 (button) -> controller.setCharmDictionaryScreen(),
                 Text.literal("Charm Data").setStyle(Styles.YELLOW),
                 "glowstone_dust", "");
 
-        filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30, 20, 20,
+        filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30,
                 (button) -> controller.setItemFilterScreen(),
                 Text.literal("Filter"),
                 "chest", "");
 
-        resetFilterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 60, 20, 20,
+        resetFilterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 60,
                 (button) -> {
                     controller.itemFilterGui.clearFilters();
                     searchBar.setText("");
@@ -110,7 +110,7 @@ public class ItemDictionaryGui extends Screen {
                 }, Text.literal("Reset Filters").setStyle(Styles.RED),
                 "barrier", "");
 
-        minMasterworkButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 120, 20, 20,
+        minMasterworkButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 120,
                 (button) -> {
                     for (List<ItemButtonWidget> row : itemButtons.values()) {
                         row.forEach(ItemButtonWidget::setMinimumMasterwork);
@@ -118,21 +118,20 @@ public class ItemDictionaryGui extends Screen {
                 }, Text.literal("Show Minimum Masterwork").setStyle(Styles.PURPLE),
                 "netherite_scrap", "");
 
-        maxMasterworkButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 90, 20, 20,
+        maxMasterworkButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 90,
                 (button) -> {
                     for (List<ItemButtonWidget> row : itemButtons.values()) {
                         row.forEach(ItemButtonWidget::setMaximumMasterwork);
                     }
                 },
-                Arrays.asList(
+                List.of(
                         Text.literal("Show Maximum Masterwork").setStyle(Styles.PURPLE),
-                        Text.literal("(Only counts tiers with data)").setStyle(Styles.LIGHT_GRAY)),
-                "netherite_ingot", "");
+                        Text.literal("(Only counts tiers with data)").setStyle(Styles.LIGHT_GRAY)
+                ), "netherite_ingot", "");
 
-        tipsMasterworkButton = new ItemIconButtonWidget(
-                30, 5, 20, 20,
+        tipsMasterworkButton = new ItemIconButtonWidget(30, 5,
                 (button) -> Util.getOperatingSystem().open("https://github.com/Vladomeme/MonumentaItemDictionary"),
-                Arrays.asList(
+                List.of(
                         Text.literal("Tips").setStyle(Styles.WHITE),
                         Text.empty(),
                         Text.literal("Ctrl + Scroll").setStyle(Styles.BOLD_TEXT)
@@ -236,7 +235,7 @@ public class ItemDictionaryGui extends Screen {
             int x = (col + 1) * itemPadding + col * itemSize;
             int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
 
-            ItemButtonWidget button = new ItemButtonWidget(x, y, itemSize, Text.literal(item.name()), item, () -> generateItemLoreText(item), this);
+            ItemButtonWidget button = new ItemButtonWidget(x, y, Text.literal(item.name()), item, this);
 
             itemButtons.computeIfAbsent(y, k -> new ArrayList<>()).add(button);
             widgetByItem.put(item, button);

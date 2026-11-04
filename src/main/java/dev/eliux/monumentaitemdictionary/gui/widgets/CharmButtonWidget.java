@@ -9,8 +9,6 @@ import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.util.Colors;
 import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
-import java.util.List;
-import java.util.function.Supplier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -30,19 +28,16 @@ public class CharmButtonWidget extends ClickableWidget {
 
     private final DictionaryCharm charm;
     private final ItemStack builtItem;
-    private final Supplier<List<Text>> tooltipTextSupplier;
 
     private final CharmDictionaryGui gui;
 
-    public CharmButtonWidget(int x, int y, int charmSize, Text message, DictionaryCharm charm,
-                             Supplier<List<Text>> tooltipTextSupplier, CharmDictionaryGui gui) {
-        super(x, y, charmSize, charmSize, message);
-        this.tooltipTextSupplier = tooltipTextSupplier;
+    public CharmButtonWidget(int x, int y, Text message, DictionaryCharm charm, CharmDictionaryGui gui) {
+        super(x, y, gui.itemSize, gui.itemSize, message);
         this.charm = charm;
 
         this.gui = gui;
 
-        builtItem = ItemFactory.fromId(charm.baseItem().toLowerCase().replace(" ", "_"));
+        builtItem = ItemFactory.fromId(charm.baseItem());
 
         NbtCompound monumenta = new NbtCompound();
         monumenta.putInt("CharmPower", charm.power());
@@ -79,18 +74,27 @@ public class CharmButtonWidget extends ClickableWidget {
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
-        int outlineColor = hovered ? Colors.OUTLINE_HOVERED : Colors.WHITE;
-        int fillOpacity = hovered ? Colors.OPACITY_HOVERED : Colors.OPACITY_DEFAULT;
+        int outlineColor;
+        int fillOpacity;
+        if (hovered) {
+            outlineColor = Colors.OUTLINE_HOVERED;
+            fillOpacity = Colors.OPACITY_HOVERED;
+        }
+        else {
+            outlineColor = Colors.WHITE;
+            fillOpacity = Colors.OPACITY_DEFAULT;
+        }
 
         context.fill(minX, minY, maxX, maxY, fillOpacity + ItemColors.getColorForTier(charm.tier()));
         context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.enableScissor(0, gui.labelMenuHeight + 1, gui.width, gui.height);
-        context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);
+        //(minX + (width / 2) - 7, minY + (height / 2) - 7), change if w/h becomes non-constant
+        context.drawItem(builtItem, minX + 5, minY + 5);
         context.disableScissor();
 
         if (hovered) {
-            context.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltipTextSupplier.get(), mouseX, mouseY);
+            context.drawTooltip(MinecraftClient.getInstance().textRenderer, gui.generateCharmLoreText(charm), mouseX, mouseY);
         }
     }
 

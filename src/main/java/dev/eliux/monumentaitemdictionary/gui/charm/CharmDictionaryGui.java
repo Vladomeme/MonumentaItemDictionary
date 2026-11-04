@@ -22,7 +22,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class CharmDictionaryGui extends Screen {
@@ -72,42 +71,42 @@ public class CharmDictionaryGui extends Screen {
         searchBar.setPlaceholder(Text.of("Search..."));
         searchBar.setFocused(true);
 
-        reloadCharmsButton = new ItemIconButtonWidget(5, 5, 20, 20,
+        reloadCharmsButton = new ItemIconButtonWidget(5, 5,
                 (button) -> controller.requestAndUpdate(),
                 Text.literal("Reload All Data"),
                 "globe_banner_pattern", "");
 
-        showItemsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10, 20, 20,
+        showItemsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10,
                 (button) -> controller.setItemDictionaryScreen(),
                 Text.literal("Item Data").setStyle(Styles.BLUE),
                 "iron_chestplate", "");
 
-        buildDictionaryButton = new ItemIconButtonWidget(55, 5, 20, 20,
+        buildDictionaryButton = new ItemIconButtonWidget(55, 5,
                 (button) -> controller.setBuildDictionaryScreen(),
                 Text.literal("Open Builder GUI"),
                 "iron_chestplate", "");
 
-        builderButton = new ItemIconButtonWidget(55, 5, 20, 20,
+        builderButton = new ItemIconButtonWidget(55, 5,
                 (button) -> {
                     isGettingBuildCharm = false;
                     controller.setBuilderScreen();
                 },
                 Text.literal("Go Back To Builder"), "arrow", "");
         
-        filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30, 20, 20,
+        filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30,
                 (button) -> controller.setCharmFilterScreen(),
                 Text.literal("Filter"), "chest", "");
 
-        resetFilterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 60, 20, 20, (button) -> {
-            controller.charmFilterGui.clearFilters();
-            searchBar.setText("");
-            buildCharmList();
-        },Text.literal("Reset Filters").setStyle(Styles.RED), "barrier", "");
+        resetFilterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 60,
+                (button) -> {
+                    controller.charmFilterGui.clearFilters();
+                    searchBar.setText("");
+                    buildCharmList();
+                }, Text.literal("Reset Filters").setStyle(Styles.RED), "barrier", "");
 
-        tipsMasterworkButton = new ItemIconButtonWidget(
-                30, 5, 20, 20,
+        tipsMasterworkButton = new ItemIconButtonWidget(30, 5,
                 (button) -> Util.getOperatingSystem().open("https://github.com/Vladomeme/MonumentaItemDictionary"),
-                Arrays.asList(
+                List.of(
                         Text.literal("Tips").setStyle(Styles.WHITE),
                         Text.empty(),
                         Text.literal("Shift").setStyle(Styles.BOLD_TEXT)
@@ -206,7 +205,7 @@ public class CharmDictionaryGui extends Screen {
             int x = (col + 1) * itemPadding + col * itemSize;
             int y = labelMenuHeight + (row + 1) * itemPadding + row * itemSize;
 
-            charmButtons.add(new CharmButtonWidget(x, y, itemSize, Text.literal(charm.name()), charm, () -> generateCharmLoreText(charm), this));
+            charmButtons.add(new CharmButtonWidget(x, y, Text.literal(charm.name()), charm, this));
         }
     }
 

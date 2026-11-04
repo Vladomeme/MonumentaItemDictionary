@@ -26,8 +26,8 @@ public class BuildButtonWidget extends ButtonWidget {
     private final ItemStack builtItem;
     private boolean favorite;
 
-    public BuildButtonWidget(int x, int y, int itemSize, Text message, PressAction onPress, DictionaryBuild build, BuildDictionaryGui gui) {
-        super(x, y, itemSize, itemSize, message, onPress, DEFAULT_NARRATION_SUPPLIER);
+    public BuildButtonWidget(int x, int y, Text message, PressAction onPress, DictionaryBuild build, BuildDictionaryGui gui) {
+        super(x, y, gui.itemSize, gui.itemSize, message, onPress, DEFAULT_NARRATION_SUPPLIER);
         this.build = build;
         this.gui = gui;
         this.favorite = build.favorite;
@@ -47,11 +47,6 @@ public class BuildButtonWidget extends ButtonWidget {
     }
 
     @Override
-    public void onClick(double mouseX, double mouseY) {
-        super.onClick(mouseX, mouseY);
-    }
-
-    @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
         int minX = getX();
         int minY = getY();
@@ -62,14 +57,23 @@ public class BuildButtonWidget extends ButtonWidget {
 
         boolean hovered = (mouseX >= minX) && (mouseX <= maxX) && (mouseY >= minY) && (mouseY <= maxY) && (mouseY > gui.labelMenuHeight);
 
-        int outlineColor = hovered ? Colors.OUTLINE_HOVERED : Colors.WHITE;
-        int fillOpacity = hovered ? Colors.OPACITY_HOVERED : Colors.OPACITY_DEFAULT;
+        int outlineColor;
+        int fillOpacity;
+        if (hovered) {
+            outlineColor = Colors.OUTLINE_HOVERED;
+            fillOpacity = Colors.OPACITY_HOVERED;
+        }
+        else {
+            outlineColor = Colors.WHITE;
+            fillOpacity = Colors.OPACITY_DEFAULT;
+        }
 
         context.fill(minX, minY, maxX, maxY, favorite ? Colors.FAVORITE
                 : fillOpacity | (!Objects.equals(build.className, "No Class") ? ItemColors.getColorForClass(build.className) : Colors.CLEAR));
         context.drawBorder(minX, minY, width, height, outlineColor);
 
-        context.drawItem(builtItem, minX + (width / 2) - 7, minY + (height / 2) - 7);
+        //(minX + (width / 2) - 7, minY + (height / 2) - 7), change if w/h becomes non-constant
+        context.drawItem(builtItem, minX + 18, minY + 18);
 
         if (hovered) {
             List<Text> lines = new ArrayList<>();

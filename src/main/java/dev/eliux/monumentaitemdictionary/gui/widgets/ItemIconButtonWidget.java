@@ -17,12 +17,12 @@ public class ItemIconButtonWidget extends ButtonWidget {
     private final ItemStack iconItem;
     private final List<Text> tooltipText;
 
-    public ItemIconButtonWidget(int x, int y, int width, int height, PressAction onPress, Text tooltipText, String itemEncoding, String displayInfo) {
-        this(x, y, width, height, onPress, List.of(tooltipText), itemEncoding, displayInfo);
+    public ItemIconButtonWidget(int x, int y, PressAction onPress, Text tooltipText, String itemEncoding, String displayInfo) {
+        this(x, y, onPress, List.of(tooltipText), itemEncoding, displayInfo);
     }
 
-    public ItemIconButtonWidget(int x, int y, int width, int height, PressAction onPress, List<Text> tooltipText, String itemEncoding, String displayInfo) {
-        super(x, y, width, height, Text.empty(), onPress, DEFAULT_NARRATION_SUPPLIER);
+    public ItemIconButtonWidget(int x, int y, PressAction onPress, List<Text> tooltipText, String itemEncoding, String displayInfo) {
+        super(x, y, 20, 20, Text.empty(), onPress, DEFAULT_NARRATION_SUPPLIER);
         this.tooltipText = tooltipText;
 
         iconItem = ItemFactory.fromId(itemEncoding);
@@ -42,7 +42,8 @@ public class ItemIconButtonWidget extends ButtonWidget {
 
         context.getMatrices().push();
         context.getMatrices().translate(0, 0, 120);
-        context.drawItem(iconItem, getX() + (width - 16) / 2, getY() + (width - 16) / 2);
+        //(getX() + (width - 16) / 2, getY() + (height - 16) / 2), change if w/h becomes non-constant
+        context.drawItem(iconItem, getX() + 2, getY() + 2);
         context.getMatrices().pop();
 
         if (isHovered() && MinecraftClient.getInstance().currentScreen != null)

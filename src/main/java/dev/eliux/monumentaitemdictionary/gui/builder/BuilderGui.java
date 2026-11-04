@@ -122,33 +122,36 @@ public class BuilderGui extends Screen {
             }
         };
 
-        buildClipboard = new ItemIconButtonWidget(30, 5, 20, 20, (button) -> buildClipboardButtonClicked(),
-                Arrays.asList(Text.literal("Build Clipboard").setStyle(Styles.WHITE),
+        buildClipboard = new ItemIconButtonWidget(30, 5,
+                (button) -> buildClipboardButtonClicked(),
+                List.of(
+                        Text.literal("Build Clipboard").setStyle(Styles.WHITE),
                         Text.literal("Click").setStyle(Styles.BOLD_TEXT)
                                 .append(Text.literal(" to set a build from your clipboard").setStyle(Styles.RESET_BOLD_TEXT)),
                         Text.empty(),
                         Text.literal("SHIFT + Click").setStyle(Styles.BOLD_TEXT)
-                                .append(Text.literal(" to copy the build url of the current build").setStyle(Styles.RESET_BOLD_TEXT))),
-                "name_tag", "");
+                                .append(Text.literal(" to copy the build url of the current build").setStyle(Styles.RESET_BOLD_TEXT))
+                ), "name_tag", "");
 
-        showBuildDictionaryButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10, 20, 20,
+        showBuildDictionaryButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10,
                 (button) -> controller.setBuildDictionaryScreen(),
                 Text.literal("Builds Data"), "diamond_chestplate", "");
 
-        addBuildButton = new ItemIconButtonWidget(5, 5, 20, 20, (button) -> {
-                if (itemOnBuildButton == null) statusText = Text.literal("Please select an item to appear on your Build Icon").setStyle(Styles.RED);
-                else if (nameBar.getText().isBlank()) statusText = Text.literal("Please put a name to your Build").setStyle(Styles.RED);
-                else {
-                    String regionName = switch (region) {
-                        case ARCHITECTS_RING -> "Ring";
-                        case CELSIAN_ISLES -> "Isles";
-                        case KINGS_VALLEY -> "Valley";
-                    };
-                    controller.buildDictionaryGui.addBuild(nameBar.getText(), buildItems, charms,
-                            itemOnBuildButton, regionName, className.getText().getString(), specialization.getText().getString());
-                    controller.setBuildDictionaryScreen();
-                }
-            }, Text.literal("Add Build To Dictionary"), "writable_book", "");
+        addBuildButton = new ItemIconButtonWidget(5, 5,
+                (button) -> {
+                    if (itemOnBuildButton == null) statusText = Text.literal("Please select an item to appear on your Build Icon").setStyle(Styles.RED);
+                    else if (nameBar.getText().isBlank()) statusText = Text.literal("Please put a name to your Build").setStyle(Styles.RED);
+                    else {
+                        String regionName = switch (region) {
+                           case ARCHITECTS_RING -> "Ring";
+                            case CELSIAN_ISLES -> "Isles";
+                           case KINGS_VALLEY -> "Valley";
+                        };
+                        controller.buildDictionaryGui.addBuild(nameBar.getText(), buildItems, charms,
+                                itemOnBuildButton, regionName, className.getText().getString(), specialization.getText().getString());
+                        controller.setBuildDictionaryScreen();
+                    }
+                }, Text.literal("Add Build To Dictionary"), "writable_book", "");
 
         regionButton = CyclingButtonWidget.builder(Regions::getText)
                 .values(Regions.values())
