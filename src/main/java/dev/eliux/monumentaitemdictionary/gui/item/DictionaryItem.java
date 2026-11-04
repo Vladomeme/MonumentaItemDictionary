@@ -149,11 +149,19 @@ public record DictionaryItem(String name, String type, String region, List<ItemT
 
     @Override
     public int compareTo(@NotNull DictionaryItem o) {
-        int regionComparison = ItemFormatter.getNumberForRegion(o.region) - ItemFormatter.getNumberForRegion(this.region);
-        if (regionComparison != 0) return regionComparison;
+        int value = ItemFormatter.getNumberForRegion(o.region) - ItemFormatter.getNumberForRegion(region);
+        if (value != 0) return value;
 
-        int tierComparison = this.getTier().ordinal() - o.getTier().ordinal();
-        if (tierComparison != 0) return tierComparison;
+        value = getTier().ordinal() - o.getTier().ordinal();
+        if (value != 0) return value;
+
+        if (isFish && o.isFish) {
+            value = o.fishTier - fishTier;
+            if (value != 0) return value;
+        }
+
+        value = type.compareTo(o.type);
+        if (value != 0) return value;
 
         return name.compareTo(o.name);
     }
