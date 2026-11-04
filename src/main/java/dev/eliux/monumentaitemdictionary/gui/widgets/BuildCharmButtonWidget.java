@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.util.Colors;
-import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -60,9 +59,9 @@ public class BuildCharmButtonWidget extends ButtonWidget {
         NbtCompound monumenta = new NbtCompound();
         monumenta.putInt("CharmPower", charm.power());
         monumenta.putString("Tier", switch (charm.tier()) {
-            case "Base" -> "charm";
-            case "Rare" -> "rarecharm";
-            case "Epic" -> "epiccharm";
+            case BASE -> "charm";
+            case RARE -> "rarecharm";
+            case EPIC -> "epiccharm";
             default -> "";
         });
         builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
@@ -101,7 +100,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
         int outlineColor = hovered ? Colors.OUTLINE_HOVERED : Colors.WHITE;
         int fillOpacity = hovered ? Colors.OPACITY_HOVERED : Colors.OPACITY_DEFAULT;
 
-        context.fill(minX, minY, maxX, maxY, fillOpacity + (charm != null ? ItemColors.getColorForTier(charm.tier()) : Colors.CLEAR));
+        context.fill(minX, minY, maxX, maxY, fillOpacity + (charm != null ? charm.tier().color : Colors.CLEAR));
         context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.getMatrices().push();

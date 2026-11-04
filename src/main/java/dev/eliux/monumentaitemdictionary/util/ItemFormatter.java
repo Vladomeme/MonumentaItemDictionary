@@ -21,10 +21,6 @@ public class ItemFormatter {
             "formidable", "brute_force", "defensive_line", "riposte", "toughness", "counter_strike", "frenzy", "shield_bash", "weapon_mastery", "bloodlust", "glorious_battle", "meteor_slam", "rampage", "bodyguard", "challenge", "shield_wall",
             "decay", "inferno", "recoil", "jungle's_nourishment", "rage_of_the_keter", "hex_eater", "sapper", "life_drain", "regicide", "quake", "eruption", "smite", "slayer", "duelist", "regeneration", "thunder_aspect"};
 
-    private static final Set<String> boldTiers = new HashSet<>(List.of("Patron", "Key", "Currency", "Trophy", "Uncommon", "Unique", "Rare", "Artifact", "Epic", "Legendary"));
-
-    private static final Set<String> underlineTiers = new HashSet<>(List.of("Epic", "Legendary"));
-
     private static final Set<String> singleEnchants = new HashSet<>(List.of("gills", "weightless", "rage_of_the_keter", "jungle's_nourishment",
             "unbreakable", "adaptability", "multishot", "intuition", "radiant", "resurrection", "two_handed", "curse_of_irreparability", "mending", "silk_touch",
             "curse_of_corruption", "protection_of_the_depths", "infinity_bow", "infinity_tool", "infinity", "aqua_affinity", "ashes_of_eternity", "void_tether",
@@ -48,14 +44,6 @@ public class ItemFormatter {
 
     private static final Set<String> hiddenStats = new HashSet<>(List.of("noglint", "hideenchants", "hideinfo", "utility_item_for_armory"));
 
-    public static boolean shouldBold(String inTier) {
-        return boldTiers.contains(inTier);
-    }
-
-    public static boolean shouldUnderline(String inTier) {
-        return underlineTiers.contains(inTier);
-    }
-
     public static String formatRegion(String inRegion) {
         return switch (inRegion) {
             case "Valley" -> "King's Valley";
@@ -72,14 +60,6 @@ public class ItemFormatter {
         else return formatStat(name) + " " + (isSingleEnchant(name) ? "" : (int) value);
     }
 
-    public static int getMasterworkForRarity(String rarity) {
-        return switch (rarity) {
-            case "Rare", "Artifact" -> 4;
-            case "Epic" -> 6;
-            default -> 0;
-        };
-    }
-
     @SuppressWarnings("SameReturnValue")
     public static int getMaxFishTier() {
         return 5;
@@ -91,32 +71,6 @@ public class ItemFormatter {
 
     public static boolean shouldUnderlineFish(int fishTier) {
         return (fishTier >= 5);
-    }
-
-    public static int getNumberForTier(String inTier) {
-        return switch (inTier) {
-            case "Legendary" -> 20;
-            case "Epic" -> 19;
-            case "Artifact" -> 18;
-            case "Rare" -> 17;
-            case "Base" -> 16;
-            case "Unique" -> 15;
-            case "Patron" -> 14;
-            case "Uncommon" -> 13;
-            case "Tier 5" -> 12;
-            case "Tier 4" -> 11;
-            case "Tier 3" -> 10;
-            case "Tier 2" -> 9;
-            case "Tier 1" -> 8;
-            case "Tier 0" -> 7;
-            case "Obfuscated" -> 6;
-            case "Currency" -> 5;
-            case "Event Currency" -> 4;
-            case "Key" -> 3;
-            case "Event" -> 2;
-            case "Trophy" -> 1;
-            default -> 0;
-        };
     }
 
     public static int getNumberForRegion(String inRegion) {
@@ -177,7 +131,7 @@ public class ItemFormatter {
     
     public static String formatEffect(String effect, String enchant) {
         return switch (effect) {
-            case "damage", "Weakness" -> "Damage";
+            case "damage", "Weakness" -> "Strength";
             case "MeleeWeakness" -> "Melee Damage";
             case "NegativeAttackSpeed" -> "Attack Speed";
             case "NegativeKnockbackResist", "KnockbackResist" -> "Knockback Resistance";
@@ -223,23 +177,6 @@ public class ItemFormatter {
                 yield builder.toString();
             }
         };
-    }
-
-    // Fix for Event Currency tier (and maybe others in the future) being formatted as "Event_currency"
-    public static String formatTierPrimitive(String tier) {
-        if (tier.indexOf('_') == -1) return tier;
-
-        StringBuilder builder = new StringBuilder();
-        char[] chars = tier.toCharArray();
-
-        for (int i = 0; i != chars.length; i++) {
-            if (chars[i] == '_') {
-                builder.append(' ');
-                i++;
-                builder.append(chars[i] < 'a' ? chars[i] : chars[i] - 32);
-            }
-        }
-        return builder.toString();
     }
 
     public static String getSkillFromCharmStat(String stat) {

@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.util.Colors;
-import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -77,14 +76,14 @@ public class BuildItemButtonWidget extends ButtonWidget {
         }
 
         context.fill(minX, minY, maxX, maxY, fillOpacity | (gui.itemOnBuildButton == item && item != null ? Colors.LIME_CLEAR : Colors.CLEAR)
-                        | (item != null ? (ItemColors.getColorForTier(item.hasMasterwork() ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork())) : Colors.CLEAR));
+                        | (item != null ? item.getTier().color : Colors.CLEAR));
 
         context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.getMatrices().push();
         context.getMatrices().scale(scale, scale, scale);
-        context.drawItem(builtItem, (int) ceil((minX + (double) width / 2 - ceil(
-                (double) itemSize / 2)) / scale), (int) ceil((minY + (double) height / 2 - ceil((double) itemSize / 2)) / scale));
+        context.drawItem(builtItem, (int) ceil((minX + (double) width / 2 - ceil((double) itemSize / 2)) / scale),
+                                    (int) ceil((minY + (double) height / 2 - ceil((double) itemSize / 2)) / scale));
         context.getMatrices().pop();
 
         if (hovered) {

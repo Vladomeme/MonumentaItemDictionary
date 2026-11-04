@@ -25,12 +25,13 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import oshi.util.tuples.Pair;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@SuppressWarnings({"CallToPrintStackTrace", "unused"})
+@SuppressWarnings("CallToPrintStackTrace")
 public class DictionaryController {
 
     private String itemNameFilter;
@@ -419,11 +420,12 @@ public class DictionaryController {
                 if (regionPrimitive != null) itemRegion = regionPrimitive.getAsString();
 
                 // TIER
-                String itemTier = "";
+                ItemTier itemTier = ItemTier.DEFAULT;
                 JsonPrimitive tierPrimitive = itemData.getAsJsonPrimitive("tier");
                 if (tierPrimitive != null) {
-                    itemTier = ItemFormatter.formatTierPrimitive(tierPrimitive.getAsString());
-                    itemTierSet.add(itemTier);
+                    String tierValue = tierPrimitive.getAsString();
+                    itemTier = ItemTier.of(tierValue);
+                    itemTierSet.add(itemTier.name);
                 }
 
                 // LOCATION
@@ -492,7 +494,7 @@ public class DictionaryController {
                 JsonPrimitive masterworkPrimitive = itemData.getAsJsonPrimitive("masterwork");
                 if (masterworkPrimitive == null) {
                     // Item doesn't have masterwork
-                    List<String> totalTierList = itemTier.isEmpty() ? List.of() : List.of(itemTier);
+                    List<ItemTier> totalTierList = itemTier == ItemTier.DEFAULT ? List.of() : List.of(itemTier);
                     List<List<ItemStat>> totalStatsList = itemStats.isEmpty() ? List.of() : List.of(itemStats);
                     List<String> totalNbtList = itemNbt.isEmpty() ? List.of() : List.of(itemNbt);
 
@@ -502,7 +504,7 @@ public class DictionaryController {
                 else {
                     // Item has masterwork
                     if (itemNbt.isEmpty()) itemNbt = "{}";
-                    int maxLevel = ItemFormatter.getMasterworkForRarity(itemTier);
+                    int maxLevel = itemTier.getMasterwork();
                     int level = masterworkPrimitive.getAsInt();
 
                     if (level > maxLevel) continue; // Masterwork level exceeds current cap
@@ -514,7 +516,7 @@ public class DictionaryController {
                     }
                     else {
                         // Item doesn't exist yet
-                        List<String> totalTierList = Arrays.asList(new String[maxLevel + 1]);
+                        List<ItemTier> totalTierList = Arrays.asList(new ItemTier[maxLevel + 1]);
                         @SuppressWarnings("unchecked")
                         List<List<ItemStat>> totalStatsList = Arrays.asList(new List[maxLevel + 1]);
                         List<String> totalNbtList = Arrays.asList(new String[maxLevel + 1]);
@@ -586,8 +588,8 @@ public class DictionaryController {
                 if (location != null) allCharmLocations.put(charmLocationId, location.displayName());
 
                 // TIER (must be present)
-                String charmTier = charmData.get("tier").getAsString();
-                charmTierSet.add(charmTier);
+                ItemTier charmTier = ItemTier.of(charmData.get("tier").getAsString());
+                charmTierSet.add(charmTier.name);
 
                 // POWER (must be present)
                 int charmPower = charmData.get("power").getAsInt();
@@ -630,11 +632,7 @@ public class DictionaryController {
             e.printStackTrace();
         }
 
-        charms.sort((o1, o2) -> {
-            if (!o1.tier().equals(o2.tier()))
-                return -(ItemFormatter.getNumberForTier(o1.tier()) - ItemFormatter.getNumberForTier(o2.tier()));
-            return 0;
-        });
+        charms.sort(Comparator.comparingInt(o -> o.tier().ordinal()));
 
         allCharmTiers = new ArrayList<>(charmTierSet);
         allCharmSkillMods = new ArrayList<>(charmSkillModSet);
@@ -713,8 +711,8 @@ public class DictionaryController {
                         default -> throw new AssertionError();
                     };
                     case "Tier" -> switch (comparator) {
-                        case 0 -> item.hasTier() && item.tier().contains(value);
-                        case 1 -> !item.hasTier() || !item.tier().contains(value);
+                        case 0 -> item.hasTier(value);
+                        case 1 -> !item.hasTier(value);
 
                         default -> throw new AssertionError();
                     };
@@ -806,8 +804,8 @@ public class DictionaryController {
                         default -> throw new AssertionError();
                     };
                     case "Tier" -> switch (comparator) {
-                        case 0 -> charm.tier().equals(value);
-                        case 1 -> !charm.tier().equals(value);
+                        case 0 -> charm.tier().name.equals(value);
+                        case 1 -> !charm.tier().name.equals(value);
 
                         default -> throw new AssertionError();
                     };

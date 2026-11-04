@@ -8,6 +8,7 @@ import dev.eliux.monumentaitemdictionary.util.ItemStat;
 import java.util.List;
 import java.util.Objects;
 
+import dev.eliux.monumentaitemdictionary.util.ItemTier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.BookScreen;
 import net.minecraft.item.ItemStack;
@@ -16,7 +17,7 @@ import net.minecraft.nbt.StringNbtReader;
 import org.jetbrains.annotations.NotNull;
 
 //Must be present: name, type, baseItem, lore, nbt, stats
-public record DictionaryItem(String name, String type, String region, List<String> tier, String locationId,
+public record DictionaryItem(String name, String type, String region, List<ItemTier> tier, String locationId,
                              int fishTier, boolean isFish, String baseItem, String lore, List<String> nbt,
                              List<List<ItemStat>> stats, List<String> effects, boolean hasMasterwork) implements Comparable<DictionaryItem> {
 
@@ -26,6 +27,15 @@ public record DictionaryItem(String name, String type, String region, List<Strin
 
     public boolean hasTier() {
         return !tier.isEmpty();
+    }
+
+    public boolean hasTier(String tier) {
+        if (this.tier.isEmpty()) return tier.equals(ItemTier.DEFAULT.name);
+
+        for (ItemTier itemTier : this.tier) {
+            if (itemTier != null && itemTier.name.equals(tier)) return true;
+        }
+        return false;
     }
 
     public boolean hasLocation() {
@@ -43,7 +53,7 @@ public record DictionaryItem(String name, String type, String region, List<Strin
         return false;
     }
 
-    public void addMasterworkTier(String newTier, List<ItemStat> newStats, String newNbt, int level) {
+    public void addMasterworkTier(ItemTier newTier, List<ItemStat> newStats, String newNbt, int level) {
         tier.set(level, newTier);
         stats.set(level, newStats);
         nbt.set(level, newNbt);
@@ -65,12 +75,19 @@ public record DictionaryItem(String name, String type, String region, List<Strin
         return nbt.get(level);
     }
 
-    public String getTierNoMasterwork() {
-        return tier.isEmpty() ? "" : tier.getFirst();
+    public ItemTier getTier() {
+        if (hasMasterwork) return tier.get(getMinMasterwork());
+        return tier.isEmpty() ? ItemTier.DEFAULT : tier.getFirst();
     }
 
-    public String getTierFromMasterwork(int level) {
-        return tier.get(level);
+    public ItemTier getTierAtMasterwork(int level) {
+        if (hasMasterwork) return tier.get(Math.max(level, getMinMasterwork()));
+        return tier.isEmpty() ? ItemTier.DEFAULT : tier.getFirst();
+    }
+
+    public ItemTier getTierAtMaxMasterwork() {
+        if (hasMasterwork) return tier.get(getMaxMasterwork() - 1);
+        return tier.isEmpty() ? ItemTier.DEFAULT : tier.getFirst();
     }
 
     public int getMinMasterwork() {
@@ -135,7 +152,7 @@ public record DictionaryItem(String name, String type, String region, List<Strin
         int regionComparison = ItemFormatter.getNumberForRegion(o.region) - ItemFormatter.getNumberForRegion(this.region);
         if (regionComparison != 0) return regionComparison;
 
-        int tierComparison = ItemFormatter.getNumberForTier(o.hasMasterwork ? o.getTierFromMasterwork(o.getMinMasterwork()) : o.getTierNoMasterwork()) - ItemFormatter.getNumberForTier(this.hasMasterwork ? this.getTierFromMasterwork(this.getMinMasterwork()) : this.getTierNoMasterwork());
+        int tierComparison = this.getTier().ordinal() - o.getTier().ordinal();
         if (tierComparison != 0) return tierComparison;
 
         return name.compareTo(o.name);

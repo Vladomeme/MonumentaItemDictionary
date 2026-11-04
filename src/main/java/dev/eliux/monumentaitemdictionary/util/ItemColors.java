@@ -17,25 +17,6 @@ public class ItemColors {
     static final int TEXT_POSITIVE_CHARM_COLOR = 0x4AC2E5;
     static final int TEXT_NEGATIVE_CHARM_COLOR = 0xD02E28;
 
-    static final int LEGENDARY_COLOR = 0xFFD700;
-    static final int EPIC_COLOR = 0xB314E3;
-    static final int ARTIFACT_COLOR = 0xD02E28;
-    static final int RARE_COLOR = 0x4AC2E5;
-    static final int BASE_COLOR = 0xFFFA75;
-    static final int UNIQUE_COLOR = 0xC8A2C8;
-    static final int PATRON_COLOR = 0x82DB17;
-    static final int EVENT_COLOR = 0x7FFFD4;
-    static final int EVENT_CURRENCY_COLOR = 0xDCAE32;
-    static final int CURRENCY_COLOR = 0xDCAE32;
-    static final int TROPHY_COLOR = 0xCAFFFD;
-    static final int KEY_COLOR = 0x47B6B5;
-    static final int LEGACY_COLOR = 0xEEE6D6;
-    static final int OBFUSCATED_COLOR = 0x5D2D87;
-    static final int FISH_COLOR = 0x1DCC9A;
-
-    static final int UNCOMMON_COLOR = 0xC0C0C0;
-    static final int TIERED_COLOR = 0x555555;
-
     static final int ALCHEMIST_COLOR = 0x81D434;
     static final int WARRIOR_COLOR = 0xD32818;
     static final int CLERIC_COLOR = 0xFFC644;
@@ -45,31 +26,6 @@ public class ItemColors {
     static final int WARLOCK_COLOR = 0xF0489E;
     static final int SHAMAN_COLOR = 0x009900;
     static final int GENERALIST_COLOR = 0x9F8F91;
-
-    public static int getColorForTier(String itemTier) {
-        if (itemTier.isEmpty()) return DEFAULT_COLOR;
-
-        return switch (itemTier) {
-            case "Legendary" -> LEGENDARY_COLOR;
-            case "Epic" -> EPIC_COLOR;
-            case "Artifact" -> ARTIFACT_COLOR;
-            case "Rare" -> RARE_COLOR;
-            case "Base" -> BASE_COLOR;
-            case "Unique" -> UNIQUE_COLOR;
-            case "Event" -> EVENT_COLOR;
-            case "Patron" -> PATRON_COLOR;
-            case "Event Currency" -> CURRENCY_COLOR;
-            case "Currency" -> EVENT_CURRENCY_COLOR;
-            case "Trophy" -> TROPHY_COLOR;
-            case "Key" -> KEY_COLOR;
-            case "Fish" -> FISH_COLOR;
-            case "Legacy" -> LEGACY_COLOR;
-            case "Obfuscated" -> OBFUSCATED_COLOR;
-            case "Uncommon" -> UNCOMMON_COLOR;
-            case "Tier 0", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5" -> TIERED_COLOR;
-            default -> DEFAULT_COLOR;
-        };
-    }
 
     public static int getColorForClass(String charmClass) {
         return switch (charmClass) {

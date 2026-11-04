@@ -5,7 +5,6 @@ import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.gui.item.ItemDictionaryGui;
 import dev.eliux.monumentaitemdictionary.util.Colors;
-import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 
 import net.minecraft.client.MinecraftClient;
@@ -93,8 +92,7 @@ public class ItemButtonWidget extends ClickableWidget {
             fillOpacity = Colors.OPACITY_DEFAULT;
         }
 
-        context.fill(minX, minY, maxX, maxY, fillOpacity | ItemColors.getColorForTier(
-                item.hasMasterwork() ? item.getTierFromMasterwork(item.getMinMasterwork()) : item.getTierNoMasterwork()));
+        context.fill(minX, minY, maxX, maxY, fillOpacity | item.getTier().color);
         context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.enableScissor(0, gui.labelMenuHeight + 1, gui.width, gui.height);

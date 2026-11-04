@@ -81,8 +81,7 @@ public class BuildButtonWidget extends ButtonWidget {
 
             for (DictionaryItem item : build.allItems) {
                 if (item == null) continue;
-                String itemTier = item.hasMasterwork() ? item.getTierFromMasterwork(item.getMaxMasterwork() - 1) : item.getTierNoMasterwork();
-                addNameLoreText(lines, item, itemTier);
+                addNameLoreText(lines, item);
             }
 
             lines.add(Text.literal("SHIFT + Click to toggle favorite on this build").setStyle(Styles.TEXT));
@@ -91,17 +90,18 @@ public class BuildButtonWidget extends ButtonWidget {
         }
     }
 
-    public void addNameLoreText(List<Text> lines, DictionaryItem item, String itemTier) {
+    public void addNameLoreText(List<Text> lines, DictionaryItem item) {
         if (MinecraftClient.getInstance().world == null) return;
 
         NbtCompound nbt = item.getNbt();
 
         if (nbt == null || !nbt.getCompound("display").contains("Name")) {
             //old method
+            ItemTier itemTier = item.getTierAtMaxMasterwork();
             lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
                     .withColor(Colors.BLACK + ItemColors.getColorForLocation(item.locationId()))
-                    .withBold(ItemFormatter.shouldBold(itemTier))
-                    .withUnderline(ItemFormatter.shouldUnderline(itemTier))));
+                    .withBold(itemTier.isBold)
+                    .withUnderline(itemTier.isUnderlined)));
             return;
         }
 

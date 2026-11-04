@@ -339,7 +339,7 @@ public class ItemDictionaryGui extends Screen {
             masterworkTier = itemButton.shownMasterworkTier;
         }
 
-        String itemTier = item.hasMasterwork() ? item.getTierFromMasterwork(Math.max(masterworkTier, item.getMinMasterwork())) : item.getTierNoMasterwork();
+        ItemTier itemTier = item.getTierAtMasterwork(masterworkTier);
         NbtCompound nbt = item.getNbt();
 
         List<Text> lines = new ArrayList<>();
@@ -387,18 +387,14 @@ public class ItemDictionaryGui extends Screen {
 
         if (item.hasRegion() && item.hasTier()) {
             MutableText regionText = Text.literal(ItemFormatter.formatRegion(item.region()) + " : ").setStyle(Styles.TEXT);
-            MutableText tierText = Text.literal(itemTier)
-                    .setStyle(Style.EMPTY
-                            .withColor(ItemColors.getColorForTier(itemTier))
-                            .withBold(ItemFormatter.shouldUnderline(itemTier))
-                            .withObfuscated(itemTier.equals("Obfuscated")));
+            MutableText tierText = itemTier.formattedName;
 
             lines.add(regionText.append(tierText));
         }
 
         if (item.hasMasterwork()) {
             MutableText baseText = Text.literal("Masterwork : ").setStyle(Styles.TEXT);
-            for (int i = 0; i < ItemFormatter.getMasterworkForRarity(itemTier); i ++) {
+            for (int i = 0; i < itemTier.getMasterwork(); i ++) {
                 if (i < masterworkTier)
                     baseText.append(Text.literal("★").setStyle(Styles.MASTERWORK));
                 else
@@ -466,15 +462,15 @@ public class ItemDictionaryGui extends Screen {
         return lines;
     }
 
-    private void addNameLoreText(List<Text> lines, DictionaryItem item, NbtCompound nbt, String itemTier) {
+    private void addNameLoreText(List<Text> lines, DictionaryItem item, NbtCompound nbt, ItemTier itemTier) {
         if (MinecraftClient.getInstance().world == null) return;
 
         if (nbt == null || !nbt.getCompound("display").contains("Name")) {
             //old method
             lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
                     .withColor(Colors.BLACK + ItemColors.getColorForLocation(item.locationId()))
-                    .withBold(!item.isFish() ? ItemFormatter.shouldBold(itemTier) : ItemFormatter.shouldBoldFish(item.fishTier()))
-                    .withUnderline(!item.isFish() ? ItemFormatter.shouldUnderline(itemTier) : ItemFormatter.shouldUnderlineFish(item.fishTier()))));
+                    .withBold(!item.isFish() ? itemTier.isBold : ItemFormatter.shouldBoldFish(item.fishTier()))
+                    .withUnderline(!item.isFish() ? itemTier.isUnderlined : ItemFormatter.shouldUnderlineFish(item.fishTier()))));
             return;
         }
 

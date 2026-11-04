@@ -23,5 +23,5 @@ public class Styles {
     public static final Style CHARM_POWER = Style.EMPTY.withColor(ItemColors.TEXT_CHARM_POWER_COLOR);
     public static final Style GITHUB_LINK = Style.EMPTY.withUnderline(true).withColor(0x5555FF);
     public static final Style MASTERWORK = Style.EMPTY.withColor(ItemColors.TEXT_MASTERWORK_COLOR);
-    public static final Style FISH = Style.EMPTY.withColor(ItemColors.FISH_COLOR);
+    public static final Style FISH = Style.EMPTY.withColor(0x1DCC9A);
 }

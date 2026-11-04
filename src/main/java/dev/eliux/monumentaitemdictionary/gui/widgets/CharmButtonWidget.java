@@ -7,7 +7,6 @@ import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.CharmDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.util.Colors;
-import dev.eliux.monumentaitemdictionary.util.ItemColors;
 import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -42,9 +41,9 @@ public class CharmButtonWidget extends ClickableWidget {
         NbtCompound monumenta = new NbtCompound();
         monumenta.putInt("CharmPower", charm.power());
         monumenta.putString("Tier", switch (charm.tier()) {
-            case "Base" -> "charm";
-            case "Rare" -> "rarecharm";
-            case "Epic" -> "epiccharm";
+            case BASE -> "charm";
+            case RARE -> "rarecharm";
+            case EPIC -> "epiccharm";
             default -> "";
         });
         builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
@@ -85,7 +84,7 @@ public class CharmButtonWidget extends ClickableWidget {
             fillOpacity = Colors.OPACITY_DEFAULT;
         }
 
-        context.fill(minX, minY, maxX, maxY, fillOpacity + ItemColors.getColorForTier(charm.tier()));
+        context.fill(minX, minY, maxX, maxY, fillOpacity + charm.tier().color);
         context.drawBorder(minX, minY, width, height, outlineColor);
 
         context.enableScissor(0, gui.labelMenuHeight + 1, gui.width, gui.height);

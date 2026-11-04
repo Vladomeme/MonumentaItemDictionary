@@ -297,10 +297,7 @@ public class CharmDictionaryGui extends Screen {
         addNameLoreText(lines, charm, nbt);
 
         MutableText region = Text.literal(charm.region() + " : ").setStyle(Styles.TEXT);
-        MutableText tier = Text.literal(ItemFormatter.formatCharmTier(charm.tier()))
-                .setStyle(Style.EMPTY
-                        .withColor(ItemColors.getColorForTier(charm.tier()))
-                        .withBold(ItemFormatter.shouldUnderline(charm.tier())));
+        MutableText tier = charm.tier().formattedCharmName;
         lines.add(region.append(tier));
 
         MutableText charmPowerDesc = Text.literal("Charm Power : ").setStyle(Styles.TEXT);
@@ -352,8 +349,8 @@ public class CharmDictionaryGui extends Screen {
             //old method
             lines.add(Text.literal(charm.name()).setStyle(Style.EMPTY
                     .withColor(Colors.BLACK + ItemColors.getColorForLocation(charm.locationId()))
-                    .withBold(ItemFormatter.shouldBold(charm.tier()))
-                    .withUnderline(ItemFormatter.shouldUnderline(charm.tier()))));
+                    .withBold(charm.tier().isBold)
+                    .withUnderline(charm.tier().isUnderlined)));
             return;
         }
 
