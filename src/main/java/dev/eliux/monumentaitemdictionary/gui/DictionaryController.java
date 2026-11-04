@@ -51,7 +51,6 @@ public class DictionaryController {
     public List<String> allItemBaseItems;
     public List<String> allItemEffects;
 
-    public List<String> allCharmRegions;
     public List<String> allCharmTiers;
     public Map<String, String> allCharmLocations;
     public List<String> allCharmSkillMods;
@@ -378,12 +377,11 @@ public class DictionaryController {
 
     public void loadItems() {
         Set<String> itemTypeSet = new HashSet<>();
-        Set<String> itemRegionSet = new HashSet<>();
         Set<String> itemTierSet = new HashSet<>();
         Set<String> itemStatSet = new HashSet<>();
         Set<String> itemBaseSet = new HashSet<>();
         Set<String> itemEffectSet = new HashSet<>();
-        allItemLocations = new HashMap<>();
+        List<Pair<String, String>> itemLocations = new ArrayList<>();
 
         Map<String, DictionaryItem> masterworkItems = new HashMap<>();
 
@@ -418,10 +416,7 @@ public class DictionaryController {
                 // REGION
                 String itemRegion = "";
                 JsonPrimitive regionPrimitive = itemData.getAsJsonPrimitive("region");
-                if (regionPrimitive != null) {
-                    itemRegion = regionPrimitive.getAsString();
-                    itemRegionSet.add(itemRegion);
-                }
+                if (regionPrimitive != null) itemRegion = regionPrimitive.getAsString();
 
                 // TIER
                 String itemTier = "";
@@ -437,7 +432,7 @@ public class DictionaryController {
                 if (locationIdPrimitive != null) {
                     itemLocationId = locationIdPrimitive.getAsString();
                     Location location = locationData.get(itemLocationId);
-                    if (location != null) allItemLocations.put(itemLocationId, location.displayName());
+                    if (location != null) itemLocations.add(new Pair<>(itemLocationId, location.displayName()));
                 }
 
                 // FISH TIER
@@ -540,12 +535,21 @@ public class DictionaryController {
         }
         items.sort(DictionaryItem::compareTo);
 
+        allItemRegions = List.of("Valley", "Isles", "Ring"); //hardcoded order
         allItemTypes = new ArrayList<>(itemTypeSet);
-        allItemRegions = new ArrayList<>(itemRegionSet);
         allItemTiers = new ArrayList<>(itemTierSet);
         allItemStats = new ArrayList<>(itemStatSet);
         allItemBaseItems = new ArrayList<>(itemBaseSet);
         allItemEffects = new ArrayList<>(itemEffectSet);
+        allItemTypes.sort(null);
+        allItemTiers.sort(null);
+        allItemStats.sort(null);
+        allItemBaseItems.sort(null);
+        allItemEffects.sort(null);
+
+        itemLocations.sort(Comparator.comparing(Pair::getB));
+        allItemLocations = new LinkedHashMap<>();
+        for (Pair<String, String> pair : itemLocations) allItemLocations.put(pair.getA(), pair.getB());
     }
 
     public void loadCharms() {
@@ -554,7 +558,6 @@ public class DictionaryController {
         Set<String> charmClassSet = new HashSet<>();
         Set<String> charmStatSet = new HashSet<>();
         Set<String> charmBaseSet = new HashSet<>();
-        allCharmRegions = List.of("Architect's Ring"); // Only one region (for now?)
         allCharmLocations = new HashMap<>();
 
         try {
@@ -638,6 +641,11 @@ public class DictionaryController {
         allCharmClasses = new ArrayList<>(charmClassSet);
         allCharmStats = new ArrayList<>(charmStatSet);
         allCharmBaseItems = new ArrayList<>(charmBaseSet);
+        allCharmTiers.sort(null);
+        allCharmSkillMods.sort(null);
+        allCharmClasses.sort(null);
+        allCharmStats.sort(null);
+        allCharmBaseItems.sort(null);
     }
 
     public void setItemNameFilter(String nameFilter) {
