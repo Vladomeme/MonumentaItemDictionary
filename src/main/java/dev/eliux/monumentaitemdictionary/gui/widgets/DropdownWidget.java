@@ -80,31 +80,43 @@ public class DropdownWidget extends TextFieldWidget {
     // must be called manually
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (isMouseOver(mouseX, mouseY) || isFocused()) {
-            setFocused(true);
-            for (int i = 0; i < Math.min(validChoices.size(), maxShown); i ++) {
+        if (!visible || (!isFocused() && !isMouseOver(mouseX, mouseY))) return false;
+
+        //if the header is clicked again while focused, remove focus
+        if (isFocused() && isMouseOver(mouseX, mouseY)) {
+            setFocused(false);
+            setText(visualLastChoice);
+            choiceProvider.resetValidChoices();
+            visualValidChoices = new ArrayList<>(visualChoices);
+            return true;
+        }
+
+        //if focused, let the options consume the click & remove focus regardless of outcome
+        if (isFocused()) {
+            for (int i = 0; i < Math.min(validChoices.size(), maxShown); i++) {
                 if (mouseX >= getX() && mouseX <= getX() + width && mouseY >= getY() + height + ((height + 1) * i) && mouseY < getY() + height + ((height + 1) * (i + 1))) {
                     lastChoice = validChoices.get(i + scrollAmount);
                     visualLastChoice = visualValidChoices.get(i + scrollAmount);
+                    setText(visualLastChoice);
                     onUpdate.accept(lastChoice);
-                    setFocused(false);
 
                     playDownSound(MinecraftClient.getInstance().getSoundManager());
+                    setFocused(false);
+                    return true;
                 }
             }
-        }
-
-        if (isFocused()) {
-            setText("");
+            setFocused(false);
+            setText(visualLastChoice);
             choiceProvider.resetValidChoices();
             visualValidChoices = new ArrayList<>(visualChoices);
         }
-        else setText(visualLastChoice);
-
-        if (!isFocused() || !(mouseX >= getX()) || !(mouseX <= getX() + width) || !(mouseY >= getY()) || !(mouseY <= getY() + height)) {
-            super.mouseClicked(mouseX, mouseY, button);
+        //if not focused, set focus & reset the options
+        else {
+            setText("");
+            choiceProvider.resetValidChoices();
+            visualValidChoices = new ArrayList<>(visualChoices);
+            setFocused(true);
         }
-
         return true;
     }
 
