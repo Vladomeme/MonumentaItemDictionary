@@ -45,7 +45,7 @@ public class BuilderGui extends Screen {
     private final List<BuildCharmButtonWidget> buildCharmButtons = new ArrayList<>();
     public List<DictionaryCharm> charms = new ArrayList<>();
     public List<DictionaryItem> buildItems = Arrays.asList(null, null, null, null, null, null);
-    private Regions region = Regions.ARCHITECTS_RING;
+    private ItemRegion region = ItemRegion.RING;
     private ClassName className = ClassName.NO_CLASS;
     private Specializations specialization = Specializations.NO_SPECIALIZATION;
     public DictionaryItem itemOnBuildButton;
@@ -73,7 +73,7 @@ public class BuilderGui extends Screen {
     private ItemIconButtonWidget showBuildDictionaryButton;
     private ItemIconButtonWidget buildClipboard;
     private ItemIconButtonWidget addBuildButton;
-    private CyclingButtonWidget<Regions> regionButton;
+    private CyclingButtonWidget<ItemRegion> regionButton;
     private Map<String, Boolean> enabledSituationals;
     private Map<String, Boolean> enabledInfusions;
     private final List<CheckBoxWidget> situationalCheckBoxList = new ArrayList<>();
@@ -142,20 +142,15 @@ public class BuilderGui extends Screen {
                     if (itemOnBuildButton == null) statusText = Text.literal("Please select an item to appear on your Build Icon").setStyle(Styles.RED);
                     else if (nameBar.getText().isBlank()) statusText = Text.literal("Please put a name to your Build").setStyle(Styles.RED);
                     else {
-                        String regionName = switch (region) {
-                           case ARCHITECTS_RING -> "Ring";
-                            case CELSIAN_ISLES -> "Isles";
-                           case KINGS_VALLEY -> "Valley";
-                        };
                         controller.buildDictionaryGui.addBuild(nameBar.getText(), buildItems, charms,
-                                itemOnBuildButton, regionName, className.getText().getString(), specialization.getText().getString());
+                                itemOnBuildButton, region, className.getText().getString(), specialization.getText().getString());
                         controller.setBuildDictionaryScreen();
                     }
                 }, Text.literal("Add Build To Dictionary"), "writable_book", "");
 
-        regionButton = CyclingButtonWidget.builder(Regions::getText)
-                .values(Regions.values())
-                .initially(Regions.ARCHITECTS_RING)
+        regionButton = CyclingButtonWidget.builder(ItemRegion::text)
+                .values(ItemRegion.regions())
+                .initially(ItemRegion.RING)
                 .build(55, 5, 125, 20, Text.literal("Region"), (button, region) -> {
                     this.region = region;
                     updateStats();
@@ -196,7 +191,7 @@ public class BuilderGui extends Screen {
             put("perspicacity", false);
         }};
 
-        buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region.toString());
+        buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region);
         updateButtons();
         updateGuiPositions();
     }
@@ -215,7 +210,7 @@ public class BuilderGui extends Screen {
             DictionaryItem item  = buildItems.get(i);
             baseUrl.append(itemTypesIndex.get(i).substring(0, 1).toLowerCase()).append("=");
             if (item != null) {
-                if (!item.region().equals("Ring")) {
+                if (item.region() != ItemRegion.RING) {
                     if (item.name().equals("Carcano 91/38"))
                         baseUrl.append(item.name().replace(" ", "%20").replace("/", "")).append("&"); //CARCANO HARDCODE
                     else baseUrl.append(item.name().replace(" ", "%20")).append("&");
@@ -277,7 +272,7 @@ public class BuilderGui extends Screen {
                 })
                 .initially(specialization)
                 .build(halfWidth + halfWidthPadding,
-                        labelMenuHeight + itemPadding + (itemPadding+buttonSize)*2 + 25,
+                        labelMenuHeight + itemPadding + (itemPadding+buttonSize) * 2 + 25,
                         width - sideMenuWidth - halfWidth - halfWidthPadding, 20,
                         Text.literal("Spec"),
                         (button, specialization) -> this.specialization = specialization);
@@ -503,7 +498,7 @@ public class BuilderGui extends Screen {
 
     public void updateStats() {
         updateCheckBoxes();
-        buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region.toString());
+        buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region);
         statsToRender.clear();
         Map<String, String> statFormatter = StatsFormats.statFormats;
         Field[] allFields = Stats.class.getFields();
@@ -549,7 +544,7 @@ public class BuilderGui extends Screen {
         buildItems = build.allItems;
         charms = build.charms.isEmpty() ? new ArrayList<>() : build.charms;
 
-        regionButton.setValue(region.getRegion(build.region));
+        regionButton.setValue(build.region);
         classButton.setValue(className.getClass(build.className));
         specializationButton.setValue(specialization.getSpecialization(build.specialization));
 
@@ -565,10 +560,10 @@ public class BuilderGui extends Screen {
         nameBar.setText("");
         charms.clear();
         classButton.setValue(ClassName.NO_CLASS);
-        regionButton.setValue(Regions.ARCHITECTS_RING);
+        regionButton.setValue(ItemRegion.RING);
         specializationButton.setValue(Specializations.NO_SPECIALIZATION);
         itemOnBuildButton = null;
-        buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region.toString());
+        buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region);
         scrollPixels = 0;
         updateStats();
         updateCheckBoxes();
@@ -796,36 +791,6 @@ public class BuilderGui extends Screen {
         super.charTyped(chr, modifiers);
         nameBar.charTyped(chr, modifiers);
         return true;
-    }
-
-    enum Regions {
-        KINGS_VALLEY(Text.literal("King's Valley")),
-        CELSIAN_ISLES(Text.literal("Celsian Isles")),
-        ARCHITECTS_RING(Text.literal("Architect's Ring"));
-
-        private final Text text;
-
-        Regions(Text text) {
-            this.text = text;
-        }
-
-        public Text getText() {
-            return this.text;
-        }
-
-        public String toString() {
-            return this.name();
-        }
-
-        @SuppressWarnings("DuplicateBranchesInSwitch")
-        public Regions getRegion(String region) {
-            return switch (region) {
-                case "Valley" -> KINGS_VALLEY;
-                case "Isles" -> CELSIAN_ISLES;
-                case "Ring" -> ARCHITECTS_RING;
-                default -> ARCHITECTS_RING;
-            };
-        }
     }
 
     enum ClassName {

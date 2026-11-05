@@ -386,7 +386,7 @@ public class ItemDictionaryGui extends Screen {
             lines.add(Text.literal("* Alchemical Utensil *").setStyle(Styles.TEXT));
 
         if (item.hasRegion() && item.hasTier()) {
-            MutableText regionText = Text.literal(ItemFormatter.formatRegion(item.region()) + " : ").setStyle(Styles.TEXT);
+            MutableText regionText = Text.literal(item.region().name + " : ").setStyle(Styles.TEXT);
             MutableText tierText = itemTier.formattedName;
 
             lines.add(regionText.append(tierText));

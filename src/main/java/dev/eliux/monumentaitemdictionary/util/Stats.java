@@ -108,10 +108,10 @@ public class Stats {
     private final Map<String, Integer> situationalsLevels;
     private final Map<String, Boolean> enabledSituationals;
     private final Map<String, List<ItemStat>> allItemStats = new HashMap<>();
-    private final String currentRegion;
+    private final ItemRegion currentRegion;
 
     public Stats(List<DictionaryItem> items, Map<String, Boolean> enabledSituationals, Map<String, Boolean> infusions,
-                 double currentHealthPercent, String currentRegion) {
+                 double currentHealthPercent, ItemRegion currentRegion) {
         this.enabledSituationals = enabledSituationals;
         vitality = (infusions.get("vitality")) ? 24 : 0;
         tenacity = (infusions.get("tenacity")) ? 24 : 0;
@@ -197,24 +197,8 @@ public class Stats {
         boolean hasEqual = armor == agility;
         boolean hasNothing = (hasEqual && armor == 0);
 
-        double maxDefStat;
-        double regionMulti;
-
-        switch (currentRegion) {
-            case "KINGS_VALLEY" -> {
-                regionMulti = 0.2;
-                maxDefStat = 20;
-            }
-            case "CELSIAN_ISLES" -> {
-                regionMulti = 0.25;
-                maxDefStat = 30;
-            }
-            default -> {
-                regionMulti = 0.3;
-                maxDefStat = 36;
-            }
-        }
-
+        double maxDefStat = currentRegion.defStatLimit;
+        double regionMulti = currentRegion.ehpMulti;
 
         double eArmor = min(armor, maxDefStat);
         double eAgility = min(agility, maxDefStat);

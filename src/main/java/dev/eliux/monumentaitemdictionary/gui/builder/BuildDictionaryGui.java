@@ -8,6 +8,7 @@ import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.gui.widgets.BuildButtonWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
 import dev.eliux.monumentaitemdictionary.util.Colors;
+import dev.eliux.monumentaitemdictionary.util.ItemRegion;
 import dev.eliux.monumentaitemdictionary.util.Styles;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -186,7 +187,7 @@ public class BuildDictionaryGui extends Screen {
     }
 
     public void addBuild(String name, List<DictionaryItem> items, List<DictionaryCharm> charms, DictionaryItem itemOnBuildButton,
-                         String region, String className, String specialization) {
+                         ItemRegion region, String className, String specialization) {
         if (name.isEmpty()) name = "No Name";
         int id = controller.generateNewId();
 
@@ -207,7 +208,7 @@ public class BuildDictionaryGui extends Screen {
             if (item != null) {
                 JsonObject itemJson = new JsonObject();
                 itemJson.addProperty("name", item.name());
-                itemJson.addProperty("exalted", item.region().equals("Ring"));
+                itemJson.addProperty("exalted", item.region() == ItemRegion.RING);
 
                 itemsJson.add(item.type(), itemJson);
             }
@@ -224,13 +225,13 @@ public class BuildDictionaryGui extends Screen {
         jsonBuild.addProperty("name", build.name);
         jsonBuild.add("items", itemsJson);
         jsonBuild.add("charms", charmsArray);
-        jsonBuild.addProperty("region", build.region);
+        jsonBuild.addProperty("region", build.region.apiName);
         jsonBuild.addProperty("class", build.className);
         jsonBuild.addProperty("specialization", build.specialization);
 
         JsonObject itemToShowJson = new JsonObject();
         itemToShowJson.addProperty("name", build.itemOnButton.name());
-        itemToShowJson.addProperty("exalted", build.itemOnButton.region().equals("Ring"));
+        itemToShowJson.addProperty("exalted", build.itemOnButton.region() == ItemRegion.RING);
         jsonBuild.add("item_to_show", itemToShowJson);
         jsonBuild.addProperty("favorite", build.favorite);
 

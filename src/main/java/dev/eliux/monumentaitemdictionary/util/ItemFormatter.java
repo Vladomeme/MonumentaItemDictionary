@@ -44,15 +44,6 @@ public class ItemFormatter {
 
     private static final Set<String> hiddenStats = new HashSet<>(List.of("noglint", "hideenchants", "hideinfo", "utility_item_for_armory"));
 
-    public static String formatRegion(String inRegion) {
-        return switch (inRegion) {
-            case "Valley" -> "King's Valley";
-            case "Isles" -> "Celsian Isles";
-            case "Ring" -> "Architect's Ring";
-            default -> inRegion;
-        };
-    }
-
     public static String buildStatString(String name, float value) {
         if (isStat(name))
             return (value < 0 ? "" : (isBaseStat(name) ? " " : "+")) + (name.equals("knockback_resistance_flat") ? 10 * value
@@ -71,15 +62,6 @@ public class ItemFormatter {
 
     public static boolean shouldUnderlineFish(int fishTier) {
         return (fishTier >= 5);
-    }
-
-    public static int getNumberForRegion(String inRegion) {
-        return switch (inRegion) {
-            case "Ring" -> 3;
-            case "Isles" -> 2;
-            case "Valley" -> 1;
-            default -> 0;
-        };
     }
 
     public static Text getLocationText(String locationId) {
@@ -184,10 +166,6 @@ public class ItemFormatter {
             if (stat.startsWith(s)) return s;
         }
         return "ERR";
-    }
-
-    public static String formatCharmTier(String tier) {
-        return (tier.equals("Base") ? "" : tier + " ") + "Charm";
     }
 
     public static String formatCharmStat(String inStat) {

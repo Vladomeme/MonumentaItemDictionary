@@ -1,14 +1,11 @@
 package dev.eliux.monumentaitemdictionary.gui.item;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.eliux.monumentaitemdictionary.util.ItemFactory;
-import dev.eliux.monumentaitemdictionary.util.ItemFormatter;
-import dev.eliux.monumentaitemdictionary.util.ItemStat;
+import dev.eliux.monumentaitemdictionary.util.*;
 
 import java.util.List;
 import java.util.Objects;
 
-import dev.eliux.monumentaitemdictionary.util.ItemTier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.BookScreen;
 import net.minecraft.item.ItemStack;
@@ -17,12 +14,12 @@ import net.minecraft.nbt.StringNbtReader;
 import org.jetbrains.annotations.NotNull;
 
 //Must be present: name, type, baseItem, lore, nbt, stats
-public record DictionaryItem(String name, String type, String region, List<ItemTier> tier, String locationId,
+public record DictionaryItem(String name, String type, ItemRegion region, List<ItemTier> tier, String locationId,
                              int fishTier, boolean isFish, String baseItem, String lore, List<String> nbt,
                              List<List<ItemStat>> stats, List<String> effects, boolean hasMasterwork) implements Comparable<DictionaryItem> {
 
     public boolean hasRegion() {
-        return !region.isEmpty();
+        return region != ItemRegion.DEFAULT;
     }
 
     public boolean hasTier() {
@@ -149,7 +146,7 @@ public record DictionaryItem(String name, String type, String region, List<ItemT
 
     @Override
     public int compareTo(@NotNull DictionaryItem o) {
-        int value = ItemFormatter.getNumberForRegion(o.region) - ItemFormatter.getNumberForRegion(region);
+        int value = o.region.ordinal() - region.ordinal();
         if (value != 0) return value;
 
         value = getTier().ordinal() - o.getTier().ordinal();

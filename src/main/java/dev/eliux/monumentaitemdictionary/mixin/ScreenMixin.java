@@ -5,6 +5,7 @@ import dev.eliux.monumentaitemdictionary.gui.builder.DictionaryBuild;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
+import dev.eliux.monumentaitemdictionary.util.ItemRegion;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
@@ -129,23 +130,24 @@ public abstract class ScreenMixin {
             }
         }
 
-        if(!slotItemNames.get(45).equals("Class Excluded")) {
+        if (!slotItemNames.get(45).equals("Class Excluded")) {
             String classInfo = slotItemNames.get(47);
             className = classInfo.substring(0, classInfo.indexOf(" "));
             specializationName = classInfo.substring(classInfo.indexOf("(") + 1, classInfo.indexOf(")"));
         }
 
         int id = controller.generateNewId();
-        return new DictionaryBuild(name, itemsFromBuild, charms, null, "", className, specializationName, false, id);
+        return new DictionaryBuild(name, itemsFromBuild, charms, null, ItemRegion.DEFAULT, className, specializationName, false, id);
     }
 
     @Unique
     private static DictionaryBuild getBuildFromPlayerStats(MinecraftClient client, DefaultedList<Slot> slots, DictionaryController controller) {
         List<DictionaryItem> itemsFromBuild;
-        String region = slots.get(4).getStack().getName().getString();
-        if (region.contains("Ring")) region = "Ring";
-        else if (region.contains("Isles")) region = "Isles";
-        else if (region.contains("Valley")) region = "Valley";
+        String regionName = slots.get(4).getStack().getName().getString();
+        ItemRegion region = ItemRegion.DEFAULT;
+        if (regionName.contains("Ring")) region = ItemRegion.RING;
+        else if (regionName.contains("Isles")) region = ItemRegion.ISLES;
+        else if (regionName.contains("Valley")) region = ItemRegion.VALLEY;
 
         List<Integer> slotsInOrderOfBuildRightSide = Arrays.asList(52, 25, 26, 35, 44, 53);
         List<Integer> slotsInOrderOfBuildLeftSide = Arrays.asList(46, 19, 18, 27, 36, 45);

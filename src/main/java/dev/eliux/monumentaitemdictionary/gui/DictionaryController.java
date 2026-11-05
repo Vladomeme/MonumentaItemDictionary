@@ -308,7 +308,7 @@ public class DictionaryController {
                 JsonObject buildData = (JsonObject) buildElement.getValue();
 
                 String buildName = buildData.get("name").getAsString();
-                String buildRegion = buildData.get("region").getAsString();
+                ItemRegion buildRegion = ItemRegion.of(buildData.get("region").getAsString());
                 String buildClass = buildData.get("class").getAsString();
                 String buildSpecialization = buildData.get("specialization").getAsString();
                 boolean buildFavorite = buildData.get("favorite").getAsBoolean();
@@ -415,9 +415,9 @@ public class DictionaryController {
                 else continue;
 
                 // REGION
-                String itemRegion = "";
+                ItemRegion itemRegion = ItemRegion.DEFAULT;
                 JsonPrimitive regionPrimitive = itemData.getAsJsonPrimitive("region");
-                if (regionPrimitive != null) itemRegion = regionPrimitive.getAsString();
+                if (regionPrimitive != null) itemRegion = ItemRegion.of(regionPrimitive.getAsString());
 
                 // TIER
                 ItemTier itemTier = ItemTier.DEFAULT;
@@ -537,7 +537,7 @@ public class DictionaryController {
         }
         items.sort(DictionaryItem::compareTo);
 
-        allItemRegions = List.of("Valley", "Isles", "Ring"); //hardcoded order
+        allItemRegions = Arrays.asList(ItemRegion.names());
         allItemTypes = new ArrayList<>(itemTypeSet);
         allItemTiers = new ArrayList<>(itemTierSet);
         allItemStats = new ArrayList<>(itemStatSet);
@@ -625,7 +625,7 @@ public class DictionaryController {
                 }
                 if (charmStats.isEmpty()) charmStats = List.of();
 
-                charms.add(new DictionaryCharm(charmName, "Architect's Ring", charmLocationId, charmTier, charmPower, charmClass, charmBaseItem, charmNbt, charmStats));
+                charms.add(new DictionaryCharm(charmName, charmLocationId, charmTier, charmPower, charmClass, charmBaseItem, charmNbt, charmStats));
             }
         }
         catch (Exception e) {
@@ -717,8 +717,8 @@ public class DictionaryController {
                         default -> throw new AssertionError();
                     };
                     case "Region" -> switch (comparator) {
-                        case 0 -> item.hasRegion() && item.region().equals(value);
-                        case 1 -> !item.hasRegion() || !item.region().equals(value);
+                        case 0 -> item.region().apiName.equals(value);
+                        case 1 -> !item.region().apiName.equals(value);
 
                         default -> throw new AssertionError();
                     };
@@ -876,10 +876,10 @@ public class DictionaryController {
                 String value = filter.value;
                 int comparator = filter.comparator;
 
-                if(!switch (filter.getOption()) {
+                if (!switch (filter.getOption()) {
                     case "Region" -> switch (comparator) {
-                        case 0 -> build.region.equals(value);
-                        case 1 -> !build.region.equals(value);
+                        case 0 -> build.region.apiName.equals(value);
+                        case 1 -> !build.region.apiName.equals(value);
 
                         default -> throw new AssertionError();
                     };
@@ -914,7 +914,7 @@ public class DictionaryController {
     public DictionaryItem getItemByName(String itemName, boolean isExalted) {
         for (DictionaryItem item : items) {
             if (item.name().equals(itemName)
-                    && (isExalted && item.region().equals("Ring") || (!isExalted && !item.region().equals("Ring")))) return item;
+                    && ((isExalted && (item.region() == ItemRegion.RING)) || (!isExalted && (item.region() != ItemRegion.RING)))) return item;
         }
         return null;
     }

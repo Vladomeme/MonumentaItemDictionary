@@ -296,7 +296,7 @@ public class CharmDictionaryGui extends Screen {
 
         addNameLoreText(lines, charm, nbt);
 
-        MutableText region = Text.literal(charm.region() + " : ").setStyle(Styles.TEXT);
+        MutableText region = Text.literal(charm.region().name + " : ").setStyle(Styles.TEXT);
         MutableText tier = charm.tier().formattedCharmName;
         lines.add(region.append(tier));
 
