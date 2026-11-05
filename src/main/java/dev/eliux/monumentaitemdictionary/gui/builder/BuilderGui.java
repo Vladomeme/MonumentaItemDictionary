@@ -601,12 +601,12 @@ public class BuilderGui extends Screen {
 
     public int getNameColor(DictionaryItem item) {
         if (MinecraftClient.getInstance().world == null)
-            return ItemColors.getColorForLocation(item.locationId());
+            return Location.colorOf(item.locationId());
 
         NbtCompound nbt = item.getNbt();
 
         if (nbt == null || !nbt.getCompound("display").contains("Name"))
-            return ItemColors.getColorForLocation(item.locationId());
+            return Location.colorOf(item.locationId());
 
         String nameJson = nbt.getCompound("display").getString("Name");
         Text text = Text.Serialization.fromJson(nameJson, MinecraftClient.getInstance().world.getRegistryManager());
@@ -618,7 +618,7 @@ public class BuilderGui extends Screen {
             }
         }
 
-        return ItemColors.getColorForLocation(item.locationId());
+        return Location.colorOf(item.locationId());
     }
 
     private String getSlidingText(String text, int xi, int xf, boolean bold) {

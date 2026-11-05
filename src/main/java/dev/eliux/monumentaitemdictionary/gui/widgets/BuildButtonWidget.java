@@ -98,7 +98,7 @@ public class BuildButtonWidget extends ButtonWidget {
             //old method
             ItemTier itemTier = item.getTierAtMaxMasterwork();
             lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
-                    .withColor(Colors.BLACK + ItemColors.getColorForLocation(item.locationId()))
+                    .withColor(Colors.BLACK + Location.colorOf(item.locationId()))
                     .withBold(itemTier.isBold)
                     .withUnderline(itemTier.isUnderlined)));
             return;

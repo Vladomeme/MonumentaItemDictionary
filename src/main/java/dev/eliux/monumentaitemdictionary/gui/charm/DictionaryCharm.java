@@ -8,9 +8,8 @@ import dev.eliux.monumentaitemdictionary.util.ItemTier;
 import java.util.List;
 import java.util.Objects;
 
-//All values must be present
 public record DictionaryCharm(String name, String locationId, ItemTier tier, int power, PlayerClass itemClass,
-                              String baseItem, String nbt, List<CharmStat> stats) {
+                              String baseItem, String lore, String nbt, List<CharmStat> stats) {
 
     @SuppressWarnings("SameReturnValue")
     public ItemRegion region() {

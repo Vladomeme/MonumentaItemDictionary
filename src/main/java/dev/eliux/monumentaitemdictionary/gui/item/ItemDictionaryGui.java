@@ -422,7 +422,7 @@ public class ItemDictionaryGui extends Screen {
             if (hasShiftDown()) {
                 for (String line : item.lore().split("\n")) {
                     lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(
-                            ItemColors.mixHexes(ItemColors.TEXT_COLOR, ItemColors.getColorForLocation(item.locationId()), 0.67))));
+                            ItemColors.mixHexes(ItemColors.TEXT_COLOR, Location.colorOf(item.locationId()), 0.67))));
                 }
             }
             else lines.add(Text.literal("Press [SHIFT] to show lore.").setStyle(Styles.TEXT));
@@ -468,7 +468,7 @@ public class ItemDictionaryGui extends Screen {
         if (nbt == null || !nbt.getCompound("display").contains("Name")) {
             //old method
             lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
-                    .withColor(Colors.BLACK + ItemColors.getColorForLocation(item.locationId()))
+                    .withColor(Colors.BLACK + Location.colorOf(item.locationId()))
                     .withBold(!item.isFish() ? itemTier.isBold : ItemFormatter.shouldBoldFish(item.fishTier()))
                     .withUnderline(!item.isFish() ? itemTier.isUnderlined : ItemFormatter.shouldUnderlineFish(item.fishTier()))));
             return;

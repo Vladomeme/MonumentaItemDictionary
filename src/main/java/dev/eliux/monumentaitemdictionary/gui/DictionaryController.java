@@ -660,6 +660,11 @@ public class DictionaryController {
                 String charmBaseItem = charmData.get("base_item").getAsString();
                 charmBaseSet.add(charmBaseItem);
 
+                // LORE
+                String charmLore = "";
+                JsonPrimitive lorePrimitive = charmData.getAsJsonPrimitive("lore");
+                if (lorePrimitive != null) charmLore = lorePrimitive.getAsString();
+
                 // NBT
                 String charmNbt = "{}";
                 if (charmData.has("nbt")) charmNbt = charmData.get("nbt").getAsString();
@@ -683,7 +688,7 @@ public class DictionaryController {
                 }
                 if (charmStats.isEmpty()) charmStats = List.of();
 
-                charms.add(new DictionaryCharm(charmName, charmLocationId, charmTier, charmPower, charmClass, charmBaseItem, charmNbt, charmStats));
+                charms.add(new DictionaryCharm(charmName, charmLocationId, charmTier, charmPower, charmClass, charmBaseItem, charmLore, charmNbt, charmStats));
             }
         }
         catch (Exception e) {

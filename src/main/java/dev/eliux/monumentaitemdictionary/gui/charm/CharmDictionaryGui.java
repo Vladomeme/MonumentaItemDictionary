@@ -311,6 +311,16 @@ public class CharmDictionaryGui extends Screen {
         if (Mid.controller.locationData.containsKey(charm.locationId()))
             lines.add(ItemFormatter.getLocationText(charm.locationId()));
 
+        if (!charm.lore().isEmpty()) {
+            if (hasShiftDown()) {
+                for (String line : charm.lore().split("\n")) {
+                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(
+                            ItemColors.mixHexes(ItemColors.TEXT_COLOR, Location.colorOf(charm.locationId()), 0.67))));
+                }
+            }
+            else lines.add(Text.literal("Press [SHIFT] to show lore.").setStyle(Styles.TEXT));
+        }
+
         if (!charm.stats().isEmpty()) {
             lines.add(Text.empty());
 
@@ -348,7 +358,7 @@ public class CharmDictionaryGui extends Screen {
         if (nbt == null || !nbt.getCompound("display").contains("Name")) {
             //old method
             lines.add(Text.literal(charm.name()).setStyle(Style.EMPTY
-                    .withColor(Colors.BLACK + ItemColors.getColorForLocation(charm.locationId()))
+                    .withColor(Colors.BLACK + Location.colorOf(charm.locationId()))
                     .withBold(charm.tier().isBold)
                     .withUnderline(charm.tier().isUnderlined)));
             return;

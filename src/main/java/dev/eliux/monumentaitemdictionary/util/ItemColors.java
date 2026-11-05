@@ -1,7 +1,5 @@
 package dev.eliux.monumentaitemdictionary.util;
 
-import dev.eliux.monumentaitemdictionary.Mid;
-
 public class ItemColors {
 
     public static final int TEXT_COLOR = 0x555555;
@@ -36,11 +34,6 @@ public class ItemColors {
                 || (charmStat.statNameFull().contains("threshold") && !(charmStat.statNameFull().contains("coup_de_grace")))
                 || (charmStat.statLocked() && charmStat.statNameFull().equals("amplifying_hex_max_debuffs_flat"));
         return (positive ^ inverted) ? TEXT_POSITIVE_CHARM_COLOR : TEXT_NEGATIVE_CHARM_COLOR;
-    }
-
-    public static int getColorForLocation(String locationId) {
-        Location location = Mid.controller.locationData.get(locationId);
-        return location != null ? location.color() : 0xFFFFFF;
     }
 
     public static int getColorForStat(String itemStat, float value) {

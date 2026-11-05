@@ -9,6 +9,7 @@ import static dev.eliux.monumentaitemdictionary.util.Specialization.*;
 
 public enum PlayerClass {
 
+    //           Name           Color
     NO_CLASS    ("No Class",    0xFFFFFF,
             new Specialization[]{NO_SPECIALIZATION}),
     MAGE        ("Mage",        0xA129D3,

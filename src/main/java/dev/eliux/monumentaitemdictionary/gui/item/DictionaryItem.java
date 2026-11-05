@@ -13,7 +13,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import org.jetbrains.annotations.NotNull;
 
-//Must be present: name, type, baseItem, lore, nbt, stats
 public record DictionaryItem(String name, String type, ItemRegion region, List<ItemTier> tier, String locationId,
                              int fishTier, boolean isFish, String baseItem, String lore, List<String> nbt,
                              List<List<ItemStat>> stats, List<String> effects, boolean hasMasterwork) implements Comparable<DictionaryItem> {
