@@ -77,6 +77,12 @@ public class DropdownWidget extends TextFieldWidget {
         if (scrollAmount < 0) scrollAmount = 0;
     }
 
+    @Override
+    public void setText(String text) {
+        super.setText(text);
+        onUpdate.accept(text);
+    }
+
     // must be called manually
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -202,6 +208,7 @@ public class DropdownWidget extends TextFieldWidget {
 
         // draw choice text
         for (int i = 0; i < Math.min(visualValidChoices.size(), maxShown); i++) {
+            if (i + scrollAmount >= visualValidChoices.size()) break;
             String finalText;
             if (textRenderer.getWidth(visualValidChoices.get(i + scrollAmount)) > width - 8)
                 finalText = textRenderer.trimToWidth(visualValidChoices.get(i + scrollAmount), width - 14) + "...";

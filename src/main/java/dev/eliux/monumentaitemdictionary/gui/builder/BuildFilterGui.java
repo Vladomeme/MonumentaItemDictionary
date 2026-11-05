@@ -206,8 +206,15 @@ public class BuildFilterGui extends Screen {
 
         backButton.mouseClicked(mouseX, mouseY, button);
 
-        for (DropdownWidget widget : filterListOption) {
-            if (widget.mouseClicked(mouseX, mouseY, button)) mouseX = -1000;
+        for (ItemIconButtonWidget widget : filterListDelete) widget.mouseClicked(mouseX, mouseY, button);
+        for (int i = 0; i < filterListOption.size(); i++) {
+            if (filterListOption.get(i).mouseClicked(mouseX, mouseY, button)) {
+                mouseX = -1000;
+                filterListValue.get(i).setText("");
+                filterListValue.get(i).setFocused(false);
+                filterListConstant.get(i).setText("");
+                filterListConstant.get(i).setFocused(false);
+            }
         }
         for (int i = 0; i != filterListValue.size(); i++) {
             if (!filterListOption.get(i).getLastChoice().isEmpty()) {
@@ -224,7 +231,6 @@ public class BuildFilterGui extends Screen {
             if (filterListOption.get(i).getLastChoice().equals("Stat") && !(buildFilters.get(i).comparator < 2))
                 widget.setFocused(widget.mouseClicked(mouseX, mouseY, button));
         }
-        for (ItemIconButtonWidget widget : filterListDelete) widget.mouseClicked(mouseX, mouseY, button);
 
         addFilterButton.mouseClicked(mouseX, mouseY, button);
 

@@ -2,6 +2,8 @@ package dev.eliux.monumentaitemdictionary.util;
 
 import net.minecraft.text.Text;
 
+import java.util.List;
+
 public enum ItemRegion {
 
     //order matters, used for sorting
@@ -40,8 +42,8 @@ public enum ItemRegion {
         return new ItemRegion[]{RING, ISLES, VALLEY};
     }
 
-    public static String[] names() {
-        return new String[]{DEFAULT.apiName, RING.apiName, ISLES.apiName, VALLEY.apiName};
+    public static List<String> names() {
+        return List.of(DEFAULT.apiName, RING.apiName, ISLES.apiName, VALLEY.apiName);
     }
 
     public Text text() {
