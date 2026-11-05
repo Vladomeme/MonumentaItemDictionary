@@ -2,7 +2,9 @@ package dev.eliux.monumentaitemdictionary.gui.builder;
 
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
+import dev.eliux.monumentaitemdictionary.util.PlayerClass;
 import dev.eliux.monumentaitemdictionary.util.ItemRegion;
+import dev.eliux.monumentaitemdictionary.util.Specialization;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,8 +13,8 @@ public class DictionaryBuild {
 
     public final int id;
     public final DictionaryItem itemOnButton;
-    public final String className;
-    public final String specialization;
+    public final PlayerClass className;
+    public final Specialization specialization;
     public final ItemRegion region;
     public final String name;
     public final DictionaryItem mainhand;
@@ -25,7 +27,7 @@ public class DictionaryBuild {
     public final List<DictionaryItem> allItems;
     public boolean favorite;
 
-    public DictionaryBuild(String name, List<DictionaryItem> items, List<DictionaryCharm> charms, DictionaryItem itemOnBuildButton, ItemRegion region, String className, String specialization, boolean favorite, int id) {
+    public DictionaryBuild(String name, List<DictionaryItem> items, List<DictionaryCharm> charms, DictionaryItem itemOnBuildButton, ItemRegion region, PlayerClass className, Specialization specialization, boolean favorite, int id) {
         this.name = name;
         this.mainhand = items.get(0);
         this.offhand = items.get(1);

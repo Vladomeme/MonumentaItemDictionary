@@ -11,15 +11,8 @@ import java.util.Set;
 
 public class ItemFormatter {
 
-    public static final String[] modifiableSkills = {"alchemist_potions", "gruesome_alchemy", "iron_tincture", "volatile_reaction", "energizing_elixir", "brutal_alchemy", "alchemical_artillery", "unstable_amalgam", "bezoar", "taboo", "scorched_earth", "esoteric_enhancements", "panacea", "transmutation_ring", "warding_remedy",
-            "crusade", "celestial_blessing", "divine_justice", "heavenly_boon", "illuminate", "cleansing_rain", "hand_of_light", "touch_of_radiance", "sanctified_armor", "unwavering", "holy_javelin", "choir_bells", "luminous_infusion", "rejuvenation", "ethereal_ascension", "hallowed_beam", "keeper_virtue",
-            "channeling", "arcane_strike", "frost_nova", "mana_lance", "thunder_step", "elemental_arrows", "magma_shield", "spellshock", "prismatic_shield", "astral_omen", "cosmic_moonblade", "sage's_insight", "blizzard", "elemental_spirits", "starfall",
-            "dethroner", "advancing_shadows", "dagger_throw", "escape_death", "smokescreen", "by_my_blade", "dodging", "skirmisher", "vicious_combos", "blade_dance", "deadly_ronde", "wind_walk", "bodkin_blitz", "cloak_and_dagger", "coup_de_grace",
-            "versatile", "hunting_companion", "wind_bomb", "steel_trap", "swiftness", "shrapnel_bomb", "sharpshooter", "parting_shot", "volley", "rending_razor", "gale_shot", "tactical_maneuver", "lockdown", "quiver_storm", "predator_strike",
-            "totemic_projection", "cleansing_totem", "flame_totem", "lightning_totem", "earthen_tremor", "spiritualism", "interconnected_havoc", "chain_lightning", "ignition_drive", "spiritual_combos", "whirlwind_totem", "totemic_consecration", "spiritcatcher_orbs", "decayed_totem", "devastation",
-            "culling", "amplifying_hex", "choleric_flames", "melancholic_lament", "sanguine_harvest", "phlegmatic_resolve", "cursed_wound", "grasping_claws", "soul_rend", "dark_pact", "judgement_chain", "voodoo_bonds", "haunting_shades", "restless_souls", "withering_gaze",
-            "formidable", "brute_force", "defensive_line", "riposte", "toughness", "counter_strike", "frenzy", "shield_bash", "weapon_mastery", "bloodlust", "glorious_battle", "meteor_slam", "rampage", "bodyguard", "challenge", "shield_wall",
-            "decay", "inferno", "recoil", "jungle's_nourishment", "rage_of_the_keter", "hex_eater", "sapper", "life_drain", "regicide", "quake", "eruption", "smite", "slayer", "duelist", "regeneration", "thunder_aspect"};
+    public static final String[] charmStatExceptions = {"decay", "recoil", "jungle's_nourishment", "rage_of_the_keter",
+            "devastation", "elemental_spirit", "rupture"};
 
     private static final Set<String> singleEnchants = new HashSet<>(List.of("gills", "weightless", "rage_of_the_keter", "jungle's_nourishment",
             "unbreakable", "adaptability", "multishot", "intuition", "radiant", "resurrection", "two_handed", "curse_of_irreparability", "mending", "silk_touch",
@@ -162,8 +155,18 @@ public class ItemFormatter {
     }
 
     public static String getSkillFromCharmStat(String stat) {
-        for (String s : modifiableSkills) {
+        for (String s : PlayerClass.allSkills) {
             if (stat.startsWith(s)) return s;
+        }
+        for (String s : charmStatExceptions) {
+            if (stat.startsWith(s)) return s;
+        }
+        //unlucky
+        for (String s : PlayerClass.allSkills) {
+            if (stat.contains(s)) return s;
+        }
+        for (String s : charmStatExceptions) {
+            if (stat.contains(s)) return s;
         }
         return "ERR";
     }

@@ -105,7 +105,7 @@ public class ItemFilterGui extends Screen {
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Region" -> {
-                        value.setChoices(controller.allItemRegions);
+                        value.setChoices(ItemRegion.names());
                         value.setDefaultText("Select Region");
                         comparator.setMessage(Text.literal("Matches"));
                     }

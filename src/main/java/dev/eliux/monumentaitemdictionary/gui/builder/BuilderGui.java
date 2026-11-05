@@ -46,8 +46,8 @@ public class BuilderGui extends Screen {
     public List<DictionaryCharm> charms = new ArrayList<>();
     public List<DictionaryItem> buildItems = Arrays.asList(null, null, null, null, null, null);
     private ItemRegion region = ItemRegion.RING;
-    private ClassName className = ClassName.NO_CLASS;
-    private Specializations specialization = Specializations.NO_SPECIALIZATION;
+    private PlayerClass buildClass = PlayerClass.NO_CLASS;
+    private Specialization specialization = Specialization.NO_SPECIALIZATION;
     public DictionaryItem itemOnBuildButton;
     private BuildCharmButtonWidget charmsButton;
     private Stats buildStats;
@@ -82,8 +82,8 @@ public class BuilderGui extends Screen {
     private int scrollPixels = 0;
     private int statusY;
     private Text statusText = Text.empty();
-    private CyclingButtonWidget<ClassName> classButton;
-    private CyclingButtonWidget<Specializations> specializationButton;
+    private CyclingButtonWidget<PlayerClass> classButton;
+    private CyclingButtonWidget<Specialization> specializationButton;
 
     public BuilderGui(Text title, DictionaryController controller) {
         super(title);
@@ -143,7 +143,7 @@ public class BuilderGui extends Screen {
                     else if (nameBar.getText().isBlank()) statusText = Text.literal("Please put a name to your Build").setStyle(Styles.RED);
                     else {
                         controller.buildDictionaryGui.addBuild(nameBar.getText(), buildItems, charms,
-                                itemOnBuildButton, region, className.getText().getString(), specialization.getText().getString());
+                                itemOnBuildButton, region, buildClass, specialization);
                         controller.setBuildDictionaryScreen();
                     }
                 }, Text.literal("Add Build To Dictionary"), "writable_book", "");
@@ -156,14 +156,14 @@ public class BuilderGui extends Screen {
                     updateStats();
                 });
 
-        classButton = CyclingButtonWidget.builder(ClassName::getText)
-                .values(ClassName.values())
-                .initially(ClassName.NO_CLASS)
+        classButton = CyclingButtonWidget.builder(PlayerClass::text)
+                .values(PlayerClass.values())
+                .initially(PlayerClass.NO_CLASS)
                 .build(halfWidth + halfWidthPadding, labelMenuHeight + itemPadding + (itemPadding+buttonSize) * 2,
                         width - sideMenuWidth - halfWidth - halfWidthPadding, 20,
                         Text.literal("Class"), (button, className) -> {
-                            this.className = className;
-                            this.specialization = Specializations.NO_SPECIALIZATION;
+                            this.buildClass = className;
+                            this.specialization = Specialization.NO_SPECIALIZATION;
                             updateSpecializations();
                 });
 
@@ -252,27 +252,16 @@ public class BuilderGui extends Screen {
 
     private String getWeirdCharmName(DictionaryCharm charm) {
         ArrayList<String> relevantLetters = extractRelevantLetters(charm.name().replace(" Charm", ""), 6);
-        return String.format("%s-%s-%d-%s", relevantLetters.get(0), relevantLetters.get(1), charm.power(), charm.className().charAt(0));
+        return String.format("%s-%s-%d-%s", relevantLetters.get(0), relevantLetters.get(1), charm.power(), charm.itemClass().name.charAt(0));
     }
 
     private void updateSpecializations() {
-        if (specialization == Specializations.NO_CLASS) specialization = Specializations.NO_SPECIALIZATION;
-        specializationButton = CyclingButtonWidget.builder(Specializations::getText)
-                .values(switch (className) {
-                    case NO_CLASS -> List.of(Specializations.NO_SPECIALIZATION);
-                    case MAGE -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.ARCANIST, Specializations.ELEMENTALIST);
-                    case SCOUT -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.HUNTER, Specializations.RANGER);
-                    case ROGUE -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.SWORDSAGE, Specializations.ASSASSIN);
-                    case WARRIOR -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.BERSERKER, Specializations.GUARDIAN);
-                    case ALCHEMIST -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.HARBINGER, Specializations.APOTHECARY);
-                    case WARLOCK -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.TENEBRIST, Specializations.REAPER);
-                    case SHAMAN -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.HEXBREAKER, Specializations.SOOTHSAYER);
-                    case CLERIC -> Arrays.asList(Specializations.NO_SPECIALIZATION, Specializations.PALADIN, Specializations.SERAPH);
-                    case DD_ZENITH -> Specializations.getDDZenithClasses();
-                })
+        if (specialization == Specialization.NO_CLASS) specialization = Specialization.NO_SPECIALIZATION;
+        specializationButton = CyclingButtonWidget.builder(Specialization::text)
+                .values(buildClass.specializations)
                 .initially(specialization)
                 .build(halfWidth + halfWidthPadding,
-                        labelMenuHeight + itemPadding + (itemPadding+buttonSize) * 2 + 25,
+                        labelMenuHeight + itemPadding + (itemPadding + buttonSize) * 2 + 25,
                         width - sideMenuWidth - halfWidth - halfWidthPadding, 20,
                         Text.literal("Spec"),
                         (button, specialization) -> this.specialization = specialization);
@@ -545,8 +534,8 @@ public class BuilderGui extends Screen {
         charms = build.charms.isEmpty() ? new ArrayList<>() : build.charms;
 
         regionButton.setValue(build.region);
-        classButton.setValue(className.getClass(build.className));
-        specializationButton.setValue(specialization.getSpecialization(build.specialization));
+        classButton.setValue(build.className);
+        specializationButton.setValue(build.specialization);
 
         nameBar.setText(build.name);
 
@@ -559,9 +548,9 @@ public class BuilderGui extends Screen {
         buildItems = Arrays.asList(null, null, null, null, null, null);
         nameBar.setText("");
         charms.clear();
-        classButton.setValue(ClassName.NO_CLASS);
+        classButton.setValue(PlayerClass.NO_CLASS);
         regionButton.setValue(ItemRegion.RING);
-        specializationButton.setValue(Specializations.NO_SPECIALIZATION);
+        specializationButton.setValue(Specialization.NO_SPECIALIZATION);
         itemOnBuildButton = null;
         buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region);
         scrollPixels = 0;
@@ -791,85 +780,5 @@ public class BuilderGui extends Screen {
         super.charTyped(chr, modifiers);
         nameBar.charTyped(chr, modifiers);
         return true;
-    }
-
-    enum ClassName {
-        NO_CLASS(Text.literal("No Class")),
-        MAGE(Text.literal("Mage")),
-        SCOUT(Text.literal("Scout")),
-        ROGUE(Text.literal("Rogue")),
-        WARRIOR(Text.literal("Warrior")),
-        ALCHEMIST(Text.literal("Alchemist")),
-        WARLOCK(Text.literal("Warlock")),
-        SHAMAN(Text.literal("Shaman")),
-        CLERIC(Text.literal("Cleric")),
-        DD_ZENITH(Text.literal("DD/Zenith"));
-
-        private final Text text;
-
-        ClassName(Text text) {
-            this.text = text;
-        }
-
-        public Text getText() {
-            return this.text;
-        }
-
-        public ClassName getClass(String className) {
-            for (ClassName classNames : ClassName.values()) {
-                if (classNames.text.getString().equals(className)) return classNames;
-            }
-            return NO_CLASS;
-        }
-    }
-
-    enum Specializations {
-        NO_SPECIALIZATION(Text.literal("No Specialization")),
-        ARCANIST(Text.literal("Arcanist")),
-        ELEMENTALIST(Text.literal("Elementalist")),
-        RANGER(Text.literal("Ranger")),
-        HUNTER(Text.literal("Hunter")),
-        SWORDSAGE(Text.literal("Swordsage")),
-        ASSASSIN(Text.literal("Assassin")),
-        BERSERKER(Text.literal("Berserker")),
-        GUARDIAN(Text.literal("Guardian")),
-        HARBINGER(Text.literal("Harbinger")),
-        APOTHECARY(Text.literal("Apothecary")),
-        REAPER(Text.literal("Reaper")),
-        TENEBRIST(Text.literal("Tenebrist")),
-        SOOTHSAYER(Text.literal("Soothsayer")),
-        HEXBREAKER(Text.literal("Hexbreaker")),
-        PALADIN(Text.literal("Paladin")),
-        SERAPH(Text.literal("Seraph")),
-
-        NO_CLASS(Text.literal("No class")),
-        DAWNBRINGER(Text.literal("Dawnbringer")),
-        EARTHBOUND(Text.literal("Earthbound")),
-        FLAMECALLER(Text.literal("Flamecaller")),
-        FROSTBORN(Text.literal("Frostborn")),
-        SHADOWDANCER(Text.literal("Shadowdancer")),
-        STEELSAGE(Text.literal("Steelsage")),
-        WINDWALKER(Text.literal("Windwalker"));
-
-        private final Text text;
-
-        Specializations(Text text) {
-            this.text = text;
-        }
-
-        public Text getText() {
-            return this.text;
-        }
-
-        public Specializations getSpecialization(String specialization) {
-            for (Specializations specializations : Specializations.values()) {
-                if (specializations.text.getString().equals(specialization)) return specializations;
-            }
-            return NO_SPECIALIZATION;
-        }
-
-        public static List<Specializations> getDDZenithClasses() {
-            return Arrays.asList(NO_CLASS, DAWNBRINGER, EARTHBOUND, FLAMECALLER, FROSTBORN, SHADOWDANCER, STEELSAGE, WINDWALKER);
-        }
     }
 }

@@ -3,9 +3,7 @@ package dev.eliux.monumentaitemdictionary.gui.builder;
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
 import dev.eliux.monumentaitemdictionary.gui.widgets.DropdownWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
-import dev.eliux.monumentaitemdictionary.util.Colors;
-import dev.eliux.monumentaitemdictionary.util.Filter;
-import dev.eliux.monumentaitemdictionary.util.Styles;
+import dev.eliux.monumentaitemdictionary.util.*;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
@@ -75,8 +73,7 @@ public class BuildFilterGui extends Screen {
                 filter.value = v;
                 updateFilterOutput();
             });
-            TextFieldWidget
-                    constant = new TextFieldWidget(textRenderer, 345, labelMenuHeight + 8 + index * 25, 30, 14, Text.empty());
+            TextFieldWidget constant = new TextFieldWidget(textRenderer, 345, labelMenuHeight + 8 + index * 25, 30, 14, Text.empty());
             constant.setText("0");
             constant.setChangedListener(c -> {
                 try {
@@ -91,7 +88,7 @@ public class BuildFilterGui extends Screen {
                 filter.setOption(v);
                 switch (v) {
                     case "Region" -> {
-                        value.setChoices(controller.allItemRegions);
+                        value.setChoices(ItemRegion.names());
                         value.setDefaultText("Select Region");
                         comparator.setMessage(Text.literal("Matches"));
                     }
@@ -101,7 +98,7 @@ public class BuildFilterGui extends Screen {
                         comparator.setMessage(Text.literal("Matches"));
                     }
                     case "Specialization" -> {
-                        value.setChoices(controller.getAllSpecializations());
+                        value.setChoices(Specialization.classSpecializations);
                         value.setDefaultText("Select Specialization");
                         comparator.setMessage(Text.literal("Matches"));
                     }

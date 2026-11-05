@@ -304,8 +304,8 @@ public class CharmDictionaryGui extends Screen {
         MutableText charmPower = Text.empty().setStyle(Styles.CHARM_POWER);
         for (int i = 0; i < charm.power(); i++) charmPower.append("★");
         MutableText divider = Text.literal(" - ").setStyle(Styles.TEXT);
-        MutableText classText = Text.literal(charm.className())
-                .setStyle(Style.EMPTY.withColor(ItemColors.getColorForClass(charm.className())));
+        MutableText classText = Text.literal(charm.itemClass().name)
+                .setStyle(Style.EMPTY.withColor(charm.itemClass().color));
         lines.add(charmPowerDesc.append(charmPower).append(divider).append(classText));
 
         if (Mid.controller.locationData.containsKey(charm.locationId()))

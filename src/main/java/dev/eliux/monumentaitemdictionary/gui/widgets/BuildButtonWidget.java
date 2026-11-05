@@ -17,7 +17,6 @@ import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class BuildButtonWidget extends ButtonWidget {
 
@@ -69,7 +68,7 @@ public class BuildButtonWidget extends ButtonWidget {
         }
 
         context.fill(minX, minY, maxX, maxY, favorite ? Colors.FAVORITE
-                : fillOpacity | (!Objects.equals(build.className, "No Class") ? ItemColors.getColorForClass(build.className) : Colors.CLEAR));
+                : fillOpacity | (build.className != PlayerClass.NO_CLASS ? build.className.color : Colors.CLEAR));
         context.drawBorder(minX, minY, width, height, outlineColor);
 
         //(minX + (width / 2) - 7, minY + (height / 2) - 7), change if w/h becomes non-constant

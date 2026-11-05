@@ -70,7 +70,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();
         NbtList lore = new NbtList();
-        lore.add(0, NbtString.of("Charm Power :  - " + charm.className()));
+        lore.add(0, NbtString.of("Charm Power :  - " + charm.itemClass().name));
         display.putString("Name", charm.name().split("\\(")[0].trim());
         display.put("Lore", lore);
         plain.put("display", display);

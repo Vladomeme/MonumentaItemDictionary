@@ -7,9 +7,7 @@ import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.gui.widgets.BuildButtonWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
-import dev.eliux.monumentaitemdictionary.util.Colors;
-import dev.eliux.monumentaitemdictionary.util.ItemRegion;
-import dev.eliux.monumentaitemdictionary.util.Styles;
+import dev.eliux.monumentaitemdictionary.util.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
@@ -187,7 +185,7 @@ public class BuildDictionaryGui extends Screen {
     }
 
     public void addBuild(String name, List<DictionaryItem> items, List<DictionaryCharm> charms, DictionaryItem itemOnBuildButton,
-                         ItemRegion region, String className, String specialization) {
+                         ItemRegion region, PlayerClass className, Specialization specialization) {
         if (name.isEmpty()) name = "No Name";
         int id = controller.generateNewId();
 
@@ -226,8 +224,8 @@ public class BuildDictionaryGui extends Screen {
         jsonBuild.add("items", itemsJson);
         jsonBuild.add("charms", charmsArray);
         jsonBuild.addProperty("region", build.region.apiName);
-        jsonBuild.addProperty("class", build.className);
-        jsonBuild.addProperty("specialization", build.specialization);
+        jsonBuild.addProperty("class", build.className.name);
+        jsonBuild.addProperty("specialization", build.specialization.name);
 
         JsonObject itemToShowJson = new JsonObject();
         itemToShowJson.addProperty("name", build.itemOnButton.name());

@@ -5,7 +5,9 @@ import dev.eliux.monumentaitemdictionary.gui.builder.DictionaryBuild;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
+import dev.eliux.monumentaitemdictionary.util.PlayerClass;
 import dev.eliux.monumentaitemdictionary.util.ItemRegion;
+import dev.eliux.monumentaitemdictionary.util.Specialization;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
@@ -108,8 +110,8 @@ public abstract class ScreenMixin {
         List<DictionaryItem> itemsFromBuild = new ArrayList<>();
         List<Integer> itemsInOrderOfBuild = Arrays.asList(18, 15, 11, 12, 13, 14);
         List<DictionaryCharm> charms = new ArrayList<>();
-        String className = "";
-        String specializationName = "";
+        PlayerClass buildClass = PlayerClass.NO_CLASS;
+        Specialization specializationName = Specialization.NO_SPECIALIZATION;
 
         String name = slotItemNames.get(4);
 
@@ -126,18 +128,19 @@ public abstract class ScreenMixin {
             for (int slot : charmSlots) {
                 String charmName = slotItemNames.get(slot);
                 if (charmName.isEmpty()) break;
-                charms.add(controller.getCharmByName(slotItemNames.get(slot)));
+                DictionaryCharm charm = controller.getCharmByName(slotItemNames.get(slot));
+                if (charm != null) charms.add(charm);
             }
         }
 
         if (!slotItemNames.get(45).equals("Class Excluded")) {
             String classInfo = slotItemNames.get(47);
-            className = classInfo.substring(0, classInfo.indexOf(" "));
-            specializationName = classInfo.substring(classInfo.indexOf("(") + 1, classInfo.indexOf(")"));
+            buildClass = PlayerClass.of(classInfo.substring(0, classInfo.indexOf(" ")));
+            specializationName = Specialization.of(classInfo.substring(classInfo.indexOf("(") + 1, classInfo.indexOf(")")));
         }
 
         int id = controller.generateNewId();
-        return new DictionaryBuild(name, itemsFromBuild, charms, null, ItemRegion.DEFAULT, className, specializationName, false, id);
+        return new DictionaryBuild(name, itemsFromBuild, charms, null, ItemRegion.DEFAULT, buildClass, specializationName, false, id);
     }
 
     @Unique
@@ -155,7 +158,7 @@ public abstract class ScreenMixin {
         if (itemsFromBuild.stream().allMatch(Objects::isNull)) itemsFromBuild = getItemsFromOneSide(client, slots, controller, slotsInOrderOfBuildLeftSide);
 
         int id = controller.generateNewId();
-        return new DictionaryBuild("", itemsFromBuild, List.of(), null, region, "", "", false, id);
+        return new DictionaryBuild("", itemsFromBuild, List.of(), null, region, PlayerClass.NO_CLASS, Specialization.NO_SPECIALIZATION, false, id);
     }
 
     @Unique

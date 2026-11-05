@@ -45,7 +45,6 @@ public class DictionaryController {
     public List<Filter> buildFilters = new ArrayList<>();
 
     public List<String> allItemTypes;
-    public List<String> allItemRegions;
     public List<String> allItemTiers;
     public Map<String, String> allItemLocations;
     public List<String> allItemStats;
@@ -99,6 +98,7 @@ public class DictionaryController {
         validBuilds = new ArrayList<>();
 
         loadLocations();
+        loadSkills();
         loadItems();
         loadCharms();
         loadBuilds();
@@ -115,18 +115,15 @@ public class DictionaryController {
     }
 
     public void open() {
-        if (lastOpenedScreen == null || lastOpenedScreen instanceof ItemDictionaryGui) {
-            itemGui.isGettingBuildItem = false;
+        itemGui.isGettingBuildItem = false;
+        charmGui.isGettingBuildCharm = false;
+
+        if (lastOpenedScreen == null || lastOpenedScreen instanceof ItemDictionaryGui)
             setItemDictionaryScreen();
-        }
-        else if (lastOpenedScreen instanceof CharmDictionaryGui) {
-            itemGui.isGettingBuildItem = false;
+        else if (lastOpenedScreen instanceof CharmDictionaryGui)
             setCharmDictionaryScreen();
-        }
-        else {
-            itemGui.isGettingBuildItem = false;
+        else
             setItemDictionaryScreen();
-        }
     }
 
     public void setItemDictionaryScreen() {
@@ -271,15 +268,20 @@ public class DictionaryController {
         isRequesting = true;
 
         WebRequest locationsRequest = new WebRequest("https://api.playmonumenta.com/locations");
+        WebRequest skillsRequest = new WebRequest("https://api.playmonumenta.com/skills");
         WebRequest itemsRequest = new WebRequest("https://api.playmonumenta.com/itemswithnbt");
 
         WebManager.manageRequestsAsynchronous(() -> {
             if (locationsRequest.isSuccess()) {
                 writeStringData(locationsRequest.result(), "config/mid/locations.json");
             }
+            if (skillsRequest.isSuccess()) {
+                writeStringData(skillsRequest.result(), "config/mid/skills.json");
+            }
             if (itemsRequest.isSuccess() && (locationsRequest.isSuccess() || new File("config/mid/locations.json").exists())) {
                 writeStringData(itemsRequest.result(), "config/mid/items.json");
                 loadLocations();
+                loadSkills();
                 loadItems();
                 itemGui.buildItemList();
                 loadCharms();
@@ -291,7 +293,7 @@ public class DictionaryController {
         }, () -> {
             isRequesting = false;
             Mid.LOGGER.info("Finished Data Request - Failure");
-        }, locationsRequest, itemsRequest);
+        }, locationsRequest, skillsRequest, itemsRequest);
     }
 
     public void loadBuilds() {
@@ -309,8 +311,8 @@ public class DictionaryController {
 
                 String buildName = buildData.get("name").getAsString();
                 ItemRegion buildRegion = ItemRegion.of(buildData.get("region").getAsString());
-                String buildClass = buildData.get("class").getAsString();
-                String buildSpecialization = buildData.get("specialization").getAsString();
+                PlayerClass buildClass = PlayerClass.of(buildData.get("class").getAsString());
+                Specialization buildSpecialization = Specialization.of(buildData.get("specialization").getAsString());
                 boolean buildFavorite = buildData.get("favorite").getAsBoolean();
 
                 JsonObject itemToShow = buildData.get("item_to_show").getAsJsonObject();
@@ -336,8 +338,9 @@ public class DictionaryController {
 
                 List<DictionaryCharm> buildCharms = new ArrayList<>();
                 JsonArray rawCharms = buildData.get("charms").getAsJsonArray();
-                for (JsonElement charm : rawCharms.asList()) {
-                    buildCharms.add(getCharmByName(charm.getAsString()));
+                for (JsonElement charm : rawCharms) {
+                    DictionaryCharm dictionaryCharm = getCharmByName(charm.getAsString());
+                    if (dictionaryCharm != null) buildCharms.add(dictionaryCharm);
                 }
                 buildsInFile.add(new DictionaryBuild(buildName, buildItems, buildCharms, buildItemToShow, buildRegion, buildClass, buildSpecialization, buildFavorite, id));
             }
@@ -372,6 +375,62 @@ public class DictionaryController {
             }
             catch (NumberFormatException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    private void loadSkills() {
+        PlayerClass.allSkills.clear();
+
+        JsonObject data = new Gson().fromJson(readStringData("config/mid/skills.json"), JsonObject.class);
+
+        if (!data.has("classes")) return;
+        JsonArray jsonArray = data.get("classes").getAsJsonArray();
+
+        for (JsonElement classElement : jsonArray) {
+            JsonObject classObject = (JsonObject) classElement;
+
+            if (classObject.has("classPassive")) {
+                JsonObject passiveObject = classObject.get("classPassive").getAsJsonObject();
+                if (passiveObject.has("name"))
+                    PlayerClass.addSkill(passiveObject.get("name").getAsString());
+                else if (passiveObject.has("displayName"))
+                    PlayerClass.addSkill(passiveObject.get("displayName").getAsString());
+            }
+
+            if (classObject.has("skills")) {
+                JsonArray skillsArray = classObject.get("skills").getAsJsonArray();
+                for (JsonElement skillElement : skillsArray) {
+                    JsonObject skillObject = (JsonObject) skillElement;
+                    if (skillObject.has("name"))
+                        PlayerClass.addSkill(skillObject.get("name").getAsString());
+                    else if (skillObject.has("displayName"))
+                        PlayerClass.addSkill(skillObject.get("displayName").getAsString());
+                }
+            }
+
+            if (classObject.has("specs")) {
+                JsonArray specsArray = classObject.get("specs").getAsJsonArray();
+                for (JsonElement specElement : specsArray) {
+                    JsonObject specObject = (JsonObject) specElement;
+                    if (specObject.has("specPassive")) {
+                        JsonObject passiveObject = specObject.get("specPassive").getAsJsonObject();
+                        if (passiveObject.has("name"))
+                            PlayerClass.addSkill(passiveObject.get("name").getAsString());
+                        else if (passiveObject.has("displayName"))
+                            PlayerClass.addSkill(passiveObject.get("displayName").getAsString());
+                    }
+
+                    if (!specObject.has("specSkills")) continue;
+                    JsonArray skillsArray = specObject.get("specSkills").getAsJsonArray();
+                    for (JsonElement skillElement : skillsArray) {
+                        JsonObject skillObject = (JsonObject) skillElement;
+                        if (skillObject.has("name"))
+                            PlayerClass.addSkill(skillObject.get("name").getAsString());
+                        else if (skillObject.has("displayName"))
+                            PlayerClass.addSkill(skillObject.get("displayName").getAsString());
+                    }
+                }
             }
         }
     }
@@ -537,7 +596,6 @@ public class DictionaryController {
         }
         items.sort(DictionaryItem::compareTo);
 
-        allItemRegions = Arrays.asList(ItemRegion.names());
         allItemTypes = new ArrayList<>(itemTypeSet);
         allItemTiers = new ArrayList<>(itemTierSet);
         allItemStats = new ArrayList<>(itemStatSet);
@@ -595,8 +653,8 @@ public class DictionaryController {
                 int charmPower = charmData.get("power").getAsInt();
 
                 // CLASS (must be present)
-                String charmClass = charmData.get("class_name").getAsString();
-                charmClassSet.add(charmClass);
+                PlayerClass charmClass = PlayerClass.of(charmData.get("class_name").getAsString());
+                charmClassSet.add(charmClass.name);
 
                 // BASE ITEM (must be present)
                 String charmBaseItem = charmData.get("base_item").getAsString();
@@ -654,27 +712,6 @@ public class DictionaryController {
     public void setBuildNameFilter(String nameFilter) {
         this.buildNameFilter = nameFilter;
         hasBuildNameFilter = true;
-    }
-
-    public List<String> getAllSpecializations() {
-        return new ArrayList<>(Arrays.asList(
-                "Arcanist",
-                "Elementalist",
-                "Berserker",
-                "Guardian",
-                "Seraph",
-                "Paladin",
-                "Assassin",
-                "Swordsage",
-                "Apothecary",
-                "Harbinger",
-                "Hunter",
-                "Ranger",
-                "Reaper",
-                "Tenebrist",
-                "Hexbreaker",
-                "Soothsayer"
-        ));
     }
 
     public void setCharmNameFilter(String nameFilter) {
@@ -810,8 +847,8 @@ public class DictionaryController {
                         default -> throw new AssertionError();
                     };
                     case "Class" -> switch (comparator) {
-                        case 0 -> charm.className().equals(value);
-                        case 1 -> !charm.className().equals(value);
+                        case 0 -> charm.itemClass().name.equals(value);
+                        case 1 -> !charm.itemClass().name.equals(value);
 
                         default -> throw new AssertionError();
                     };
@@ -884,14 +921,14 @@ public class DictionaryController {
                         default -> throw new AssertionError();
                     };
                     case "Class" -> switch (comparator) {
-                        case 0 -> build.className.equals(value);
-                        case 1 -> !build.className.equals(value);
+                        case 0 -> build.className.name.equals(value);
+                        case 1 -> !build.className.name.equals(value);
 
                         default -> throw new AssertionError();
                     };
                     case "Specialization" -> switch (comparator) {
-                        case 0 -> build.specialization.equals(value);
-                        case 1 -> !build.specialization.equals(value);
+                        case 0 -> build.specialization.name.equals(value);
+                        case 1 -> !build.specialization.name.equals(value);
 
                         default -> throw new AssertionError();
                     };
@@ -929,7 +966,7 @@ public class DictionaryController {
 
         for (DictionaryCharm charm : charms) {
             String name = charm.name();
-            if (name.substring(0, 3).equals(prefix) && name.contains(suffix) && charm.power() == power && charm.className().startsWith(classLetter))
+            if (name.substring(0, 3).equals(prefix) && name.contains(suffix) && charm.power() == power && charm.itemClass().name.startsWith(classLetter))
                 return charm;
         }
         return null;

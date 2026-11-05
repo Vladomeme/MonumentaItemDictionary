@@ -1,6 +1,7 @@
 package dev.eliux.monumentaitemdictionary.gui.charm;
 
 import dev.eliux.monumentaitemdictionary.util.CharmStat;
+import dev.eliux.monumentaitemdictionary.util.PlayerClass;
 import dev.eliux.monumentaitemdictionary.util.ItemRegion;
 import dev.eliux.monumentaitemdictionary.util.ItemTier;
 
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 //All values must be present
-public record DictionaryCharm(String name, String locationId, ItemTier tier, int power, String className,
+public record DictionaryCharm(String name, String locationId, ItemTier tier, int power, PlayerClass itemClass,
                               String baseItem, String nbt, List<CharmStat> stats) {
 
     @SuppressWarnings("SameReturnValue")
