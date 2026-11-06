@@ -44,11 +44,6 @@ public class ItemFormatter {
         else return formatStat(name) + " " + (isSingleEnchant(name) ? "" : (int) value);
     }
 
-    @SuppressWarnings("SameReturnValue")
-    public static int getMaxFishTier() {
-        return 5;
-    }
-
     public static boolean shouldBoldFish(int fishTier) {
         return (fishTier >= 3);
     }

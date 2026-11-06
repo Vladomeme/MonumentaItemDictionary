@@ -34,7 +34,8 @@ public class ItemDictionaryGui extends Screen {
     public String itemTypeLookingFor;
     private int scrollPixels = 0;
 
-    private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+    private final MinecraftClient client = MinecraftClient.getInstance();
+    private final TextRenderer textRenderer = client.textRenderer;
 
     private final TreeMap<Integer, List<ItemButtonWidget>> itemButtons = new TreeMap<>();
     private final Map<DictionaryItem, ItemButtonWidget> widgetByItem = new HashMap<>();
@@ -335,7 +336,7 @@ public class ItemDictionaryGui extends Screen {
 
         int masterworkTier = item.getMaxMasterwork() - 1;
         ItemButtonWidget itemButton = widgetByItem.get(item);
-        if (itemButton != null && !(MinecraftClient.getInstance().currentScreen instanceof BuilderGui)) {
+        if (itemButton != null && !(client.currentScreen instanceof BuilderGui)) {
             masterworkTier = itemButton.shownMasterworkTier;
         }
 
@@ -386,32 +387,19 @@ public class ItemDictionaryGui extends Screen {
             lines.add(Text.literal("* Alchemical Utensil *").setStyle(Styles.TEXT));
 
         if (item.hasRegion() && item.hasTier()) {
-            MutableText regionText = Text.literal(item.region().name + " : ").setStyle(Styles.TEXT);
-            MutableText tierText = itemTier.formattedName;
-
-            lines.add(regionText.append(tierText));
+            lines.add(Text.literal(item.region().name + " : ").setStyle(Styles.TEXT).append(itemTier.formattedName));
         }
 
         if (item.hasMasterwork()) {
-            MutableText baseText = Text.literal("Masterwork : ").setStyle(Styles.TEXT);
-            for (int i = 0; i < itemTier.getMasterwork(); i ++) {
-                if (i < masterworkTier)
-                    baseText.append(Text.literal("★").setStyle(Styles.MASTERWORK));
-                else
-                    baseText.append(Text.literal("☆").setStyle(Styles.TEXT));
-            }
-            lines.add(baseText);
+            lines.add(Text.literal("Masterwork : ").setStyle(Styles.TEXT)
+                    .append(Text.literal("★".repeat(masterworkTier)).setStyle(Styles.MASTERWORK))
+                    .append(Text.literal("☆".repeat(itemTier.getMasterwork() - masterworkTier)).setStyle(Styles.TEXT)));
         }
 
         if (item.isFish()) {
-            MutableText baseText = Text.literal("Fish Quality : ").setStyle(Styles.TEXT);
-            for (int i = 0; i < ItemFormatter.getMaxFishTier(); i ++) {
-                if (i < item.fishTier())
-                    baseText.append(Text.literal("★").setStyle(Styles.FISH));
-                else
-                    baseText.append(Text.literal("☆").setStyle(Styles.TEXT));
-            }
-            lines.add(baseText);
+            lines.add(Text.literal("Fish Quality : ").setStyle(Styles.TEXT)
+                    .append(Text.literal("★".repeat(item.fishTier())).setStyle(Styles.FISH))
+                    .append(Text.literal("☆".repeat(ItemTier.MAX_FISH_TIER - item.fishTier())).setStyle(Styles.TEXT)));
         }
 
         if (item.hasLocation() && Mid.controller.locationData.containsKey(item.locationId())) {
@@ -421,8 +409,7 @@ public class ItemDictionaryGui extends Screen {
         if (!item.lore().isEmpty()) {
             if (hasShiftDown()) {
                 for (String line : item.lore().split("\n")) {
-                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(
-                            ItemColors.mixHexes(ItemColors.TEXT_COLOR, Location.colorOf(item.locationId()), 0.67))));
+                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(Location.loreColorOf(item.locationId()))));
                 }
             }
             else lines.add(Text.literal("Press [SHIFT] to show lore.").setStyle(Styles.TEXT));
@@ -442,18 +429,17 @@ public class ItemDictionaryGui extends Screen {
 
         lines.add(Text.empty());
 
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null && player.getAbilities().creativeMode && !(MinecraftClient.getInstance().currentScreen instanceof BuilderGui))
+        ClientPlayerEntity player = client.player;
+        if (player != null && player.getAbilities().creativeMode && !(client.currentScreen instanceof BuilderGui))
             lines.add(Text.literal("[ALT] + Click to generate this item").setStyle(Styles.TEXT));
 
-        Screen currentScreen = MinecraftClient.getInstance().currentScreen;
-        if (currentScreen instanceof ItemDictionaryGui || currentScreen instanceof CharmDictionaryGui || currentScreen instanceof BuilderGui) {
+        if (client.currentScreen instanceof ItemDictionaryGui || client.currentScreen instanceof CharmDictionaryGui || client.currentScreen instanceof BuilderGui) {
             lines.add(Text.literal("[CTRL] [SHIFT] + Click to open in the wiki").setStyle(Styles.TEXT));
 
             if (nbt != null && item.baseItem().equals("Written Book") && nbt.contains("pages"))
                 lines.add(Text.literal("Right Click to open the book").setStyle(Styles.TEXT));
 
-            if (currentScreen instanceof BuilderGui) {
+            if (client.currentScreen instanceof BuilderGui) {
                 lines.add(Text.literal("[SHIFT] + Click to delete item").setStyle(Styles.TEXT));
                 lines.add(Text.literal("[CTRL] + Click to set the item as Build Icon").setStyle(Styles.TEXT));
             }
@@ -463,7 +449,7 @@ public class ItemDictionaryGui extends Screen {
     }
 
     private void addNameLoreText(List<Text> lines, DictionaryItem item, NbtCompound nbt, ItemTier itemTier) {
-        if (MinecraftClient.getInstance().world == null) return;
+        if (client.world == null) return;
 
         if (nbt == null || !nbt.getCompound("display").contains("Name")) {
             //old method
@@ -475,7 +461,7 @@ public class ItemDictionaryGui extends Screen {
         }
 
         String nameJson = nbt.getCompound("display").getString("Name");
-        Text text = Text.Serialization.fromJson(nameJson, MinecraftClient.getInstance().world.getRegistryManager());
+        Text text = Text.Serialization.fromJson(nameJson, client.world.getRegistryManager());
         lines.add(text);
     }
 
@@ -485,7 +471,7 @@ public class ItemDictionaryGui extends Screen {
     }
 
     private void addPotionEffectLoreText(List<Text> lines, NbtCompound nbt) {
-        if (MinecraftClient.getInstance().world == null || nbt == null
+        if (client.world == null || nbt == null
                 || !nbt.getCompound("Monumenta").getCompound("Stock").contains("Effects")) return;
 
         NbtList lore = nbt.getCompound("display").getList("Lore", 8);
@@ -494,7 +480,7 @@ public class ItemDictionaryGui extends Screen {
         boolean addedNewline = false;
         boolean adding = false;
         for (NbtElement nbtElement : lore) {
-            Text text = Text.Serialization.fromJson(nbtElement.asString(), MinecraftClient.getInstance().world.getRegistryManager());
+            Text text = Text.Serialization.fromJson(nbtElement.asString(), client.world.getRegistryManager());
             if (text == null) continue;
 
             String line = text.getString();

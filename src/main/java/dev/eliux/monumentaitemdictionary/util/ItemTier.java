@@ -38,6 +38,8 @@ public enum ItemTier {
 
     public final MutableText formattedName;
     public final MutableText formattedCharmName;
+
+    public static final int MAX_FISH_TIER = 5;
     
     ItemTier(String name, int color, boolean isBold, boolean isUnderlined) {
         this.name = name;

@@ -1,5 +1,6 @@
 package dev.eliux.monumentaitemdictionary.util;
 
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
@@ -38,15 +39,17 @@ public enum PlayerClass {
     public final Specialization[] specializations;
 
     public final Text text;
+    public final Style style;
 
     public static final List<String> allSkills = new ArrayList<>();
 
     PlayerClass(String name, int color, Specialization[] specializations) {
         this.name = name;
         this.color = color;
+        this.specializations = specializations;
 
         this.text = Text.of(name);
-        this.specializations = specializations;
+        this.style = Style.EMPTY.withColor(color);
     }
     
     public static PlayerClass of(String name) {

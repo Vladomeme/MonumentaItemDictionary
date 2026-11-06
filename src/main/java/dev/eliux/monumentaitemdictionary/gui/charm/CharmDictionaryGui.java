@@ -15,10 +15,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.text.*;
 import net.minecraft.util.Util;
 
 import java.util.ArrayList;
@@ -34,7 +34,8 @@ public class CharmDictionaryGui extends Screen {
 
     private long lastAltPressed = 0;
 
-    private final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+    private final MinecraftClient client = MinecraftClient.getInstance();
+    private final TextRenderer textRenderer = client.textRenderer;
 
     private final List<CharmButtonWidget> charmButtons = new ArrayList<>();
 
@@ -301,11 +302,9 @@ public class CharmDictionaryGui extends Screen {
         lines.add(region.append(tier));
 
         MutableText charmPowerDesc = Text.literal("Charm Power : ").setStyle(Styles.TEXT);
-        MutableText charmPower = Text.empty().setStyle(Styles.CHARM_POWER);
-        for (int i = 0; i < charm.power(); i++) charmPower.append("★");
+        MutableText charmPower = Text.literal("★".repeat(charm.power())).setStyle(Styles.CHARM_POWER);
         MutableText divider = Text.literal(" - ").setStyle(Styles.TEXT);
-        MutableText classText = Text.literal(charm.itemClass().name)
-                .setStyle(Style.EMPTY.withColor(charm.itemClass().color));
+        MutableText classText = Text.literal(charm.itemClass().name).setStyle(charm.itemClass().style);
         lines.add(charmPowerDesc.append(charmPower).append(divider).append(classText));
 
         if (Mid.controller.locationData.containsKey(charm.locationId()))
@@ -314,46 +313,32 @@ public class CharmDictionaryGui extends Screen {
         if (!charm.lore().isEmpty()) {
             if (hasShiftDown()) {
                 for (String line : charm.lore().split("\n")) {
-                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(
-                            ItemColors.mixHexes(ItemColors.TEXT_COLOR, Location.colorOf(charm.locationId()), 0.67))));
+                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(Location.loreColorOf(charm.locationId()))));
                 }
             }
             else lines.add(Text.literal("Press [SHIFT] to show lore.").setStyle(Styles.TEXT));
         }
 
-        if (!charm.stats().isEmpty()) {
-            lines.add(Text.empty());
-
-            lines.add(Text.literal("When in Charm Slot:").setStyle(Styles.LIGHT_GRAY));
-            for (CharmStat stat : charm.stats()) {
-                if (charm.name().equals("Psychosis") && stat.statNameFull().equals("amplifying_hex_max_debuffs_flat"))
-                    lines.add(Text.literal((stat.statLocked() ? "\uD83D\uDD12 " : "") + stat.statValue() + " " + ItemFormatter.formatCharmStat(stat.statNameFull()))
-                            .setStyle(Style.EMPTY.withColor(ItemColors.getColorForCharmStat(stat)))); //PSYCHOSIS HARDCODE
-                else
-                    lines.add(Text.literal((stat.statLocked() ? "\uD83D\uDD12 " : "") + (stat.statValue() >= 0 ? "+" : "") + stat.statValue()
-                                    + (stat.statNameFull().endsWith("percent") ? "" : " ") + ItemFormatter.formatCharmStat(stat.statNameFull()))
-                            .setStyle(Style.EMPTY.withColor(ItemColors.getColorForCharmStat(stat))));
-            }
-        }
+        if (!charm.stats().isEmpty()) addStatsLoreText(lines, nbt);
 
         lines.add(Text.empty());
 
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if (player != null && player.getAbilities().creativeMode && !(MinecraftClient.getInstance().currentScreen instanceof BuilderGui)) {
+        ClientPlayerEntity player = client.player;
+        if (player != null && player.getAbilities().creativeMode && !(client.currentScreen instanceof BuilderGui)) {
             lines.add(Text.literal("[ALT] + Click to generate this item").setStyle(Styles.TEXT));
         }
         lines.add(Text.literal("[CTRL] [SHIFT] + Click to open in the wiki").setStyle(Styles.TEXT));
-        Screen currentScreen = MinecraftClient.getInstance().currentScreen;
-        if (currentScreen instanceof BuilderGui) {
+        if (client.currentScreen instanceof BuilderGui) {
             lines.add(Text.literal("[SHIFT] + Click to delete item").setStyle(Styles.TEXT));
         }
+
         lines.add(Text.literal(charm.baseItem()).setStyle(Styles.TEXT));
 
         return lines;
     }
 
     private void addNameLoreText(List<Text> lines, DictionaryCharm charm, NbtCompound nbt) {
-        if (MinecraftClient.getInstance().world == null) return;
+        if (client.world == null) return;
 
         if (nbt == null || !nbt.getCompound("display").contains("Name")) {
             //old method
@@ -365,8 +350,39 @@ public class CharmDictionaryGui extends Screen {
         }
 
         String nameJson = nbt.getCompound("display").getString("Name");
-        Text text = Text.Serialization.fromJson(nameJson, MinecraftClient.getInstance().world.getRegistryManager());
+        Text text = Text.Serialization.fromJson(nameJson, client.world.getRegistryManager());
         lines.add(text);
+    }
+
+    private void addStatsLoreText(List<Text> lines, NbtCompound nbt) {
+        if (client.world == null || nbt == null) return;
+
+        NbtList lore = nbt.getCompound("display").getList("Lore", 8);
+        if (lore.isEmpty()) return;
+
+        boolean addedNewline = false;
+        boolean adding = false;
+        for (NbtElement nbtElement : lore) {
+            MutableText text = Text.Serialization.fromJson(nbtElement.asString(), client.world.getRegistryManager());
+            if (text == null) continue;
+
+            String line = text.getString();
+            if (line.equals("When in Charm Slot:")) adding = true;
+            else if (adding && line.isEmpty()) return;
+
+            if (adding) {
+                if (!addedNewline) {
+                    lines.add(Text.empty());
+                    addedNewline = true;
+                }
+
+                //reconstruct the text to replace the Locked symbol
+                if (line.charAt(0) == '#')
+                    text = Text.literal("\uD83D\uDD12" + text.getString().substring(1)).setStyle(text.getStyle());
+
+                lines.add(text);
+            }
+        }
     }
 
     @Override
