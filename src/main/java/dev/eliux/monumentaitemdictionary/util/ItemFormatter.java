@@ -1,12 +1,21 @@
 package dev.eliux.monumentaitemdictionary.util;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.eliux.monumentaitemdictionary.Mid;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class ItemFormatter {
@@ -14,17 +23,9 @@ public class ItemFormatter {
     public static final String[] charmStatExceptions = {"decay", "recoil", "jungle's_nourishment", "rage_of_the_keter",
             "devastation", "elemental_spirit", "rupture"};
 
-    private static final Set<String> singleEnchants = new HashSet<>(List.of("gills", "weightless", "rage_of_the_keter", "jungle's_nourishment",
-            "unbreakable", "adaptability", "multishot", "intuition", "radiant", "resurrection", "two_handed", "curse_of_irreparability", "mending", "silk_touch",
-            "curse_of_corruption", "protection_of_the_depths", "infinity_bow", "infinity_tool", "infinity", "aqua_affinity", "ashes_of_eternity", "void_tether",
-            "excavator", "darksight", "material", "alchemical_utensil", "broomstick", "clucking", "oinking", "throwing_knife", "liquid_courage",
-            "intoxicating_warmth", "temporal_bender", "curse_of_ephemerality", "instant_drink", "divine_aura", "cumbersome", "persistence", "curse_of_instability",
-            "snowy", "spiritshot", "oversized", "kinetic_loading"));
+    private static final Set<String> singleEnchants = new HashSet<>();
 
-    private static final Set<String> curseEnchants = new HashSet<>(List.of("ineptitude", "curse_of_shrapnel", "curse_of_vanishing", "curse_of_corruption",
-            "curse_of_crippling", "curse_of_irreparability", "two_handed", "fire_fragility", "melee_fragility", "blast_fragility", "projectile_fragility",
-            "magic_fragility", "ailment_fragility", "fall_fragility", "curse_of_anemia", "cumbersome", "curse_of_ephemerality", "curse_of_instability",
-            "curse_of_the_veil", "oversized", "curse_of_pestilence", "starvation"));
+    private static final Set<String> curseEnchants = new HashSet<>();
 
     private static final Set<String> stats = new HashSet<>(List.of("armor", "agility", "spell_power_base", "projectile_speed_percent",
             "knockback_resistance_flat", "attack_damage_base", "thorns_percent", "max_health_flat", "projectile_damage_base", "throw_rate_percent",
@@ -77,26 +78,35 @@ public class ItemFormatter {
         };
     }
 
-    public static String formatStat(String inStat) {
-        String stat = inStat;
-        stat = stat.replace("_s_", "'s_");
-        if (stat.endsWith("_prot")) stat = stat.substring(0, stat.lastIndexOf("_prot")) + "_protection";
-        if (stat.endsWith("_base")) stat = stat.equals("spell_power_base") ? "%_" + stat.substring(0, stat.lastIndexOf("_base")) : stat.substring(0, stat.lastIndexOf("_base"));
-        if (stat.endsWith("_flat")) stat = stat.equals("knockback_resistance_flat") ? "%_" + stat.substring(0, stat.lastIndexOf("_flat")) : stat.substring(0, stat.lastIndexOf("_flat"));
-        if (stat.endsWith("_percent")) stat = stat.equals("potion_recharge_rate_percent") ? stat.substring(0, stat.lastIndexOf("_percent")) : "%_" + stat.substring(0, stat.lastIndexOf("_percent"));
-        if (stat.endsWith("_bow")) stat = stat.substring(0, stat.lastIndexOf("_bow"));
-        if (stat.endsWith("_tool")) stat = stat.substring(0, stat.lastIndexOf("_tool")) + "_food";
-        if (stat.endsWith("_m")) stat = stat.substring(0, stat.lastIndexOf("_m")) + "_melee";
-        if (stat.endsWith("_p")) stat = stat.substring(0, stat.lastIndexOf("_p")) + "_ranged";
-        stat = stat.replace("_", " ");
+    public static String formatStat(String stat) {
+        switch (stat) { //exceptions
+            case "jungles_nourishment" -> {return "Jungle's Nourishment";}
+            case "spell_power_base" -> {return "% Spell Power";}
+            case "knockback_resistance_flat" -> {return "% Knockback Resistance";}
+            case "potion_recharge_rate_percent" -> {return "Potion Recharge Rate";}
+        }
 
-        if (stat.length() > 1) stat = stat.substring(0, 1).toUpperCase() + stat.substring(1);
-        for (int i = 0; i < stat.length() - 1; i++) {
-            if (stat.charAt(i) == ' ') {
-                stat = stat.substring(0, i + 1) + stat.substring(i + 1, i + 2).toUpperCase() + stat.substring(i + 2);
+        if (stat.endsWith("_base")) stat = stat.substring(0, stat.length() - 5);
+        if (stat.endsWith("_flat")) stat = stat.substring(0, stat.length() - 5);
+        if (stat.endsWith("_percent")) stat = "% " + stat.substring(0, stat.length() - 8);
+
+        //replace underscores, make first letter of each word uppercase
+        char[] chars = stat.toCharArray();
+        if (chars[0] >= 'a' && chars[0] <= 'z') chars[0] -= 32;
+        for (int i = 1; i != chars.length; i++) {
+            while (chars[i] != '_' && chars[i] != ' ') {
+                i++;
+                if (i == chars.length) return String.copyValueOf(chars);
+            }
+            chars[i] = ' ';
+            if (i + 1 != chars.length) {
+                if (chars[i + 1] >= 'a' && chars[i + 1] <= 'z') {
+                    chars[i + 1] -= 32;
+                    i++;
+                }
             }
         }
-        return stat;
+        return String.copyValueOf(chars);
     }
     
     public static String formatEffect(String effect, String enchant) {
@@ -198,6 +208,19 @@ public class ItemFormatter {
         return skill;
     }
 
+    public static String toSnakeCase(String name) {
+        StringBuilder builder = new StringBuilder();
+        char[] chars = name.toCharArray();
+
+        for (int i = 0; i != chars.length; i++) {
+            char c = chars[i];
+            if (c == ' ' || c == '_') builder.append("_");
+            else if (c >= 'a' && c <= 'z') builder.append(c);
+            else if (c >= 'A' && c <= 'Z') builder.append((char) (c + 32));
+        }
+        return builder.toString();
+    }
+
     public static boolean isSingleEnchant(String inEnchant) {
         return singleEnchants.contains(inEnchant);
     }
@@ -222,5 +245,47 @@ public class ItemFormatter {
 
     public static boolean isHiddenStat(String inStat) {
         return hiddenStats.contains(inStat);
+    }
+
+    public static void extractEnchantInfo(Map<String, String> statMap) {
+        singleEnchants.clear();
+        curseEnchants.clear();
+
+        for (Map.Entry<String, String> entry : statMap.entrySet()) {
+            NbtCompound nbt;
+            try {
+                nbt = StringNbtReader.parse(entry.getValue());
+            }
+            catch (CommandSyntaxException ignored) {
+                continue;
+            }
+            NbtList lore = nbt.getCompound("display").getList("Lore", 8);
+            if (lore.isEmpty()) return;
+
+            for (NbtElement nbtElement : lore) {
+                JsonElement textElement = JsonParser.parseString(nbtElement.asString());
+                if (!textElement.isJsonObject()) continue;
+
+                JsonObject textObject = (JsonObject) textElement;
+                if (!textObject.has("color") || !textObject.has("text")) continue;
+
+                String text = textObject.get("text").getAsString();
+                if (text.indexOf(':') != -1) break; //divider in region/location line
+
+                text = toSnakeCase(text);
+                String color = textObject.get("color").getAsString();
+                boolean isCurse = color.equals("red");
+
+                if (!color.equals("gray") && !isCurse) continue;
+
+                String enchantKey = toSnakeCase(entry.getKey());
+                if (text.equals(enchantKey)) {
+                    singleEnchants.add(entry.getKey());
+                    if (isCurse) curseEnchants.add(entry.getKey());
+                }
+                else if (isCurse && text.contains(enchantKey))
+                    curseEnchants.add(entry.getKey());
+            }
+        }
     }
 }

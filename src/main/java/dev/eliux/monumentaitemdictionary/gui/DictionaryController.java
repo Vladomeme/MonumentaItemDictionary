@@ -444,6 +444,7 @@ public class DictionaryController {
         List<Pair<String, String>> itemLocations = new ArrayList<>();
 
         Map<String, DictionaryItem> masterworkItems = new HashMap<>();
+        Map<String, String> statMap = new HashMap<>();
 
         try {
             String rawData = readStringData("config/mid/items.json");
@@ -510,6 +511,11 @@ public class DictionaryController {
                 JsonPrimitive lorePrimitive = itemData.getAsJsonPrimitive("lore");
                 if (lorePrimitive != null) itemLore = lorePrimitive.getAsString();
 
+                // NBT
+                String itemNbt = "";
+                JsonPrimitive nbtPrimitive = itemData.getAsJsonPrimitive("nbt");
+                if (nbtPrimitive != null) itemNbt = nbtPrimitive.getAsString();
+
                 // STATS
                 List<ItemStat> itemStats = new ArrayList<>();
                 JsonObject statObject = itemData.get("stats").getAsJsonObject();
@@ -517,6 +523,7 @@ public class DictionaryController {
                     String statName = statEntry.getKey();
                     if (ItemFormatter.isHiddenStat(statName)) continue;
 
+                    if (!statMap.containsKey(statName) && !itemNbt.isEmpty()) statMap.put(statName, itemNbt);
                     itemStats.add(new ItemStat(statName, statEntry.getValue().getAsFloat()));
                     itemStatSet.add(statName);
                 }
@@ -542,11 +549,6 @@ public class DictionaryController {
                     }
                 }
                 if (itemEffects.isEmpty()) itemEffects = List.of();
-
-                // NBT
-                String itemNbt = "";
-                JsonPrimitive nbtPrimitive = itemData.getAsJsonPrimitive("nbt");
-                if (nbtPrimitive != null) itemNbt = nbtPrimitive.getAsString();
 
                 // ------------------
                 // BUILDING THE ITEM
@@ -590,6 +592,7 @@ public class DictionaryController {
                     }
                 }
             }
+            ItemFormatter.extractEnchantInfo(statMap);
         }
         catch (Exception e) {
             e.printStackTrace();

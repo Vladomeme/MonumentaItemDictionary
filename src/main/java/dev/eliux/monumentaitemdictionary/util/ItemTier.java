@@ -89,17 +89,20 @@ public enum ItemTier {
     public static String formatTierPrimitive(String tier) {
         if (tier.indexOf('_') == -1) return tier;
 
-        StringBuilder builder = new StringBuilder();
         char[] chars = tier.toCharArray();
-
-        for (int i = 0; i != chars.length; i++) {
-            if (chars[i] == '_') {
-                builder.append(' ');
+        if (chars[0] >= 'a' && chars[0] <= 'z') chars[0] -= 32;
+        for (int i = 1; i != chars.length; i++) {
+            while (chars[i] != '_' && chars[i] != ' ') {
                 i++;
-                builder.append(chars[i] < 'a' ? chars[i] : chars[i] - 32);
+                if (i == chars.length) return String.copyValueOf(chars);
+            }
+            chars[i] = ' ';
+            if (chars[i + 1] >= 'a' && chars[i + 1] <= 'z') {
+                chars[i + 1] -= 32;
+                i++;
             }
         }
-        return builder.toString();
+        return String.copyValueOf(chars);
     }
 
     public int getMasterwork() {
