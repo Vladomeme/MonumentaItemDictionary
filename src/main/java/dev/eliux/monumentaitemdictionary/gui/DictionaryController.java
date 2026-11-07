@@ -727,79 +727,20 @@ public class DictionaryController {
     public void refreshItems() {
         validItems = new ArrayList<>();
 
-        Set<String> mainhandTypes = new HashSet<>(List.of("Mainhand", "Mainhand Sword", "Mainhand Shield", "Wand",
-                "Axe", "Pickaxe", "Trident", "Snowball", "Shovel", "Scythe", "Bow", "Crossbow"));
-        Set<String> offhandTypes = new HashSet<>(List.of("Offhand", "Offhand Sword", "Offhand Shield"));
-
         itemLoop:
         for (DictionaryItem item : items) {
             for (Filter filter : itemFilters) {
-                if (filter == null || filter.value.isEmpty()) continue;
-
-                String value = filter.value;
-                double constant = filter.constant;
-                int comparator = filter.comparator;
-
-                if (!switch (filter.getOption()) {
-                    case "Stat" -> switch (comparator) {
-                        case 0 -> item.hasStat(value);
-                        case 1 -> !item.hasStat(value);
-                        case 2 -> item.hasStat(value) && item.getStat(value) >= constant;
-                        case 3 -> item.hasStat(value) && item.getStat(value) > constant;
-                        case 4 -> item.hasStat(value) && item.getStat(value) == constant;
-                        case 5 -> item.hasStat(value) && item.getStat(value) <= constant;
-                        case 6 -> item.hasStat(value) && item.getStat(value) < constant;
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Tier" -> switch (comparator) {
-                        case 0 -> item.hasTier(value);
-                        case 1 -> !item.hasTier(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Region" -> switch (comparator) {
-                        case 0 -> item.region().apiName.equals(value);
-                        case 1 -> !item.region().apiName.equals(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Type" -> switch (comparator) {
-                        case 0 -> item.type().equals(value);
-                        case 1 -> !item.type().equals(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Location" -> switch (comparator) {
-                        case 0 -> item.hasLocation() && locationData.containsKey(item.locationId()) && locationData.get(item.locationId()).displayName().equals(value);
-                        case 1 -> !item.hasLocation() || !locationData.containsKey(item.locationId()) || !locationData.get(item.locationId()).displayName().equals(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Base Item" -> switch (comparator) {
-                        case 0 -> item.baseItem().equals(value);
-                        case 1 -> !item.baseItem().equals(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Effect" -> switch (comparator) {
-                        case 0 -> item.hasEffects() && item.effects().contains(value);
-                        case 1 -> !item.hasEffects() || !item.effects().contains(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    default -> throw new AssertionError();
-                }) continue itemLoop;
+                if (filter == null || filter.isEmpty()) continue;
+                if (filter.blocks(item)) continue itemLoop;
             }
-
             if (hasItemNameFilter && !StringUtils.containsIgnoreCase(item.name(), itemNameFilter)) continue;
 
             if (itemGui.isGettingBuildItem) {
                 if (itemGui.itemTypeLookingFor.equals("Mainhand")) {
-                    if (!mainhandTypes.contains(item.type())) continue;
+                    if (!Filter.mainhandTypes.contains(item.type())) continue;
                 }
                 else if (itemGui.itemTypeLookingFor.equals("Offhand")) {
-                    if (!offhandTypes.contains(item.type())) continue;
+                    if (!Filter.offhandTypes.contains(item.type())) continue;
                 }
                 else if (!item.type().equals(itemGui.itemTypeLookingFor)) continue;
             }
@@ -808,9 +749,9 @@ public class DictionaryController {
         }
 
         validItems.sort((o1, o2) -> {
-            for (Filter f : itemFilters) {
-                if (f.getOption().equals("Stat")) {
-                    double val = o2.getStat(f.value) - o1.getStat(f.value);
+            for (Filter filter : itemFilters) {
+                if (filter.getType() == FilterType.ITEM_STAT) {
+                    double val = o2.getStat(filter.value) - o1.getStat(filter.value);
 
                     if (val == 0) continue;
                     if (val > 0) return 1;
@@ -827,76 +768,18 @@ public class DictionaryController {
         charmLoop:
         for (DictionaryCharm charm : charms) {
             for (Filter filter : charmFilters) {
-                if (filter == null || (filter.value.isEmpty() && !filter.getOption().equals("Charm Power"))) continue;
-
-                String value = filter.value;
-                double constant = filter.constant;
-                int comparator = filter.comparator;
-
-                if(!switch (filter.getOption()) {
-                    case "Stat" -> switch (comparator) {
-                        case 0 -> charm.hasStat(value);
-                        case 1 -> !charm.hasStat(value);
-                        case 2 -> charm.hasStat(value) && charm.getStat(value) >= constant;
-                        case 3 -> charm.hasStat(value) && charm.getStat(value) > constant;
-                        case 4 -> charm.hasStat(value) && charm.getStat(value) == constant;
-                        case 5 -> charm.hasStat(value) && charm.getStat(value) <= constant;
-                        case 6 -> charm.hasStat(value) && charm.getStat(value) < constant;
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Tier" -> switch (comparator) {
-                        case 0 -> charm.tier().name.equals(value);
-                        case 1 -> !charm.tier().name.equals(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Class" -> switch (comparator) {
-                        case 0 -> charm.itemClass().name.equals(value);
-                        case 1 -> !charm.itemClass().name.equals(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Skill Modifier" -> switch (comparator) {
-                        case 0 -> charm.hasStatModifier(value);
-                        case 1 -> !charm.hasStatModifier(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Charm Power" -> switch (comparator) {
-                        case 2 -> charm.power() >= constant;
-                        case 3 -> charm.power() > constant;
-                        case 4 -> charm.power() == constant;
-                        case 5 -> charm.power() <= constant;
-                        case 6 -> charm.power() < constant;
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Location" -> switch (comparator) {
-                        case 0 -> locationData.containsKey(charm.locationId()) && locationData.get(charm.locationId()).displayName().equals(value);
-                        case 1 -> !locationData.containsKey(charm.locationId()) || !locationData.get(charm.locationId()).displayName().equals(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Base Item" -> switch (comparator) {
-                        case 0 -> charm.baseItem().equals(value);
-                        case 1 -> !charm.baseItem().equals(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    default -> throw new AssertionError();
-                }) continue charmLoop;
+                if (filter == null || filter.isEmpty()) continue;
+                if (filter.blocks(charm)) continue charmLoop;
             }
-
             if (hasCharmNameFilter && !StringUtils.containsIgnoreCase(charm.name(), charmNameFilter)) continue;
 
             validCharms.add(charm);
         }
 
         validCharms.sort((o1, o2) -> {
-            for (Filter f : charmFilters) {
-                if (f.getOption().equals("Stat")) {
-                    float val = o2.getStat(f.value) - o1.getStat(f.value);
+            for (Filter filter : charmFilters) {
+                if (filter.getType() == FilterType.CHARM_STAT) {
+                    float val = o2.getStat(filter.value) - o1.getStat(filter.value);
 
                     if (val == 0) continue;
                     if (val < 0) return -1;
@@ -913,34 +796,9 @@ public class DictionaryController {
         buildLoop:
         for (DictionaryBuild build : builds) {
             for (Filter filter : buildFilters) {
-                if (filter == null || filter.value.isEmpty()) continue;
-
-                String value = filter.value;
-                int comparator = filter.comparator;
-
-                if (!switch (filter.getOption()) {
-                    case "Region" -> switch (comparator) {
-                        case 0 -> build.region.apiName.equals(value);
-                        case 1 -> !build.region.apiName.equals(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Class" -> switch (comparator) {
-                        case 0 -> build.className.name.equals(value);
-                        case 1 -> !build.className.name.equals(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    case "Specialization" -> switch (comparator) {
-                        case 0 -> build.specialization.name.equals(value);
-                        case 1 -> !build.specialization.name.equals(value);
-
-                        default -> throw new AssertionError();
-                    };
-                    default -> throw new AssertionError();
-                }) continue buildLoop;
+                if (filter == null || filter.isEmpty()) continue;
+                if (filter.blocks(build)) continue buildLoop;
             }
-
             if (hasBuildNameFilter && !StringUtils.containsIgnoreCase(build.name, buildNameFilter)) continue;
 
             validBuilds.add(build);

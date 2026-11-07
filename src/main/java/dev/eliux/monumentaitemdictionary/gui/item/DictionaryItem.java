@@ -1,6 +1,7 @@
 package dev.eliux.monumentaitemdictionary.gui.item;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.util.*;
 
 import java.util.List;
@@ -36,6 +37,11 @@ public record DictionaryItem(String name, String type, ItemRegion region, List<I
 
     public boolean hasLocation() {
         return !locationId.isEmpty();
+    }
+
+    public boolean hasLocation(String location) {
+        return !locationId.isEmpty() && Mid.controller.locationData.containsKey(locationId)
+                && Mid.controller.locationData.get(locationId).displayName().equals(location);
     }
 
     public boolean hasEffects() {

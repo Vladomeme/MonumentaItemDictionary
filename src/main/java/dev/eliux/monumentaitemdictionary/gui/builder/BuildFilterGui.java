@@ -13,7 +13,6 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class BuildFilterGui extends Screen {
@@ -26,7 +25,10 @@ public class BuildFilterGui extends Screen {
     private final List<ButtonWidget> filterListComparator;
     private final List<TextFieldWidget> filterListConstant;
     private final List<ItemIconButtonWidget> filterListDelete;
+
+    private final List<FilterType> filterTypes = List.of(FilterType.REGION, FilterType.BUILD_CLASS, FilterType.SPECIALIZATION);
     private final List<Filter> buildFilters = new ArrayList<>();
+
     private final int labelMenuHeight = 30;
     private int removeIndex = -1;
 
@@ -51,65 +53,33 @@ public class BuildFilterGui extends Screen {
             Filter filter = new Filter();
             buildFilters.add(filter);
 
-            ButtonWidget comparator = ButtonWidget.builder(Text.literal("Matches"), b -> {
-                filter.incrementComparator();
-                b.setMessage(Text.literal(
-                        switch (filter.comparator) {
-                            case 0 -> "Matches";
-                            case 1 -> "Excludes";
-                            case 2 -> ">=";
-                            case 3 -> ">";
-                            case 4 -> "=";
-                            case 5 -> "<=";
-                            case 6 -> "<";
-                            default -> "Error";
-                        }
-                ));
-
+            ButtonWidget comparator = ButtonWidget.builder(FilterComparator.EXISTS.text, b -> {
+                filter.nextComparator();
+                b.setMessage(filter.comparator.text);
                 updateFilterOutput();
             }).position(280, labelMenuHeight + 5 + index * 25).size(60, 20).tooltip(Tooltip.of(Text.literal("Click to cycle"))).build();
 
-            DropdownWidget value = new DropdownWidget(textRenderer, 125, labelMenuHeight + 7 + index * 25, 150, Text.empty(), "", List.of(), (v) -> {
+            DropdownWidget value = new DropdownWidget(textRenderer, 125, labelMenuHeight + 7 + index * 25, 150,
+                    Text.empty(), "", List.of(), (v) -> {
                 filter.value = v;
                 updateFilterOutput();
             });
             TextFieldWidget constant = new TextFieldWidget(textRenderer, 345, labelMenuHeight + 8 + index * 25, 30, 14, Text.empty());
             constant.setText("0");
             constant.setChangedListener(c -> {
-                try {
-                    filter.constant = Double.parseDouble(c);
-                }
-                catch (Exception e) {
-                    // error handling is stupid
-                }
+                filter.setConstant(c);
                 updateFilterOutput();
             });
-            DropdownWidget options = new DropdownWidget(textRenderer, 30, labelMenuHeight + 7 + index * 25, 90, Text.empty(), "Select Sort Type", Arrays.asList("Region", "Class", "Specialization"), (v) -> {
-                filter.setOption(v);
-                switch (v) {
-                    case "Region" -> {
-                        value.setChoices(ItemRegion.names());
-                        value.setDefaultText("Select Region");
-                        comparator.setMessage(Text.literal("Matches"));
-                    }
-                    case "Class" -> {
-                        value.setChoices(controller.allCharmClasses);
-                        value.setDefaultText("Select Class");
-                        comparator.setMessage(Text.literal("Matches"));
-                    }
-                    case "Specialization" -> {
-                        value.setChoices(Specialization.classSpecializations);
-                        value.setDefaultText("Select Specialization");
-                        comparator.setMessage(Text.literal("Matches"));
-                    }
-                }
-
+            DropdownWidget options = new DropdownWidget(textRenderer, 30, labelMenuHeight + 7 + index * 25, 90,
+                    Text.empty(), "Select Sort Type", FilterType.namesOf(filterTypes), (v) -> {
+                filter.update(FilterType.of(v), value, comparator);
                 updateFilterOutput();
             });
             ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25,
                     b -> removeIndex = filterListOption.indexOf(options),
                     Text.literal("Delete").setStyle(Styles.RED),
                     "orange_stained_glass_pane", "Cancel");
+
             filterListOption.add(options);
             filterListValue.add(value);
             filterListComparator.add(comparator);
@@ -134,14 +104,17 @@ public class BuildFilterGui extends Screen {
     }
 
     private void updateFilterListPositions() {
-        if (controller.buildDictionaryGuiPreviouslyOpened) {
-            addFilterButton.setY(labelMenuHeight + 5 + filterListOption.size() * 25);
-
-            for (int i = 0; i != filterListOption.size(); i++) filterListOption.get(i).setY(labelMenuHeight + 8 + i * 25);
-            for (int i = 0; i != filterListValue.size(); i++) filterListValue.get(i).setY(labelMenuHeight + 8 + i * 25);
-            for (int i = 0; i != filterListComparator.size(); i++) filterListComparator.get(i).setY(labelMenuHeight + 5 + i * 25);
-            for (int i = 0; i != filterListConstant.size(); i++) filterListConstant.get(i).setY(labelMenuHeight + 8 + i * 25);
-            for (int i = 0; i != filterListDelete.size(); i++) filterListDelete.get(i).setY(labelMenuHeight + 5 + i * 25);
+        if (controller.buildFilterGuiPreviouslyOpened) {
+            int offset = labelMenuHeight;
+            for (int i = 0; i != filterListOption.size(); i++) {
+                filterListOption.get(i).setY(offset + 8);
+                filterListValue.get(i).setY(offset + 8);
+                filterListComparator.get(i).setY(offset + 5);
+                filterListConstant.get(i).setY(offset + 8);
+                filterListDelete.get(i).setY(offset + 5);
+                offset += 25;
+            }
+            addFilterButton.setY(offset + 5);
         }
     }
 
@@ -164,24 +137,21 @@ public class BuildFilterGui extends Screen {
         if (anyOpen) addFilterButton.render(context, 0, 0, delta);
         else addFilterButton.render(context, mouseX, mouseY, delta);
 
-        for (DropdownWidget widget : filterListOption) widget.renderMain(context, mouseX, mouseY, delta);
-        for (int i = 0; i != filterListValue.size(); i++) {
-            if (!filterListOption.get(i).getLastChoice().isEmpty())
-                filterListValue.get(i).renderMain(context, mouseX, mouseY, delta);
-        }
-        for (int i = 0; i != filterListConstant.size(); i++) {
-            if (filterListOption.get(i).getLastChoice().equals("Stat") && !(buildFilters.get(i).comparator < 2))
-                filterListConstant.get(i).render(context, mouseX, mouseY, delta);
-        }
-        for (int i = 0; i != filterListComparator.size(); i++) {
-            if (!filterListOption.get(i).getLastChoice().isEmpty())
+        for (int i = 0; i < filterListOption.size(); i++) {
+            DropdownWidget option = filterListOption.get(i);
+            option.renderMain(context, mouseX, mouseY, delta);
+            option.renderDropdown(context, mouseX, mouseY);
+
+            if (!option.getLastChoice().isEmpty()) {
+                DropdownWidget value = filterListValue.get(i);
+                value.renderMain(context, mouseX, mouseY, delta);
+                value.renderDropdown(context, mouseX, mouseY);
+
                 filterListComparator.get(i).render(context, mouseX, mouseY, delta);
-        }
-        for (ItemIconButtonWidget widget : filterListDelete) widget.render(context, mouseX, mouseY, delta);
-        for (DropdownWidget widget : filterListOption) widget.renderDropdown(context, mouseX, mouseY);
-        for (int i = 0; i != filterListValue.size(); i++) {
-            if (!filterListOption.get(i).getLastChoice().isEmpty())
-                filterListValue.get(i).renderDropdown(context, mouseX, mouseY);
+            }
+            if (buildFilters.get(i).comparator.isNumeric())
+                filterListConstant.get(i).render(context, mouseX, mouseY, delta);
+            filterListDelete.get(i).render(context, mouseX, mouseY, delta);
         }
 
         context.getMatrices().push();
@@ -206,30 +176,29 @@ public class BuildFilterGui extends Screen {
 
         backButton.mouseClicked(mouseX, mouseY, button);
 
-        for (ItemIconButtonWidget widget : filterListDelete) widget.mouseClicked(mouseX, mouseY, button);
         for (int i = 0; i < filterListOption.size(); i++) {
-            if (filterListOption.get(i).mouseClicked(mouseX, mouseY, button)) {
+            filterListDelete.get(i).mouseClicked(mouseX, mouseY, button);
+
+            DropdownWidget option = filterListOption.get(i);
+            DropdownWidget value = filterListValue.get(i);
+            TextFieldWidget constant = filterListConstant.get(i);
+
+            if (option.mouseClicked(mouseX, mouseY, button)) {
                 mouseX = -1000;
-                filterListValue.get(i).setText("");
-                filterListValue.get(i).setFocused(false);
-                filterListConstant.get(i).setText("");
-                filterListConstant.get(i).setFocused(false);
+                value.setText("");
+                value.setFocused(false);
+                constant.setText("");
+                constant.setFocused(false);
             }
-        }
-        for (int i = 0; i != filterListValue.size(); i++) {
-            if (!filterListOption.get(i).getLastChoice().isEmpty()) {
-                if (filterListValue.get(i).mouseClicked(mouseX, mouseY, button)) mouseX = -1000;
-            }
-        }
-        for (int i = 0; i != filterListComparator.size(); i++) {
-            if (!filterListOption.get(i).getLastChoice().isEmpty()) {
+
+            if (!option.getLastChoice().isEmpty()) {
+                if (FilterType.of(filterListOption.get(i).getLastChoice()).hasOptions) {
+                    if (value.mouseClicked(mouseX, mouseY, button)) mouseX = -1000;
+                }
                 if (filterListComparator.get(i).mouseClicked(mouseX, mouseY, button)) mouseX = -1000;
             }
-        }
-        for (int i = 0; i != filterListConstant.size(); i++) {
-            TextFieldWidget widget = filterListConstant.get(i);
-            if (filterListOption.get(i).getLastChoice().equals("Stat") && !(buildFilters.get(i).comparator < 2))
-                widget.setFocused(widget.mouseClicked(mouseX, mouseY, button));
+            if (buildFilters.get(i).comparator.isNumeric())
+                constant.setFocused(constant.mouseClicked(mouseX, mouseY, button));
         }
 
         addFilterButton.mouseClicked(mouseX, mouseY, button);
