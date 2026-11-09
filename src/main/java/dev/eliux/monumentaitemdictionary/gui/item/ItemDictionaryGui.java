@@ -369,9 +369,9 @@ public class ItemDictionaryGui extends Screen {
                 }
 
                 Text line = Text.literal(ItemFormatter.buildStatString(stat.statName(), stat.statValue()))
-                        .setStyle(Style.EMPTY.withColor(ItemColors.getColorForStat(stat.statName(), stat.statValue())));
-                if (ItemFormatter.isStat(stat.statName())) {
-                    if (ItemFormatter.isBaseStat(stat.statName())) baseStats.add(line);
+                        .setStyle(Style.EMPTY.withColor(ItemFormatter.getColorForStat(stat.statName(), stat.statValue())));
+                if (ItemFormatter.stats.contains(stat.statName())) {
+                    if (ItemFormatter.baseStats.contains(stat.statName())) baseStats.add(line);
                     else stats.add(line);
                 }
                 else enchants.add(line);

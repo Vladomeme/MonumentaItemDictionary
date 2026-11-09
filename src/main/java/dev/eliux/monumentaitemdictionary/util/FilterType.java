@@ -75,7 +75,7 @@ public enum FilterType {
     ITEM_STAT ("Stat", FULL, true) {
         void setChoices(DropdownWidget widget) {
             List<String> list = new ArrayList<>(Mid.controller.allItemStats.size());
-            for (String s : Mid.controller.allItemStats) list.add(ItemFormatter.formatStat(s));
+            for (String s : Mid.controller.allItemStats) list.add(ItemFormatter.fromSnakeCase(s));
             widget.setChoices(Mid.controller.allItemStats, list);
         }
 
@@ -131,7 +131,7 @@ public enum FilterType {
     SKILL_MODIFIER ("Skill Modifier", PRESENCE, true) {
         void setChoices(DropdownWidget widget) {
             List<String> list = new ArrayList<>(Mid.controller.allCharmSkillMods.size());
-            for (String s : Mid.controller.allCharmSkillMods) list.add(ItemFormatter.formatCharmSkill(s));
+            for (String s : Mid.controller.allCharmSkillMods) list.add(ItemFormatter.fromSnakeCase(s));
             widget.setChoices(Mid.controller.allCharmSkillMods, list);
         }
 
@@ -163,7 +163,7 @@ public enum FilterType {
     CHARM_STAT ("Charm Stat", FULL, true) {
         void setChoices(DropdownWidget widget) {
             List<String> list = new ArrayList<>(Mid.controller.allCharmStats.size());
-            for (String s : Mid.controller.allCharmStats) list.add(ItemFormatter.formatCharmStat(s));
+            for (String s : Mid.controller.allCharmStats) list.add(ItemFormatter.fromSnakeCase(s));
             widget.setChoices(Mid.controller.allCharmStats, list);
         }
 

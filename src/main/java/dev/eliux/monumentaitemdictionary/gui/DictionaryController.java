@@ -521,7 +521,7 @@ public class DictionaryController {
                 JsonObject statObject = itemData.get("stats").getAsJsonObject();
                 for (Map.Entry<String, JsonElement> statEntry : statObject.entrySet()) {
                     String statName = statEntry.getKey();
-                    if (ItemFormatter.isHiddenStat(statName)) continue;
+                    if (ItemFormatter.hiddenStats.contains(statName)) continue;
 
                     if (!statMap.containsKey(statName) && !itemNbt.isEmpty()) statMap.put(statName, itemNbt);
                     itemStats.add(new ItemStat(statName, statEntry.getValue().getAsFloat()));

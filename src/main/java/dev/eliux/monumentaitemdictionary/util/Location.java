@@ -19,9 +19,9 @@ public record Location(String displayName, int color, int loreColor) {
     }
 
     private static int loreColor(int color) {
-        int h1r = ItemColors.TEXT_COLOR / (256 * 256);
-        int h1g = (ItemColors.TEXT_COLOR / 256) % 256;
-        int h1b = ItemColors.TEXT_COLOR % 256;
+        int h1r = Styles.TEXT_COLOR / (256 * 256);
+        int h1g = (Styles.TEXT_COLOR / 256) % 256;
+        int h1b = Styles.TEXT_COLOR % 256;
 
         int h2r = color / (256 * 256);
         int h2g = (color / 256) % 256;

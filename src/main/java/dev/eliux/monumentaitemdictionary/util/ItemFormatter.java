@@ -20,29 +20,44 @@ import java.util.Set;
 
 public class ItemFormatter {
 
-    public static final String[] charmStatExceptions = {"decay", "recoil", "jungle's_nourishment", "rage_of_the_keter",
+    private static final String[] charmStatExceptions = {"decay", "recoil", "jungle's_nourishment", "rage_of_the_keter",
             "devastation", "elemental_spirit", "rupture"};
 
     private static final Set<String> singleEnchants = new HashSet<>();
 
-    private static final Set<String> curseEnchants = new HashSet<>();
+    public static final Set<String> curseEnchants = new HashSet<>();
 
-    private static final Set<String> stats = new HashSet<>(List.of("armor", "agility", "spell_power_base", "projectile_speed_percent",
+    public static final Set<String> stats = new HashSet<>(List.of("armor", "agility", "spell_power_base", "projectile_speed_percent",
             "knockback_resistance_flat", "attack_damage_base", "thorns_percent", "max_health_flat", "projectile_damage_base", "throw_rate_percent",
             "attack_speed_flat", "projectile_speed_base", "attack_damage_percent", "max_health_percent", "projectile_damage_percent", "magic_damage_percent",
             "attack_speed_percent", "thorns_flat", "speed_flat", "speed_percent", "attack_speed_base", "potion_damage_flat", "potion_radius_flat",
             "throw_rate_base", "potion_recharge_rate_percent"));
 
-    private static final Set<String> baseStats = new HashSet<>(List.of("projectile_damage_base", "projectile_speed_base", "potion_damage_flat", "potion_radius_flat",
+    public static final Set<String> baseStats = new HashSet<>(List.of("projectile_damage_base", "projectile_speed_base", "potion_damage_flat", "potion_radius_flat",
             "attack_speed_base", "attack_damage_base", "throw_rate_base", "potion_recharge_rate_percent"));
 
-    private static final Set<String> hiddenStats = new HashSet<>(List.of("noglint", "hideenchants", "hideinfo", "utility_item_for_armory"));
+    public static final Set<String> hiddenStats = new HashSet<>(List.of("noglint", "hideenchants", "hideinfo", "utility_item_for_armory"));
 
     public static String buildStatString(String name, float value) {
-        if (isStat(name))
-            return (value < 0 ? "" : (isBaseStat(name) ? " " : "+")) + (name.equals("knockback_resistance_flat") ? 10 * value
-                    : (name.equals("potion_recharge_rate_percent")) ? value / 100 : value) + (isPercentStat(name) ? "" : " ") + formatStat(name);
-        else return formatStat(name) + " " + (isSingleEnchant(name) ? "" : (int) value);
+        StringBuilder builder = new StringBuilder();
+        if (stats.contains(name)) {
+            if (value >= 0 && baseStats.contains(name)) builder.append("+");
+
+            if (name.equals("knockback_resistance_flat")) value *= 10;
+            else if (name.equals("potion_recharge_rate_percent")) value /= 100;
+            builder.append(value);
+
+            if (isPercentStat(name)) builder.append(" ");
+            builder.append(fromSnakeCase(name));
+
+            return builder.toString();
+        }
+        else {
+            builder.append(fromSnakeCase(name));
+            builder.append(" ");
+            if (singleEnchants.contains(name)) builder.append((int) value);
+        }
+        return builder.toString();
     }
 
     public static boolean shouldBoldFish(int fishTier) {
@@ -51,6 +66,12 @@ public class ItemFormatter {
 
     public static boolean shouldUnderlineFish(int fishTier) {
         return (fishTier >= 5);
+    }
+
+    public static boolean isPercentStat(String inStat) {
+        return (inStat.endsWith("_percent") && !inStat.equals("potion_recharge_rate_percent")) ||
+                inStat.equals("spell_power_base") ||
+                inStat.equals("knockback_resistance_flat");
     }
 
     public static Text getLocationText(String locationId) {
@@ -62,6 +83,15 @@ public class ItemFormatter {
         else text = Text.literal(location.displayName());
 
         return text.setStyle(Style.EMPTY.withColor(location.color()));
+    }
+
+    public static int getColorForStat(String itemStat, float value) {
+        if (value < 0 || ItemFormatter.curseEnchants.contains(itemStat)) return 0xFF5555;
+        if (itemStat.equals("armor") || itemStat.equals("agility")) return 0x33CCFF;
+        if (ItemFormatter.baseStats.contains(itemStat)) return 0x00AA00;
+        if (ItemFormatter.stats.contains(itemStat)) return 0x5555FF;
+
+        return 0xAAAAAA;
     }
 
     public static String formatUseLine(String inType) {
@@ -76,37 +106,6 @@ public class ItemFormatter {
             case "Offhand", "Offhand Sword", "Offhand Shield" -> "When in Offhand";
             default -> "When Used:";
         };
-    }
-
-    public static String formatStat(String stat) {
-        switch (stat) { //exceptions
-            case "jungles_nourishment" -> {return "Jungle's Nourishment";}
-            case "spell_power_base" -> {return "% Spell Power";}
-            case "knockback_resistance_flat" -> {return "% Knockback Resistance";}
-            case "potion_recharge_rate_percent" -> {return "Potion Recharge Rate";}
-        }
-
-        if (stat.endsWith("_base")) stat = stat.substring(0, stat.length() - 5);
-        if (stat.endsWith("_flat")) stat = stat.substring(0, stat.length() - 5);
-        if (stat.endsWith("_percent")) stat = "% " + stat.substring(0, stat.length() - 8);
-
-        //replace underscores, make first letter of each word uppercase
-        char[] chars = stat.toCharArray();
-        if (chars[0] >= 'a' && chars[0] <= 'z') chars[0] -= 32;
-        for (int i = 1; i != chars.length; i++) {
-            while (chars[i] != '_' && chars[i] != ' ') {
-                i++;
-                if (i == chars.length) return String.copyValueOf(chars);
-            }
-            chars[i] = ' ';
-            if (i + 1 != chars.length) {
-                if (chars[i + 1] >= 'a' && chars[i + 1] <= 'z') {
-                    chars[i + 1] -= 32;
-                    i++;
-                }
-            }
-        }
-        return String.copyValueOf(chars);
     }
     
     public static String formatEffect(String effect, String enchant) {
@@ -176,41 +175,46 @@ public class ItemFormatter {
         return "ERR";
     }
 
-    public static String formatCharmStat(String inStat) {
-        String stat = inStat;
-
-        if (stat.endsWith("_flat")) stat = stat.substring(0, stat.lastIndexOf("_flat"));
-        if (stat.endsWith("_percent")) stat = "%_" + stat.substring(0, stat.lastIndexOf("_percent"));
-        stat = stat.replace("_", " ");
-
-        if (stat.length() > 1) stat = stat.substring(0, 1).toUpperCase() + stat.substring(1);
-        for (int i = 0; i < stat.length() - 1; i++) {
-            if (stat.charAt(i) == ' ') {
-                stat = stat.substring(0, i + 1) + stat.substring(i + 1, i + 2).toUpperCase() + stat.substring(i + 2);
-            }
+    public static String fromSnakeCase(String s) {
+        switch (s) { //exceptions
+            case "jungles_nourishment" -> {return "Jungle's Nourishment";}
+            case "spell_power_base" -> {return "% Spell Power";}
+            case "knockback_resistance_flat" -> {return "% Knockback Resistance";}
+            case "potion_recharge_rate_percent" -> {return "Potion Recharge Rate";}
         }
 
-        return stat;
+        if (s.endsWith("_base")) s = s.substring(0, s.length() - 5);
+        if (s.endsWith("_flat")) s = s.substring(0, s.length() - 5);
+        if (s.endsWith("_percent")) s = "% " + s.substring(0, s.length() - 8);
+
+        return toUpperCase(s);
     }
 
-    public static String formatCharmSkill(String inSkill) {
-        String skill = inSkill;
+    //replaces underscores, makes first letter of each word uppercase
+    public static String toUpperCase(String s) {
+        if (s.isEmpty()) return "";
 
-        skill = skill.replace("_", " ");
-
-        if (skill.length() > 1) skill = skill.substring(0, 1).toUpperCase() + skill.substring(1);
-        for (int i = 0; i < skill.length() - 1; i++) {
-            if (skill.charAt(i) == ' ') {
-                skill = skill.substring(0, i + 1) + skill.substring(i + 1, i + 2).toUpperCase() + skill.substring(i + 2);
+        char[] chars = s.toCharArray();
+        if (chars[0] >= 'a' && chars[0] <= 'z') chars[0] -= 32;
+        for (int i = 1; i != chars.length; i++) {
+            while (chars[i] != '_' && chars[i] != ' ') {
+                i++;
+                if (i == chars.length) return String.copyValueOf(chars);
+            }
+            chars[i] = ' ';
+            if (i + 1 != chars.length) {
+                if (chars[i + 1] >= 'a' && chars[i + 1] <= 'z') {
+                    chars[i + 1] -= 32;
+                    i++;
+                }
             }
         }
-
-        return skill;
+        return String.copyValueOf(chars);
     }
 
-    public static String toSnakeCase(String name) {
+    public static String toSnakeCase(String s) {
         StringBuilder builder = new StringBuilder();
-        char[] chars = name.toCharArray();
+        char[] chars = s.toCharArray();
 
         for (int i = 0; i != chars.length; i++) {
             char c = chars[i];
@@ -219,32 +223,6 @@ public class ItemFormatter {
             else if (c >= 'A' && c <= 'Z') builder.append((char) (c + 32));
         }
         return builder.toString();
-    }
-
-    public static boolean isSingleEnchant(String inEnchant) {
-        return singleEnchants.contains(inEnchant);
-    }
-
-    public static boolean isCurseEnchant(String inEnchant) {
-        return curseEnchants.contains(inEnchant);
-    }
-
-    public static boolean isStat(String inStat) {
-        return stats.contains(inStat);
-    }
-
-    public static boolean isPercentStat(String inStat) {
-        return (inStat.endsWith("_percent") && !inStat.equals("potion_recharge_rate_percent")) ||
-                inStat.equals("spell_power_base") ||
-                inStat.equals("knockback_resistance_flat");
-    }
-
-    public static boolean isBaseStat(String inStat) {
-        return baseStats.contains(inStat);
-    }
-
-    public static boolean isHiddenStat(String inStat) {
-        return hiddenStats.contains(inStat);
     }
 
     public static void extractEnchantInfo(Map<String, String> statMap) {
