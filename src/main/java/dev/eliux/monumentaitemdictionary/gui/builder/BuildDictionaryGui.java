@@ -33,7 +33,6 @@ public class BuildDictionaryGui extends Screen {
     public final Map<DictionaryBuild, BuildButtonWidget> buildsButtons = new HashMap<>();
     private TextFieldWidget searchBar;
     private ItemIconButtonWidget filterButton;
-    public final List<String> itemTypesIndex = Arrays.asList("Mainhand", "Offhand", "Helmet", "Chestplate", "Leggings", "Boots");
 
     public BuildDictionaryGui(Text title, DictionaryController controller) {
         super(title);
@@ -208,9 +207,9 @@ public class BuildDictionaryGui extends Screen {
                 itemJson.addProperty("name", item.name());
                 itemJson.addProperty("exalted", item.region() == ItemRegion.RING);
 
-                itemsJson.add(item.type(), itemJson);
+                itemsJson.add(item.type().name, itemJson);
             }
-            else itemsJson.add(itemTypesIndex.get(i), new JsonObject());
+            else itemsJson.add(ItemType.equipmentList.get(i).name, new JsonObject());
 
             i++;
         }

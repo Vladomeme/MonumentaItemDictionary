@@ -9,12 +9,13 @@ import java.util.Objects;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.BookScreen;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import org.jetbrains.annotations.NotNull;
 
-public record DictionaryItem(String name, String type, ItemRegion region, List<ItemTier> tier, String locationId,
+public record DictionaryItem(String name, ItemType type, ItemRegion region, List<ItemTier> tier, String locationId,
                              int fishTier, boolean isFish, String baseItem, String lore, List<String> nbt,
                              List<List<ItemStat>> stats, List<String> effects, boolean hasMasterwork) implements Comparable<DictionaryItem> {
 
@@ -162,7 +163,7 @@ public record DictionaryItem(String name, String type, ItemRegion region, List<I
             if (value != 0) return value;
         }
 
-        value = type.compareTo(o.type);
+        value = o.type.ordinal() - type.ordinal();
         if (value != 0) return value;
 
         return name.compareTo(o.name);

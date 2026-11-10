@@ -458,9 +458,9 @@ public class DictionaryController {
                         || !itemData.has("base_item")) continue;
 
                 // TYPE (must be present)
-                String itemType = itemData.get("type").getAsString();
-                if (itemType.equals("Charm")) continue;
-                itemTypeSet.add(itemType);
+                ItemType itemType = ItemType.of(itemData.get("type").getAsString());
+                if (itemType == ItemType.CHARM) continue;
+                itemTypeSet.add(itemType.name);
 
                 // BASE ITEM (must be present)
                 String itemBaseItem = itemData.get("base_item").getAsString();
@@ -631,7 +631,7 @@ public class DictionaryController {
             for (JsonElement charmElement : data.asMap().values()) {
                 JsonObject charmData = (JsonObject) charmElement;
 
-                if (!charmData.get("type").getAsString().equals("Charm")) continue;
+                if (!charmData.has("type") || !charmData.get("type").getAsString().equals("Charm")) continue;
 
                 if (!charmData.has("name")
                         || !charmData.has("locationId")
@@ -739,11 +739,11 @@ public class DictionaryController {
             if (hasItemNameFilter && !StringUtils.containsIgnoreCase(item.name(), itemNameFilter)) continue;
 
             if (itemGui.isGettingBuildItem) {
-                if (itemGui.itemTypeLookingFor.equals("Mainhand")) {
-                    if (!Filter.mainhandTypes.contains(item.type())) continue;
+                if (itemGui.itemTypeLookingFor == ItemType.MAINHAND) {
+                    if (!item.type().isMainhand) continue;
                 }
-                else if (itemGui.itemTypeLookingFor.equals("Offhand")) {
-                    if (!Filter.offhandTypes.contains(item.type())) continue;
+                else if (itemGui.itemTypeLookingFor == ItemType.OFFHAND) {
+                    if (!item.type().isOffhand) continue;
                 }
                 else if (!item.type().equals(itemGui.itemTypeLookingFor)) continue;
             }
@@ -845,7 +845,7 @@ public class DictionaryController {
         return null;
     }
 
-    public void getItemFromDictionary(String itemType) {
+    public void getItemFromDictionary(ItemType itemType) {
         itemGui.postInit();
         itemGui.isGettingBuildItem = true;
         itemGui.itemTypeLookingFor = itemType;

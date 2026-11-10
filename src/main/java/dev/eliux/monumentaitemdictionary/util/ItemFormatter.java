@@ -93,20 +93,6 @@ public class ItemFormatter {
 
         return 0xAAAAAA;
     }
-
-    public static String formatUseLine(String inType) {
-        return switch (inType) {
-            case "Helmet" -> "When on Head:";
-            case "Chestplate" -> "When on Chest:";
-            case "Leggings" -> "When on Legs:";
-            case "Boots" -> "When on Feet:";
-            case "Wand", "Axe", "Pickaxe", "Mainhand Sword", "Mainhand Shield", "Bow", "Trident", "Snowball", "Shovel",
-                 "Mainhand", "Scythe", "Crossbow" -> "When in Main Hand:";
-            case "Projectile" -> "When Shot:";
-            case "Offhand", "Offhand Sword", "Offhand Shield" -> "When in Offhand";
-            default -> "When Used:";
-        };
-    }
     
     public static String formatEffect(String effect, String enchant) {
         return switch (effect) {

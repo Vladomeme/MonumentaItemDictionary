@@ -107,7 +107,7 @@ public class Stats {
     private final double perspicacity;
     private final Map<String, Integer> situationalsLevels;
     private final Map<String, Boolean> enabledSituationals;
-    private final Map<String, List<ItemStat>> allItemStats = new HashMap<>();
+    private final Map<ItemType, List<ItemStat>> allItemStats = new HashMap<>();
     private final ItemRegion currentRegion;
 
     public Stats(List<DictionaryItem> items, Map<String, Boolean> enabledSituationals, Map<String, Boolean> infusions,
@@ -139,12 +139,11 @@ public class Stats {
             put("versatile", 0);
         }};
 
-        List<String> itemTypes = new ArrayList<>(Arrays.asList("mainhand", "offhand", "helmet", "chestplate", "leggings", "boots"));
-        for (int i = 0; i < itemTypes.size(); i++) {
+        for (int i = 0; i < ItemType.equipmentList.size(); i++) {
             if (items.get(i) != null) {
                 DictionaryItem item = items.get(i);
                 List<ItemStat> itemStats = item.hasMasterwork() ? item.getStatsFromMasterwork(item.getMaxMasterwork() - 1) : item.getStatsNoMasterwork();
-                allItemStats.put(itemTypes.get(i), itemStats);
+                allItemStats.put(ItemType.equipmentList.get(i), itemStats);
             }
         }
 
@@ -156,7 +155,7 @@ public class Stats {
     }
 
     private void calculateOffenseStats() {
-        List<ItemStat> mainhand = allItemStats.get("mainhand");
+        List<ItemStat> itemStats = allItemStats.get(ItemType.MAINHAND);
         if (enabledSituationals.get("versatile")) {
             double extraAttackDamagePercent = (projectileDamagePercent.perc - 100) * 0.5;
             double extraProjectileDamagePercent = (attackDamagePercent.perc - 100) * 0.4;
@@ -164,23 +163,23 @@ public class Stats {
             projectileDamagePercent.add(extraProjectileDamagePercent, true);
         }
 
-        attackDamage = sumNumberStat(mainhand, "attack_damage_base", attackDamage)
+        attackDamage = sumNumberStat(itemStats, "attack_damage_base", attackDamage)
                 * attackDamagePercent.val
                 * (1 + 0.0075 * vigor)
                 * ((currentHealthPercent.perc <= 50) ? 1 - 0.1 * crippling : 1);
-        attackSpeed = (sumNumberStat(mainhand, "attack_speed_base", attackSpeed) + attackSpeedFlatBonus) * attackSpeedPercent.val;
+        attackSpeed = (sumNumberStat(itemStats, "attack_speed_base", attackSpeed) + attackSpeedFlatBonus) * attackSpeedPercent.val;
         attackDamageCrit = (attackDamage * 1.5);
         iframeDPS = ((attackSpeed >= 2) ? attackDamage * 2 : attackDamage * attackSpeed);
         iframeCritDPS = ((attackSpeed >= 2) ? attackDamageCrit * 2 : attackDamageCrit * attackSpeed);
 
-        projectileDamage = sumNumberStat(mainhand, "projectile_damage_base", projectileDamage)
+        projectileDamage = sumNumberStat(itemStats, "projectile_damage_base", projectileDamage)
                 * projectileDamagePercent.val
                 * (1 + 0.0075 * focus);
-        projectileSpeed = sumNumberStat(mainhand, "projectile_speed_base", projectileSpeed) * projectileDamagePercent.val;
-        throwRate = sumNumberStat(mainhand, "throw_rate_base", throwRate) * throwRatePercent.val;
+        projectileSpeed = sumNumberStat(itemStats, "projectile_speed_base", projectileSpeed) * projectileDamagePercent.val;
+        throwRate = sumNumberStat(itemStats, "throw_rate_base", throwRate) * throwRatePercent.val;
 
         potionDamage *= magicDamagePercent.val;
-        spellPowerPercent.add(sumNumberStat(mainhand, "spell_power_base", 0), true);
+        spellPowerPercent.add(sumNumberStat(itemStats, "spell_power_base", 0), true);
         spellDamage = (
                 spellPowerPercent.duplicate()
                         .mulP(magicDamagePercent)
@@ -335,8 +334,7 @@ public class Stats {
     }
 
     private void sumAllStats() {
-        allItemStats.keySet().forEach(type -> {
-            List<ItemStat> itemStats = allItemStats.get(type);
+        allItemStats.values().forEach(itemStats -> {
             healthPercent.add(sumNumberStat(itemStats, "max_health_percent", 0), true);
             healthFlat += sumNumberStat(itemStats, "max_health_flat", 0);
             agility += sumNumberStat(itemStats, "agility", 0);

@@ -90,8 +90,8 @@ public class ItemFilterGui extends Screen {
                     Text.literal("Delete").setStyle(Styles.RED),
                     "orange_stained_glass_pane", "Cancel");
 
-            if (itemGui.isGettingBuildItem && !(itemGui.itemTypeLookingFor.equals("Mainhand")
-                    || itemGui.itemTypeLookingFor.equals("Offhand")))
+            if (itemGui.isGettingBuildItem && !(itemGui.itemTypeLookingFor == ItemType.MAINHAND)
+                    || itemGui.itemTypeLookingFor == ItemType.OFFHAND)
                 options.setChoices(FilterType.namesOf(filterTypesNoStat));
 
             filterListOption.add(options);

@@ -3,15 +3,8 @@ package dev.eliux.monumentaitemdictionary.util;
 import dev.eliux.monumentaitemdictionary.gui.widgets.DropdownWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 public class Filter {
 
-    public static final List<String> mainhandTypes = List.of("Mainhand", "Mainhand Sword", "Mainhand Shield",
-            "Wand", "Axe", "Pickaxe", "Trident", "Snowball", "Shovel", "Scythe", "Bow", "Crossbow");
-    public static final Set<String> offhandTypes = new HashSet<>(List.of("Offhand", "Offhand Sword", "Offhand Shield"));
 
     private FilterType type;
     public FilterComparator comparator;

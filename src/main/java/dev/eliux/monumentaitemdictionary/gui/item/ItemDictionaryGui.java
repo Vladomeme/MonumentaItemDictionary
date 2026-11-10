@@ -30,7 +30,7 @@ public class ItemDictionaryGui extends Screen {
     public final int labelMenuHeight = 30;
     public final int itemPadding = 7;
     public final int itemSize = 25;
-    public String itemTypeLookingFor;
+    public ItemType itemTypeLookingFor;
     private int scrollPixels = 0;
 
     private final MinecraftClient client = MinecraftClient.getInstance();
@@ -251,7 +251,7 @@ public class ItemDictionaryGui extends Screen {
     public void returnItem(DictionaryItem item) {
         BuilderGui builderGui = controller.builderGui;
 
-        int index = builderGui.itemTypesIndex.indexOf(itemTypeLookingFor);
+        int index = ItemType.equipmentList.indexOf(itemTypeLookingFor);
         builderGui.buildItems.set(index, item);
 
         builderGui.updateButtons();
@@ -380,7 +380,7 @@ public class ItemDictionaryGui extends Screen {
 
         if (showStats != null) lines.addAll(enchants);
 
-        if (item.type().equals("Wand"))
+        if (item.type() == ItemType.WAND)
             lines.add(Text.literal("* Magic Wand *").setStyle(Styles.TEXT));
         if (isAlchemicalUtensil)
             lines.add(Text.literal("* Alchemical Utensil *").setStyle(Styles.TEXT));
@@ -419,7 +419,7 @@ public class ItemDictionaryGui extends Screen {
         if (showStats != null) {
             if (!stats.isEmpty() || !baseStats.isEmpty()) {
                 lines.add(Text.empty());
-                lines.add(Text.literal(ItemFormatter.formatUseLine(item.type())).setStyle(Styles.LIGHT_GRAY));
+                lines.add(Text.literal(item.type().useLine).setStyle(Styles.LIGHT_GRAY));
             }
 
             lines.addAll(baseStats);

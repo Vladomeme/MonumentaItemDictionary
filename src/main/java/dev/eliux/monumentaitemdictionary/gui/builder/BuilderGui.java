@@ -37,7 +37,6 @@ public class BuilderGui extends Screen {
     public static final int MAX_CHARM_POWER = 12;
 
     private final DictionaryController controller;
-    public final List<String> itemTypesIndex = Arrays.asList("Mainhand", "Offhand", "Helmet", "Chestplate", "Leggings", "Boots");
     public final List<String> situationals = Arrays.asList("Shielding", "Poise", "Inure", "Steadfast", "Guard", "Second Wind",
             "Ethereal", "Reflexes", "Evasion", "Tempo", "Cloaked", "Adaptability");
     public final List<String> infusions = Arrays.asList("Vigor", "Focus", "Tenacity", "Vitality", "Perspicacity");
@@ -206,9 +205,9 @@ public class BuilderGui extends Screen {
 
     private void getBuildUrl() {
         StringBuilder baseUrl = new StringBuilder("https://odetomisery.vercel.app/builder/");
-        for (int i = 0; i < itemTypesIndex.size(); i++) {
+        for (int i = 0; i < ItemType.equipmentList.size(); i++) {
             DictionaryItem item  = buildItems.get(i);
-            baseUrl.append(itemTypesIndex.get(i).substring(0, 1).toLowerCase()).append("=");
+            baseUrl.append(Character.toLowerCase(ItemType.equipmentList.get(i).name.charAt(0))).append("=");
             if (item != null) {
                 if (item.region() != ItemRegion.RING) {
                     if (item.name().equals("Carcano 91/38"))
@@ -357,7 +356,7 @@ public class BuilderGui extends Screen {
 
     private BuildItemButtonWidget getBuildItemButtonWidget(int i) {
         DictionaryItem item = buildItems.get(i);
-        String itemType = itemTypesIndex.get(i);
+        ItemType itemType = ItemType.equipmentList.get(i);
         return new BuildItemButtonWidget(
                 (i < 2) ? halfWidth + halfWidthPadding : itemPadding,
                 labelMenuHeight + itemPadding + (buttonSize+itemPadding) * (i < 2 ? i : i - 2) - scrollPixels,
@@ -367,10 +366,10 @@ public class BuilderGui extends Screen {
         );
     }
 
-    private void itemButtonClicked(@Nullable DictionaryItem item, String itemType, boolean shiftDown, boolean controlDown) {
+    private void itemButtonClicked(@Nullable DictionaryItem item, ItemType itemType, boolean shiftDown, boolean controlDown) {
         if (!shiftDown && !controlDown) controller.getItemFromDictionary(itemType);
         else if (shiftDown && !controlDown) {
-            buildItems.set(itemTypesIndex.indexOf(itemType), null);
+            buildItems.set(ItemType.equipmentList.indexOf(itemType), null);
             updateStats();
         }
         else if (!shiftDown && item != null) {
@@ -580,7 +579,7 @@ public class BuilderGui extends Screen {
         for (int i = 0; i < buildItemButtons.size(); i++) {
             int x = ((i < 2) ? halfWidth + halfWidthPadding : itemPadding) + buttonSize + 2 * itemPadding;
             int y = labelMenuHeight + itemPadding + (buttonSize + itemPadding) * (i < 2 ? i : i - 2) - scrollPixels;
-            String text = getSlidingText(itemTypesIndex.get(i), x, (i < 2) ? width - sideMenuWidth : width / 3, true);
+            String text = getSlidingText(ItemType.equipmentList.get(i).name, x, (i < 2) ? width - sideMenuWidth : width / 3, true);
             context.drawTextWithShadow(textRenderer, Text.literal(text).setStyle(Styles.BOLD), x, y, Colors.WHITE);
         }
 

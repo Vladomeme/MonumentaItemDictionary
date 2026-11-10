@@ -60,15 +60,15 @@ public enum FilterType {
             ItemDictionaryGui itemGui = Mid.controller.itemGui;
 
             if (itemGui.isGettingBuildItem) {
-                if (itemGui.itemTypeLookingFor.equals("Mainhand")) widget.setChoices(Filter.mainhandTypes);
-                if (itemGui.itemTypeLookingFor.equals("Offhand")) widget.setChoices(Filter.offhandTypes);
-                widget.setChoices(List.of(itemGui.itemTypeLookingFor));
+                if (itemGui.itemTypeLookingFor == ItemType.MAINHAND) widget.setChoices(ItemType.mainhandTypes());
+                else if (itemGui.itemTypeLookingFor == ItemType.OFFHAND) widget.setChoices(ItemType.offhandTypes());
+                else widget.setChoices(List.of(itemGui.itemTypeLookingFor));
             }
             widget.setChoices(Mid.controller.allItemTypes);
         }
 
         boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryItem item) return comparator.test(item.type().equals(fValue));
+            if (object instanceof DictionaryItem item) return comparator.test(item.type() == ItemType.of(fValue));
             return unexpectedType(this, object);
         }
     },
