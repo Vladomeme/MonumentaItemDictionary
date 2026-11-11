@@ -1,5 +1,6 @@
 package dev.eliux.monumentaitemdictionary.util;
 
+import dev.eliux.monumentaitemdictionary.Mid;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -81,7 +82,11 @@ public enum ItemTier {
             case "Fish" -> FISH;
             case "Legacy" -> LEGACY;
             case "Obfuscated" -> OBFUSCATED;
-            default -> DEFAULT;
+            case "No Tier" -> DEFAULT;
+            default -> {
+                Mid.LOGGER.info("Unknown tier: {}", name);
+                yield DEFAULT;
+            }
         };
     }
 

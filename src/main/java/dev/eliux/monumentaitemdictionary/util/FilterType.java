@@ -6,9 +6,12 @@ import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.gui.item.ItemDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.widgets.DropdownWidget;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static dev.eliux.monumentaitemdictionary.util.FilterComparator.Range.*;
 
@@ -20,7 +23,7 @@ public enum FilterType {
             widget.setChoices(List.of());
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
             return true;
         }
     },
@@ -29,9 +32,13 @@ public enum FilterType {
             widget.setChoices(ItemRegion.names());
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryItem item) return comparator.test(item.region().apiName.equals(fValue));
-            else if (object instanceof DictionaryBuild build) return comparator.test(build.region.apiName.equals(fValue));
+        Object parseValue(String value) {
+            return ItemRegion.of(value);
+        }
+
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryItem item) return comparator.test(item.region().equals(fValue));
+            else if (object instanceof DictionaryBuild build) return comparator.test(build.region.equals(fValue));
             return unexpectedType(this, object);
         }
     },
@@ -41,8 +48,12 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allItemTiers);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryItem item) return comparator.test(item.hasTier(fValue));
+        Object parseValue(String value) {
+            return ItemTier.of(value);
+        }
+
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryItem item) return comparator.test(item.hasTier((ItemTier) fValue));
             return unexpectedType(this, object);
         }
     },
@@ -51,8 +62,15 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allItemLocations);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryItem item) return comparator.test(item.hasLocation(fValue));
+        Object parseValue(String value) {
+            for (Map.Entry<String, Location> entry : Mid.controller.locationData.entrySet()) {
+                if (entry.getValue().displayName().equals(value)) return entry.getKey();
+            }
+            return "";
+        }
+
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryItem item) return comparator.test(item.hasLocation((String) fValue));
             return unexpectedType(this, object);
         }
     },
@@ -68,8 +86,12 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allItemTypes);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryItem item) return comparator.test(item.type() == ItemType.of(fValue));
+        Object parseValue(String value) {
+            return ItemType.of(value);
+        }
+
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryItem item) return comparator.test(item.type().equals(fValue));
             return unexpectedType(this, object);
         }
     },
@@ -80,10 +102,11 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allItemStats, list);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
             if (object instanceof DictionaryItem item) {
-                if (comparator.isPresence()) return comparator.test(item.hasStat(fValue));
-                return comparator.test(item.hasStat(fValue), item.getStat(fValue), fConstant);
+                String value = (String) fValue;
+                if (comparator.isPresence()) return comparator.test(item.hasStat(value));
+                return comparator.test(item.hasStat(value), item.getStat(value), fConstant);
             }
             return unexpectedType(this, object);
         }
@@ -93,8 +116,12 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allItemBaseItems);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryItem item) return comparator.test(item.baseItem().getName().getString().equals(fValue));
+        Object parseValue(String value) {
+            return Registries.ITEM.get(Identifier.of(value.toLowerCase().replace(" ", "_")));
+        }
+
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryItem item) return comparator.test(item.baseItem().equals(fValue));
             return unexpectedType(this, object);
         }
     },
@@ -103,8 +130,8 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allItemEffects);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryItem item) return comparator.test(item.hasEffects() && item.effects().contains(fValue));
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryItem item) return comparator.test(item.hasEffect((String) fValue));
             return unexpectedType(this, object);
         }
     },
@@ -114,8 +141,12 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allCharmTiers);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryCharm charm) return comparator.test(charm.tier().name.equals(fValue));
+        Object parseValue(String value) {
+            return ItemTier.of(value);
+        }
+
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryCharm charm) return comparator.test(charm.tier().equals(fValue));
             return unexpectedType(this, object);
         }
     },
@@ -124,8 +155,15 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allCharmLocations);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryCharm charm) return comparator.test(charm.hasLocation(fValue));
+        Object parseValue(String value) {
+            for (Map.Entry<String, Location> entry : Mid.controller.locationData.entrySet()) {
+                if (entry.getValue().displayName().equals(value)) return entry.getKey();
+            }
+            return "";
+        }
+
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryCharm charm) return comparator.test(charm.locationId().equals(fValue));
             return unexpectedType(this, object);
         }
     },
@@ -136,8 +174,8 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allCharmSkillMods, list);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryCharm charm) return comparator.test(charm.hasStatModifier(fValue));
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryCharm charm) return comparator.test(charm.hasStatModifier((String) fValue));
             return unexpectedType(this, object);
         }
     },
@@ -146,8 +184,12 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allCharmClasses);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryCharm charm) return comparator.test(charm.itemClass().name.equals(fValue));
+        Object parseValue(String value) {
+            return PlayerClass.of(value);
+        }
+
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryCharm charm) return comparator.test(charm.itemClass().equals(fValue));
             return unexpectedType(this, object);
         }
     },
@@ -156,7 +198,7 @@ public enum FilterType {
             widget.setChoices(List.of());
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
             if (object instanceof DictionaryCharm charm) return comparator.test(charm.power(), fConstant);
             return unexpectedType(this, object);
         }
@@ -168,10 +210,11 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allCharmStats, list);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
             if (object instanceof DictionaryCharm charm) {
-                if (comparator.isPresence()) return comparator.test(charm.hasStat(fValue));
-                return comparator.test(charm.hasStat(fValue), charm.getStat(fValue), fConstant);
+                String value = (String) fValue;
+                if (comparator.isPresence()) return comparator.test(charm.hasStat(value));
+                return comparator.test(charm.hasStat(value), charm.getStat(value), fConstant);
             }
             return unexpectedType(this, object);
         }
@@ -181,8 +224,12 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allCharmBaseItems);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryCharm charm) return comparator.test(charm.baseItem().getName().getString().equals(fValue));
+        Object parseValue(String value) {
+            return Registries.ITEM.get(Identifier.of(value.toLowerCase().replace(" ", "_")));
+        }
+
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryCharm charm) return comparator.test(charm.baseItem().equals(fValue));
             return unexpectedType(this, object);
         }
     },
@@ -192,8 +239,12 @@ public enum FilterType {
             widget.setChoices(Mid.controller.allCharmClasses);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryBuild build) return comparator.test(build.className.name.equals(fValue));
+        Object parseValue(String value) {
+            return PlayerClass.of(value);
+        }
+
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryBuild build) return comparator.test(build.className.equals(fValue));
             return unexpectedType(this, object);
         }
     },
@@ -202,8 +253,12 @@ public enum FilterType {
             widget.setChoices(Specialization.classSpecializations);
         }
 
-        boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryBuild build) return comparator.test(build.specialization.name.equals(fValue));
+        Object parseValue(String value) {
+            return Specialization.of(value);
+        }
+
+        boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
+            if (object instanceof DictionaryBuild build) return comparator.test(build.specialization.equals(fValue));
             return unexpectedType(this, object);
         }
     };
@@ -218,8 +273,9 @@ public enum FilterType {
         this.hasOptions = hasOptions;
     }
 
-    public static FilterType of(String filter) {
-        return switch (filter) {
+    public static FilterType of(String name) {
+        return switch (name) {
+            case "" -> UNSET;
             case "Region" -> REGION;
 
             case "Tier" -> ITEM_TIER;
@@ -239,13 +295,20 @@ public enum FilterType {
 
             case "Build Class" -> BUILD_CLASS;
             case "Specialization" -> SPECIALIZATION;
-            default -> UNSET;
+            default -> {
+                Mid.LOGGER.info("Unknown filter: {}", name);
+                yield UNSET;
+            }
         };
     }
 
     abstract void setChoices(DropdownWidget widget);
 
-    abstract boolean test(Object object, FilterComparator comparator, String fValue, double fConstant);
+    Object parseValue(String value) {
+        return value;
+    }
+
+    abstract boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant);
 
     @SuppressWarnings("SameReturnValue")
     private static boolean unexpectedType(FilterType type, Object object) {

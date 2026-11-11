@@ -2,19 +2,19 @@ package dev.eliux.monumentaitemdictionary.util;
 
 import dev.eliux.monumentaitemdictionary.gui.widgets.DropdownWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.text.Text;
 
 public class Filter {
 
-
     private FilterType type;
-    public FilterComparator comparator;
-    public String value;
-    public double constant;
+    private FilterComparator comparator;
+    private Object value;
+    private double constant;
 
     public Filter() {
         type = FilterType.UNSET;
         comparator = FilterComparator.EXISTS;
-        value = "";
+        value = null;
         constant = 0.0;
     }
 
@@ -27,6 +27,11 @@ public class Filter {
         comparatorWidget.setMessage(comparator.text);
     }
 
+    public void setValue(String value) {
+        this.value = type.parseValue(value);
+        if (this.value instanceof String s && s.isEmpty()) this.value = null;
+    }
+
     public void setConstant(String input) {
         try {
             constant = Double.parseDouble(input);
@@ -35,7 +40,7 @@ public class Filter {
     }
 
     public boolean isEmpty() {
-        return value.isEmpty() && type.hasOptions;
+        return value == null && type.hasOptions;
     }
 
     public boolean blocks(Object object) {
@@ -44,6 +49,18 @@ public class Filter {
 
     public FilterType getType() {
         return type;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public Text getComparatorText() {
+        return comparator.text;
+    }
+
+    public boolean isNumeric() {
+        return comparator.isNumeric();
     }
 
     public void nextComparator() {

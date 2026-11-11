@@ -1,5 +1,6 @@
 package dev.eliux.monumentaitemdictionary.util;
 
+import dev.eliux.monumentaitemdictionary.Mid;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -50,6 +51,8 @@ public enum Specialization {
 
     public static Specialization of(String name) {
         return switch (name) {
+            case "No Specialization" -> NO_SPECIALIZATION;
+
             case "Arcanist" -> ARCANIST;
             case "Elementalist" -> ELEMENTALIST;
             case "Ranger" -> RANGER;
@@ -76,7 +79,10 @@ public enum Specialization {
             case "Steelsage" -> STEELSAGE;
             case "Windwalker" -> WINDWALKER;
 
-            default -> NO_SPECIALIZATION;
+            default -> {
+                Mid.LOGGER.info("Unknown specialization: {}", name);
+                yield NO_SPECIALIZATION;
+            }
         };
     }
 

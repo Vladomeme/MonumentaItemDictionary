@@ -759,7 +759,7 @@ public class DictionaryController {
         validItems.sort((o1, o2) -> {
             for (Filter filter : itemFilters) {
                 if (filter.getType() == FilterType.ITEM_STAT) {
-                    double val = o2.getStat(filter.value) - o1.getStat(filter.value);
+                    double val = o2.getStat((String) filter.getValue()) - o1.getStat((String) filter.getValue());
 
                     if (val == 0) continue;
                     if (val > 0) return 1;
@@ -787,7 +787,7 @@ public class DictionaryController {
         validCharms.sort((o1, o2) -> {
             for (Filter filter : charmFilters) {
                 if (filter.getType() == FilterType.CHARM_STAT) {
-                    float val = o2.getStat(filter.value) - o1.getStat(filter.value);
+                    float val = o2.getStat((String) filter.getValue()) - o1.getStat((String) filter.getValue());
 
                     if (val == 0) continue;
                     if (val < 0) return -1;

@@ -40,15 +40,11 @@ public enum FilterComparator {
         }
     };
 
-    public final String display;
-
     public final Text text;
 
     private static final FilterComparator[] values = FilterComparator.values();
 
     FilterComparator(String display) {
-        this.display = display;
-
         this.text = Text.of(display);
     }
 

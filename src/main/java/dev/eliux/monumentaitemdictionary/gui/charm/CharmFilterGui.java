@@ -63,15 +63,14 @@ public class CharmFilterGui extends Screen {
 
             ButtonWidget comparator = ButtonWidget.builder(FilterComparator.EXISTS.text, b -> {
                 filter.nextComparator();
-                b.setMessage(filter.comparator.text);
+                b.setMessage(filter.getComparatorText());
                 updateFilterOutput();
             }).position(310, labelMenuHeight + 5 + index * 25).size(60, 20).tooltip(Tooltip.of(Text.literal("Click to cycle"))).build();
 
             DropdownWidget value = new DropdownWidget(textRenderer, 125, labelMenuHeight + 7 + index * 25, 180,
-                    Text.empty(), "", List.of(),
-                    (v) -> {
-                        filter.value = v;
-                        updateFilterOutput();
+                    Text.empty(), "", List.of(), (v) -> {
+                filter.setValue(v);
+                updateFilterOutput();
             });
             TextFieldWidget constant = new TextFieldWidget(textRenderer, 375, labelMenuHeight + 8 + index * 25, 30, 14, Text.empty());
             constant.setText("0");
@@ -158,7 +157,7 @@ public class CharmFilterGui extends Screen {
 
                 filterListComparator.get(i).render(context, mouseX, mouseY, delta);
             }
-            if (charmFilters.get(i).comparator.isNumeric())
+            if (charmFilters.get(i).isNumeric())
                 filterListConstant.get(i).render(context, mouseX, mouseY, delta);
             filterListDelete.get(i).render(context, mouseX, mouseY, delta);
         }
@@ -208,7 +207,7 @@ public class CharmFilterGui extends Screen {
                 }
                 if (filterListComparator.get(i).mouseClicked(mouseX, mouseY, button)) mouseX = -1000;
             }
-            if (charmFilters.get(i).comparator.isNumeric())
+            if (charmFilters.get(i).isNumeric())
                 constant.setFocused(constant.mouseClicked(mouseX, mouseY, button));
         }
 

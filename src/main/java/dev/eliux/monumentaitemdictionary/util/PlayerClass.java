@@ -1,5 +1,6 @@
 package dev.eliux.monumentaitemdictionary.util;
 
+import dev.eliux.monumentaitemdictionary.Mid;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
@@ -64,7 +65,11 @@ public enum PlayerClass {
             case "Shaman" -> SHAMAN;
             case "Generalist" -> GENERALIST;
             case "DD/Zenith" -> DD_ZENITH;
-            default -> NO_CLASS;
+            case "No Class" -> NO_CLASS;
+            default -> {
+                Mid.LOGGER.info("Unknown class: {}", name);
+                yield NO_CLASS;
+            }
         };
     }
 

@@ -1,5 +1,6 @@
 package dev.eliux.monumentaitemdictionary.util;
 
+import dev.eliux.monumentaitemdictionary.Mid;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -29,12 +30,16 @@ public enum ItemRegion {
         this.text = Text.of(name);
     }
 
-    public static ItemRegion of(String region) {
-        return switch (region) {
+    public static ItemRegion of(String name) {
+        return switch (name) {
             case "Valley" -> VALLEY;
             case "Isles" -> ISLES;
             case "Ring" -> RING;
-            default -> DEFAULT;
+            case "No Region" -> DEFAULT;
+            default -> {
+                Mid.LOGGER.info("Unknown region: {}", name);
+                yield DEFAULT;
+            }
         };
     }
 

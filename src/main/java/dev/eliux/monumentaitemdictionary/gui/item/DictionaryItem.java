@@ -1,7 +1,6 @@
 package dev.eliux.monumentaitemdictionary.gui.item;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.util.*;
 
 import java.util.List;
@@ -27,11 +26,11 @@ public record DictionaryItem(String name, ItemType type, ItemRegion region, List
         return !tier.isEmpty();
     }
 
-    public boolean hasTier(String tier) {
-        if (this.tier.isEmpty()) return tier.equals(ItemTier.DEFAULT.name);
+    public boolean hasTier(ItemTier tier) {
+        if (this.tier.isEmpty()) return tier == ItemTier.DEFAULT;
 
         for (ItemTier itemTier : this.tier) {
-            if (itemTier != null && itemTier.name.equals(tier)) return true;
+            if (itemTier != null && itemTier == tier) return true;
         }
         return false;
     }
@@ -41,12 +40,11 @@ public record DictionaryItem(String name, ItemType type, ItemRegion region, List
     }
 
     public boolean hasLocation(String location) {
-        return !locationId.isEmpty() && Mid.controller.locationData.containsKey(locationId)
-                && Mid.controller.locationData.get(locationId).displayName().equals(location);
+        return locationId.equals(location);
     }
 
-    public boolean hasEffects() {
-        return !effects.isEmpty();
+    public boolean hasEffect(String effect) {
+        return !effects.isEmpty() && effects.contains(effect);
     }
 
     public boolean hasNbt() {

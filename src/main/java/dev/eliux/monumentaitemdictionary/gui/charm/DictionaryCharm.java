@@ -1,6 +1,5 @@
 package dev.eliux.monumentaitemdictionary.gui.charm;
 
-import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.util.CharmStat;
 import dev.eliux.monumentaitemdictionary.util.PlayerClass;
 import dev.eliux.monumentaitemdictionary.util.ItemRegion;
@@ -16,10 +15,6 @@ public record DictionaryCharm(String name, String locationId, ItemTier tier, int
     @SuppressWarnings("SameReturnValue")
     public ItemRegion region() {
         return ItemRegion.RING;
-    }
-
-    public boolean hasLocation(String location) {
-        return Mid.controller.locationData.containsKey(locationId) && Mid.controller.locationData.get(locationId).displayName().equals(location);
     }
 
     public boolean hasStat(String stat) {
