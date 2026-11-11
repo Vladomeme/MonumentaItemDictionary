@@ -1,21 +1,17 @@
 package dev.eliux.monumentaitemdictionary.util;
 
-import dev.eliux.monumentaitemdictionary.Mid;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 
-public record Location(String displayName, int color, int loreColor) {
+import java.util.Objects;
 
-    public Location(String displayName, int color) {
-        this(displayName, color, loreColor(color));
-    }
+public record Location(String displayName, Text text, int color, int loreColor) {
 
-    public static int colorOf(String locationId) {
-        Location location = Mid.controller.locationData.get(locationId);
-        return location != null ? location.color : 0xFFFFFF;
-    }
+    public static Location EMPTY = new Location("", Text.empty(), 0xFFFFFF, 0x555555);
 
-    public static int loreColorOf(String locationId) {
-        Location location = Mid.controller.locationData.get(locationId);
-        return location != null ? location.loreColor : 0x555555;
+    public Location(String key, String displayName, int color) {
+        this(displayName, locationText(displayName, key, color), color, loreColor(color));
     }
 
     private static int loreColor(int color) {
@@ -32,5 +28,26 @@ public record Location(String displayName, int color, int loreColor) {
         int ob = (int) (h1b * 0.67) + (int) (h2b * (1 - 0.67));
 
         return (or * (256 * 256)) + (og * 256) + (ob);
+    }
+
+    private static Text locationText(String displayName, String key, int color) {
+        MutableText text;
+        if (key.equals("twisted"))
+            text = Text.literal("Twisted ").append(Text.literal("XXXXXXXX").setStyle(Styles.OBFUSCATED));
+        else text = Text.literal(displayName);
+
+        return text.setStyle(Style.EMPTY.withColor(color));
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof Location location)) return false;
+        if (this == object) return true;
+        return color == location.color && loreColor == location.loreColor && Objects.equals(displayName, location.displayName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(displayName, color, loreColor);
     }
 }

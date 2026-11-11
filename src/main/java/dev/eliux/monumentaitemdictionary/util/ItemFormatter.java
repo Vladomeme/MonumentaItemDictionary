@@ -4,14 +4,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.eliux.monumentaitemdictionary.Mid;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
 
 import java.util.HashSet;
 import java.util.List;
@@ -72,17 +68,6 @@ public class ItemFormatter {
         return (inStat.endsWith("_percent") && !inStat.equals("potion_recharge_rate_percent")) ||
                 inStat.equals("spell_power_base") ||
                 inStat.equals("knockback_resistance_flat");
-    }
-
-    public static Text getLocationText(String locationId) {
-        Location location = Mid.controller.locationData.get(locationId);
-
-        MutableText text;
-        if (locationId.equals("twisted"))
-            text = Text.literal("Twisted ").append(Text.literal("XXXXXXXX").setStyle(Styles.OBFUSCATED));
-        else text = Text.literal(location.displayName());
-
-        return text.setStyle(Style.EMPTY.withColor(location.color()));
     }
 
     public static int getColorForStat(String itemStat, float value) {

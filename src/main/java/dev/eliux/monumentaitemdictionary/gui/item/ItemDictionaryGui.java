@@ -1,6 +1,5 @@
 package dev.eliux.monumentaitemdictionary.gui.item;
 
-import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.CharmDictionaryGui;
@@ -379,7 +378,7 @@ public class ItemDictionaryGui extends Screen {
         if (isAlchemicalUtensil)
             lines.add(Text.literal("* Alchemical Utensil *").setStyle(Styles.TEXT));
 
-        if (item.hasRegion() && item.hasTier()) {
+        if (item.region() != ItemRegion.DEFAULT && !item.tier().isEmpty()) {
             lines.add(Text.literal(item.region().name + " : ").setStyle(Styles.TEXT).append(itemTier.formattedName));
         }
 
@@ -395,14 +394,12 @@ public class ItemDictionaryGui extends Screen {
                     .append(Text.literal("☆".repeat(ItemTier.MAX_FISH_TIER - item.fishTier())).setStyle(Styles.TEXT)));
         }
 
-        if (item.hasLocation() && Mid.controller.locationData.containsKey(item.locationId())) {
-            lines.add(ItemFormatter.getLocationText(item.locationId()));
-        }
+        if (item.location() != Location.EMPTY) lines.add(item.location().text());
 
         if (!item.lore().isEmpty()) {
             if (hasShiftDown()) {
                 for (String line : item.lore().split("\n")) {
-                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(Location.loreColorOf(item.locationId()))));
+                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(item.location().loreColor())));
                 }
             }
             else lines.add(Text.literal("Press [SHIFT] to show lore.").setStyle(Styles.TEXT));
@@ -447,7 +444,7 @@ public class ItemDictionaryGui extends Screen {
         if (nbt == null || !nbt.getCompound("display").contains("Name")) {
             //old method
             lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
-                    .withColor(Colors.BLACK + Location.colorOf(item.locationId()))
+                    .withColor(Colors.BLACK + item.location().color())
                     .withBold(!item.isFish() ? itemTier.isBold : ItemFormatter.shouldBoldFish(item.fishTier()))
                     .withUnderline(!item.isFish() ? itemTier.isUnderlined : ItemFormatter.shouldUnderlineFish(item.fishTier()))));
             return;

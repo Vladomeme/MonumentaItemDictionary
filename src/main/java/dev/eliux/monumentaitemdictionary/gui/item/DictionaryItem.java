@@ -14,17 +14,9 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import org.jetbrains.annotations.NotNull;
 
-public record DictionaryItem(String name, ItemType type, ItemRegion region, List<ItemTier> tier, String locationId,
+public record DictionaryItem(String name, ItemType type, ItemRegion region, List<ItemTier> tier, Location location,
                              int fishTier, boolean isFish, Item baseItem, String lore, List<String> nbt,
                              List<List<ItemStat>> stats, List<String> effects, boolean hasMasterwork) implements Comparable<DictionaryItem> {
-
-    public boolean hasRegion() {
-        return region != ItemRegion.DEFAULT;
-    }
-
-    public boolean hasTier() {
-        return !tier.isEmpty();
-    }
 
     public boolean hasTier(ItemTier tier) {
         if (this.tier.isEmpty()) return tier == ItemTier.DEFAULT;
@@ -33,14 +25,6 @@ public record DictionaryItem(String name, ItemType type, ItemRegion region, List
             if (itemTier != null && itemTier == tier) return true;
         }
         return false;
-    }
-
-    public boolean hasLocation() {
-        return !locationId.isEmpty();
-    }
-
-    public boolean hasLocation(String location) {
-        return locationId.equals(location);
     }
 
     public boolean hasEffect(String effect) {

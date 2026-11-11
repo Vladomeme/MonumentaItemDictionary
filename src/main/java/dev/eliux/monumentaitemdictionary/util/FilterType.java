@@ -11,11 +11,9 @@ import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static dev.eliux.monumentaitemdictionary.util.FilterComparator.Range.*;
 
-//todo optimize for enum type comparisons instead of strings
 public enum FilterType {
 
     UNSET ("", PRESENCE, false) {
@@ -63,14 +61,14 @@ public enum FilterType {
         }
 
         Object parseValue(String value) {
-            for (Map.Entry<String, Location> entry : Mid.controller.locationData.entrySet()) {
-                if (entry.getValue().displayName().equals(value)) return entry.getKey();
+            for (Location location : Mid.controller.locationData.values()) {
+                if (location.displayName().equals(value)) return location;
             }
-            return "";
+            return Location.EMPTY;
         }
 
         boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
-            if (object instanceof DictionaryItem item) return comparator.test(item.hasLocation((String) fValue));
+            if (object instanceof DictionaryItem item) return comparator.test(item.location().equals(fValue));
             return unexpectedType(this, object);
         }
     },
@@ -156,14 +154,14 @@ public enum FilterType {
         }
 
         Object parseValue(String value) {
-            for (Map.Entry<String, Location> entry : Mid.controller.locationData.entrySet()) {
-                if (entry.getValue().displayName().equals(value)) return entry.getKey();
+            for (Location location : Mid.controller.locationData.values()) {
+                if (location.displayName().equals(value)) return location;
             }
-            return "";
+            return Location.EMPTY;
         }
 
         boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
-            if (object instanceof DictionaryCharm charm) return comparator.test(charm.locationId().equals(fValue));
+            if (object instanceof DictionaryCharm charm) return comparator.test(charm.location().equals(fValue));
             return unexpectedType(this, object);
         }
     },

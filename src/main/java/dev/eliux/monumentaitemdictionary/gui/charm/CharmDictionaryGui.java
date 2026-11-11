@@ -1,7 +1,6 @@
 package dev.eliux.monumentaitemdictionary.gui.charm;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.widgets.CharmButtonWidget;
@@ -305,13 +304,12 @@ public class CharmDictionaryGui extends Screen {
         MutableText classText = Text.literal(charm.itemClass().name).setStyle(charm.itemClass().style);
         lines.add(charmPowerDesc.append(charmPower).append(divider).append(classText));
 
-        if (Mid.controller.locationData.containsKey(charm.locationId()))
-            lines.add(ItemFormatter.getLocationText(charm.locationId()));
+        if (charm.location() != Location.EMPTY) lines.add(charm.location().text());
 
         if (!charm.lore().isEmpty()) {
             if (hasShiftDown()) {
                 for (String line : charm.lore().split("\n")) {
-                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(Location.loreColorOf(charm.locationId()))));
+                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(charm.location().loreColor())));
                 }
             }
             else lines.add(Text.literal("Press [SHIFT] to show lore.").setStyle(Styles.TEXT));
@@ -341,7 +339,7 @@ public class CharmDictionaryGui extends Screen {
         if (nbt == null || !nbt.getCompound("display").contains("Name")) {
             //old method
             lines.add(Text.literal(charm.name()).setStyle(Style.EMPTY
-                    .withColor(Colors.BLACK + Location.colorOf(charm.locationId()))
+                    .withColor(Colors.BLACK + charm.location().color())
                     .withBold(charm.tier().isBold)
                     .withUnderline(charm.tier().isUnderlined)));
             return;

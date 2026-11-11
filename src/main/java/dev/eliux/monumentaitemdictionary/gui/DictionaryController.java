@@ -374,7 +374,7 @@ public class DictionaryController {
             String color = jsonObject.get("color").getAsString();
 
             try {
-                locationData.put(name, new Location(displayName, Integer.decode(color)));
+                locationData.put(name, new Location(name, displayName, Integer.decode(color)));
             }
             catch (NumberFormatException e) {
                 e.printStackTrace();
@@ -493,12 +493,13 @@ public class DictionaryController {
                 }
 
                 // LOCATION
-                String itemLocationId = "";
+                Location itemLocation = Location.EMPTY;
                 JsonPrimitive locationIdPrimitive = itemData.getAsJsonPrimitive("locationId");
                 if (locationIdPrimitive != null) {
-                    itemLocationId = locationIdPrimitive.getAsString();
-                    Location location = locationData.get(itemLocationId);
-                    if (location != null) itemLocations.add(new Pair<>(itemLocationId, location.displayName()));
+                    String itemLocationId = locationIdPrimitive.getAsString();
+                    itemLocation = locationData.get(itemLocationId);
+                    if (itemLocation == null) itemLocation = Location.EMPTY;
+                    else if (itemLocation != Location.EMPTY) itemLocations.add(new Pair<>(itemLocationId, itemLocation.displayName()));
                 }
 
                 // FISH TIER
@@ -563,7 +564,7 @@ public class DictionaryController {
                     List<List<ItemStat>> totalStatsList = itemStats.isEmpty() ? List.of() : List.of(itemStats);
                     List<String> totalNbtList = itemNbt.isEmpty() ? List.of() : List.of(itemNbt);
 
-                    items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId,
+                    items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocation,
                             fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, itemEffects, false));
                 }
                 else {
@@ -590,7 +591,7 @@ public class DictionaryController {
                         totalStatsList.set(level, itemStats);
                         totalNbtList.set(level, itemNbt);
 
-                        items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocationId,
+                        items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocation,
                                 fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, itemEffects, true));
                         masterworkItems.put(itemName, items.getLast());
                     }
@@ -649,8 +650,9 @@ public class DictionaryController {
 
                 // LOCATION (must be present)
                 String charmLocationId = charmData.get("locationId").getAsString();
-                Location location = locationData.get(charmLocationId);
-                if (location != null) allCharmLocations.put(charmLocationId, location.displayName());
+                Location charmLocation = locationData.get(charmLocationId);
+                if (charmLocation == null) charmLocation = Location.EMPTY;
+                else if (charmLocation != Location.EMPTY) allCharmLocations.put(charmLocationId, charmLocation.displayName());
 
                 // TIER (must be present)
                 ItemTier charmTier = ItemTier.of(charmData.get("tier").getAsString());
@@ -696,7 +698,7 @@ public class DictionaryController {
                 }
                 if (charmStats.isEmpty()) charmStats = List.of();
 
-                charms.add(new DictionaryCharm(charmName, charmLocationId, charmTier, charmPower, charmClass, charmBaseItem, charmLore, charmNbt, charmStats));
+                charms.add(new DictionaryCharm(charmName, charmLocation, charmTier, charmPower, charmClass, charmBaseItem, charmLore, charmNbt, charmStats));
             }
         }
         catch (Exception e) {
