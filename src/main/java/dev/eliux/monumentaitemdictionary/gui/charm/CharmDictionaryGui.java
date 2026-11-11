@@ -307,11 +307,7 @@ public class CharmDictionaryGui extends Screen {
         if (charm.location() != Location.EMPTY) lines.add(charm.location().text());
 
         if (!charm.lore().isEmpty()) {
-            if (hasShiftDown()) {
-                for (String line : charm.lore().split("\n")) {
-                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(charm.location().loreColor())));
-                }
-            }
+            if (hasShiftDown()) lines.addAll(charm.lore());
             else lines.add(Text.literal("Press [SHIFT] to show lore.").setStyle(Styles.TEXT));
         }
 

@@ -2,12 +2,13 @@ package dev.eliux.monumentaitemdictionary.gui.charm;
 
 import dev.eliux.monumentaitemdictionary.util.*;
 import net.minecraft.item.Item;
+import net.minecraft.text.Text;
 
 import java.util.List;
 import java.util.Objects;
 
 public record DictionaryCharm(String name, Location location, ItemTier tier, int power, PlayerClass itemClass,
-                              Item baseItem, String lore, String nbt, List<CharmStat> stats) {
+                              Item baseItem, List<Text> lore, String nbt, List<CharmStat> stats) {
 
     @SuppressWarnings("SameReturnValue")
     public ItemRegion region() {

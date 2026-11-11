@@ -397,11 +397,7 @@ public class ItemDictionaryGui extends Screen {
         if (item.location() != Location.EMPTY) lines.add(item.location().text());
 
         if (!item.lore().isEmpty()) {
-            if (hasShiftDown()) {
-                for (String line : item.lore().split("\n")) {
-                    lines.add(Text.literal(line).setStyle(Style.EMPTY.withColor(item.location().loreColor())));
-                }
-            }
+            if (hasShiftDown()) lines.addAll(item.lore());
             else lines.add(Text.literal("Press [SHIFT] to show lore.").setStyle(Styles.TEXT));
         }
 

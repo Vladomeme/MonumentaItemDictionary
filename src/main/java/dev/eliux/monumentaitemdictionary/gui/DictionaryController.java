@@ -24,6 +24,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.apache.commons.io.FileUtils;
@@ -512,9 +513,15 @@ public class DictionaryController {
                 }
 
                 // LORE
-                String itemLore = "";
+                List<Text> itemLore = new ArrayList<>();
                 JsonPrimitive lorePrimitive = itemData.getAsJsonPrimitive("lore");
-                if (lorePrimitive != null) itemLore = lorePrimitive.getAsString();
+                if (lorePrimitive != null) {
+                    String[] lines = lorePrimitive.getAsString().split("\n");
+                    for (String line : lines) {
+                        itemLore.add(Text.literal(line).setStyle(Style.EMPTY.withColor(itemLocation.loreColor())));
+                    }
+                }
+                if (itemLore.isEmpty()) itemLore = List.of();
 
                 // NBT
                 String itemNbt = "";
@@ -671,9 +678,15 @@ public class DictionaryController {
                 charmBaseSet.add(baseItem);
 
                 // LORE
-                String charmLore = "";
+                List<Text> charmLore = new ArrayList<>();
                 JsonPrimitive lorePrimitive = charmData.getAsJsonPrimitive("lore");
-                if (lorePrimitive != null) charmLore = lorePrimitive.getAsString();
+                if (lorePrimitive != null) {
+                    String[] lines = lorePrimitive.getAsString().split("\n");
+                    for (String line : lines) {
+                        charmLore.add(Text.literal(line).setStyle(Style.EMPTY.withColor(charmLocation.loreColor())));
+                    }
+                }
+                if (charmLore.isEmpty()) charmLore = List.of();
 
                 // NBT
                 String charmNbt = "{}";
