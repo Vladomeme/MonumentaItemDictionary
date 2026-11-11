@@ -2,6 +2,7 @@ package dev.eliux.monumentaitemdictionary.gui.builder;
 
 import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
+import dev.eliux.monumentaitemdictionary.gui.LazyScreen;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.gui.widgets.BuildCharmButtonWidget;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 import static java.lang.Math.floor;
 import static java.lang.Math.max;
 
-public class BuilderGui extends Screen {
+public class BuilderGui extends Screen implements LazyScreen {
 
     public static final int MAX_CHARM_POWER = 12;
 
@@ -85,12 +86,20 @@ public class BuilderGui extends Screen {
     private CyclingButtonWidget<PlayerClass> classButton;
     private CyclingButtonWidget<Specialization> specializationButton;
 
+    private boolean initialized = false;
+
     public BuilderGui(Text title, DictionaryController controller) {
         super(title);
         this.controller = controller;
     }
 
     public void postInit() {
+        if (initialized) {
+            updateGuiPositions();
+            return;
+        }
+        initialized = true;
+
         charmsButtonY = (int) (getCharmsListWithPower().size() / floor((double) (width - sideMenuWidth - charmsX) / (buttonSize + itemPadding))) *
                 (buttonSize + itemPadding) - scrollPixels + buttonSize + itemPadding;
         halfWidth = width / 2;
@@ -134,7 +143,7 @@ public class BuilderGui extends Screen {
                 ), Items.NAME_TAG, "");
 
         showBuildDictionaryButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10,
-                (button) -> controller.setBuildDictionaryScreen(),
+                (button) -> controller.open(controller.buildDictionaryGui),
                 Text.literal("Builds Data"), Items.DIAMOND_CHESTPLATE, "");
 
         addBuildButton = new ItemIconButtonWidget(5, 5,
@@ -144,7 +153,7 @@ public class BuilderGui extends Screen {
                     else {
                         controller.buildDictionaryGui.addBuild(nameBar.getText(), buildItems, charms,
                                 itemOnBuildButton, region, buildClass, specialization);
-                        controller.setBuildDictionaryScreen();
+                        controller.open(controller.buildDictionaryGui);
                     }
                 }, Text.literal("Add Build To Dictionary"), Items.WRITABLE_BOOK, "");
 

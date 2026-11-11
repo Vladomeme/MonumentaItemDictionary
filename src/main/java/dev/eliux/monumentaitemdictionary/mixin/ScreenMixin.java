@@ -61,7 +61,7 @@ public abstract class ScreenMixin {
                         (inventoryTitle.equals("Mechanical Armory")) ? getBuildFromMechanicalArmory(client,
                                 slots, controller) : getBuildFromPlayerStats(client, slots, controller);
                 close();
-                controller.setBuilderScreen();
+                controller.open(controller.builderGui);
                 controller.builderGui.loadItems(buildFromInventory);
             }, Text.literal("Add build from current inventory"), Items.NAME_TAG, "");
 

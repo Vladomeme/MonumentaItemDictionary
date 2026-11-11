@@ -1,6 +1,7 @@
 package dev.eliux.monumentaitemdictionary.gui.generator;
 
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
+import dev.eliux.monumentaitemdictionary.gui.LazyScreen;
 import dev.eliux.monumentaitemdictionary.gui.charm.CharmDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class GeneratorGui extends Screen {
+public class GeneratorGui extends Screen implements LazyScreen {
 
     public final int labelMenuHeight = 30;
 
@@ -56,18 +57,22 @@ public class GeneratorGui extends Screen {
 
     private int masterworkLevel = 0;
 
+    private boolean initialized = false;
+
     public GeneratorGui(Text title, DictionaryController controller) {
         super(title);
         this.controller = controller;
     }
 
     public void postInit() {
+        if (initialized) return;
+        initialized = true;
         backButton = new ItemIconButtonWidget(5, 5,
                 (button) -> {
                     if (controller.lastOpenedScreen instanceof ItemDictionaryGui)
-                        controller.setItemDictionaryScreen();
+                        controller.open(controller.itemGui);
                     else if (controller.lastOpenedScreen instanceof CharmDictionaryGui)
-                        controller.setCharmDictionaryScreen();
+                        controller.open(controller.charmGui);
                 }, Text.literal("Go Back"), Items.ARROW, "");
 
         giveButton = ButtonWidget.builder(Text.literal("Generate Item"), (button) -> {

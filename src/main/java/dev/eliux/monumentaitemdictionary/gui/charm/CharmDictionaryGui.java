@@ -2,6 +2,7 @@ package dev.eliux.monumentaitemdictionary.gui.charm;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
+import dev.eliux.monumentaitemdictionary.gui.LazyScreen;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.widgets.CharmButtonWidget;
 import dev.eliux.monumentaitemdictionary.gui.widgets.ItemIconButtonWidget;
@@ -24,7 +25,7 @@ import net.minecraft.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CharmDictionaryGui extends Screen {
+public class CharmDictionaryGui extends Screen implements LazyScreen {
 
     public final int sideMenuWidth = 40;
     public final int labelMenuHeight = 30;
@@ -51,12 +52,20 @@ public class CharmDictionaryGui extends Screen {
     public boolean isGettingBuildCharm = false;
     private ItemIconButtonWidget builderButton;
 
+    private boolean initialized = false;
+
     public CharmDictionaryGui(Text title, DictionaryController controller) {
         super(title);
         this.controller = controller;
     }
 
     public void postInit() {
+        if (initialized) {
+            updateGuiPositions();
+            return;
+        }
+        initialized = true;
+
         buildCharmList();
 
         searchBar = new TextFieldWidget(textRenderer, width / 2 + 90, 7, width / 2 - 100, 15, Text.literal("Search"));
@@ -77,22 +86,22 @@ public class CharmDictionaryGui extends Screen {
                 Text.literal("Reload All Data"), Items.GLOBE_BANNER_PATTERN, "");
 
         showItemsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10,
-                (button) -> controller.setItemDictionaryScreen(),
+                (button) -> controller.open(controller.itemGui),
                 Text.literal("Item Data").setStyle(Styles.BLUE), Items.IRON_CHESTPLATE, "");
 
         buildDictionaryButton = new ItemIconButtonWidget(55, 5,
-                (button) -> controller.setBuildDictionaryScreen(),
+                (button) -> controller.open(controller.buildDictionaryGui),
                 Text.literal("Open Builder GUI"), Items.IRON_CHESTPLATE, "");
 
         builderButton = new ItemIconButtonWidget(55, 5,
                 (button) -> {
                     isGettingBuildCharm = false;
-                    controller.setBuilderScreen();
+                    controller.open(controller.builderGui);
                 },
                 Text.literal("Go Back To Builder"), Items.ARROW, "");
         
         filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30,
-                (button) -> controller.setCharmFilterScreen(),
+                (button) -> controller.open(controller.charmFilterGui),
                 Text.literal("Filter"), Items.CHEST, "");
 
         resetFilterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 60,
@@ -212,7 +221,7 @@ public class CharmDictionaryGui extends Screen {
 
         builderGui.charms.add(charm);
 
-        controller.setBuilderScreen();
+        controller.open(builderGui);
         builderGui.updateButtons();
 
         isGettingBuildCharm = false;

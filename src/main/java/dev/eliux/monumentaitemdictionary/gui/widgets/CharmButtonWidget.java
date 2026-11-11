@@ -114,8 +114,10 @@ public class CharmButtonWidget extends ClickableWidget {
                 controller.charmGui.returnCharm(charm);
 
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
-            if (player != null && Screen.hasAltDown() && player.getAbilities().creativeMode)
-                controller.setGeneratorScreen().setCharm(charm);
+            if (player != null && Screen.hasAltDown() && player.getAbilities().creativeMode) {
+                controller.open(controller.generatorGui);
+                controller.generatorGui.setCharm(charm);
+            }
         }
         return true;
     }

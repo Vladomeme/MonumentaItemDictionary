@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public record Location(String displayName, Text text, int color, int loreColor) {
 
-    public static Location EMPTY = new Location("", Text.empty(), 0xFFFFFF, 0x555555);
+    public static final Location EMPTY = new Location("", Text.empty(), 0xFFFFFF, 0x555555);
 
     public Location(String key, String displayName, int color) {
         this(displayName, locationText(displayName, key, color), color, loreColor(color));

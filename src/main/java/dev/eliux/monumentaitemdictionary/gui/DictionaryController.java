@@ -3,16 +3,14 @@ package dev.eliux.monumentaitemdictionary.gui;
 import com.google.gson.*;
 import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuildDictionaryGui;
-import dev.eliux.monumentaitemdictionary.gui.builder.BuildFilterGui;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
 import dev.eliux.monumentaitemdictionary.gui.builder.DictionaryBuild;
 import dev.eliux.monumentaitemdictionary.gui.charm.CharmDictionaryGui;
-import dev.eliux.monumentaitemdictionary.gui.charm.CharmFilterGui;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
+import dev.eliux.monumentaitemdictionary.gui.filter.FilterGui;
 import dev.eliux.monumentaitemdictionary.gui.generator.GeneratorGui;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
 import dev.eliux.monumentaitemdictionary.gui.item.ItemDictionaryGui;
-import dev.eliux.monumentaitemdictionary.gui.item.ItemFilterGui;
 import dev.eliux.monumentaitemdictionary.util.*;
 import dev.eliux.monumentaitemdictionary.web.WebManager;
 
@@ -74,24 +72,15 @@ public class DictionaryController {
     public boolean isRequesting = false;
 
     public final ItemDictionaryGui itemGui;
-    public final ItemFilterGui itemFilterGui;
     public final CharmDictionaryGui charmGui;
-    public final CharmFilterGui charmFilterGui;
     public final BuildDictionaryGui buildDictionaryGui;
-    public final BuildFilterGui buildFilterGui;
     public final BuilderGui builderGui;
-
-    public boolean itemGuiPreviouslyOpened = false;
-    public boolean itemFilterGuiPreviouslyOpened = false;
-    public boolean charmGuiPreviouslyOpened = false;
-    public boolean charmFilterGuiPreviouslyOpened = false;
-    public boolean buildFilterGuiPreviouslyOpened = false;
-    public boolean buildDictionaryGuiPreviouslyOpened = false;
-    public boolean builderGuiPreviouslyOpened = false;
+    public final GeneratorGui generatorGui;
+    public final FilterGui itemFilterGui;
+    public final FilterGui charmFilterGui;
+    public final FilterGui buildFilterGui;
 
     public Screen lastOpenedScreen = null;
-
-    public final GeneratorGui generatorGui;
 
     public DictionaryController() {
         items = new ArrayList<>();
@@ -108,12 +97,23 @@ public class DictionaryController {
         loadBuilds();
 
         itemGui = new ItemDictionaryGui(Text.literal("Monumenta Item Dictionary"), this);
-        itemFilterGui = new ItemFilterGui(Text.literal("Item Filter Menu"), this);
         charmGui = new CharmDictionaryGui(Text.literal("Monumenta Charm Dictionary"), this);
-        charmFilterGui = new CharmFilterGui(Text.literal("Charm Filter Menu"), this);
         buildDictionaryGui = new BuildDictionaryGui(Text.literal("Build Dictionary Menu"), this);
         builderGui = new BuilderGui(Text.literal("Builder Menu"), this);
-        buildFilterGui = new BuildFilterGui(Text.literal("Build Filter Menu"), this);
+
+        List<FilterType> itemFilterTypes = List.of(FilterType.ITEM_TIER, FilterType.REGION, FilterType.ITEM_LOCATION,
+                FilterType.ITEM_TYPE, FilterType.ITEM_STAT, FilterType.ITEM_BASE_ITEM, FilterType.ITEM_EFFECT);
+        List<FilterType> charmFilterTypes = List.of(FilterType.CHARM_TIER, FilterType.CHARM_LOCATION, FilterType.SKILL_MODIFIER,
+                FilterType.CHARM_CLASS, FilterType.CHARM_POWER, FilterType.CHARM_STAT, FilterType.CHARM_BASE_ITEM);
+        List<FilterType> buildFilterTypes = List.of(FilterType.REGION, FilterType.BUILD_CLASS, FilterType.SPECIALIZATION);
+
+        itemFilterGui = new FilterGui("Item Filter Menu", "Item Filters", 150,
+                itemFilterTypes, () -> open(itemGui), filters -> itemFilters = filters);
+        charmFilterGui = new FilterGui("Charm Filter Menu", "Charm Filters", 180,
+                charmFilterTypes, () -> open(charmGui), filters -> charmFilters = filters);
+        buildFilterGui = new FilterGui("Build Filter Menu", "Build Filters", 150,
+                buildFilterTypes, () -> open(buildDictionaryGui), filters -> buildFilters = filters);
+
 
         generatorGui = new GeneratorGui(Text.literal("Item Generator Options"), this);
     }
@@ -123,93 +123,20 @@ public class DictionaryController {
         charmGui.isGettingBuildCharm = false;
 
         if (lastOpenedScreen == null || lastOpenedScreen instanceof ItemDictionaryGui)
-            setItemDictionaryScreen();
+            open(itemGui);
         else if (lastOpenedScreen instanceof CharmDictionaryGui)
-            setCharmDictionaryScreen();
+            open(charmGui);
         else
-            setItemDictionaryScreen();
+            open(itemGui);
     }
 
-    public void setItemDictionaryScreen() {
-        lastOpenedScreen = MinecraftClient.getInstance().currentScreen;
+    public void open(Screen screen) {
+        if (screen instanceof ItemDictionaryGui || screen instanceof CharmDictionaryGui)
+            lastOpenedScreen = screen;
+        else lastOpenedScreen = null;
 
-        MinecraftClient.getInstance().setScreen(itemGui);
-        if (!itemGuiPreviouslyOpened) {
-            itemGui.postInit();
-            itemGuiPreviouslyOpened = true;
-        }
-        else itemGui.updateGuiPositions();
-    }
-
-    public void setItemFilterScreen() {
-        lastOpenedScreen = MinecraftClient.getInstance().currentScreen;
-
-        MinecraftClient.getInstance().setScreen(itemFilterGui);
-        if (!itemFilterGuiPreviouslyOpened) {
-            itemFilterGui.postInit();
-            itemFilterGuiPreviouslyOpened = true;
-        }
-    }
-
-    public void setCharmDictionaryScreen() {
-        lastOpenedScreen = MinecraftClient.getInstance().currentScreen;
-
-        MinecraftClient.getInstance().setScreen(charmGui);
-        if (!charmGuiPreviouslyOpened) {
-            charmGui.postInit();
-            charmGuiPreviouslyOpened = true;
-        }
-        else charmGui.updateGuiPositions();
-    }
-
-    public void setCharmFilterScreen() {
-        lastOpenedScreen = MinecraftClient.getInstance().currentScreen;
-
-        MinecraftClient.getInstance().setScreen(charmFilterGui);
-        if (!charmFilterGuiPreviouslyOpened) {
-            charmFilterGui.postInit();
-            charmFilterGuiPreviouslyOpened = true;
-        }
-    }
-
-    public GeneratorGui setGeneratorScreen() {
-        lastOpenedScreen = MinecraftClient.getInstance().currentScreen;
-
-        MinecraftClient.getInstance().setScreen(generatorGui);
-        generatorGui.postInit();
-        return generatorGui;
-    }
-
-    public void setBuildDictionaryScreen() {
-        lastOpenedScreen = MinecraftClient.getInstance().currentScreen;
-
-        MinecraftClient.getInstance().setScreen(buildDictionaryGui);
-        if (!buildDictionaryGuiPreviouslyOpened) {
-            buildDictionaryGui.postInit();
-            buildDictionaryGuiPreviouslyOpened = true;
-        }
-        else buildDictionaryGui.updateGuiPositions();
-    }
-
-    public void setBuildFilterScreen() {
-        lastOpenedScreen = MinecraftClient.getInstance().currentScreen;
-
-        MinecraftClient.getInstance().setScreen(buildFilterGui);
-        if (!buildFilterGuiPreviouslyOpened) {
-            buildFilterGui.postInit();
-            buildFilterGuiPreviouslyOpened = true;
-        }
-    }
-
-    public void setBuilderScreen() {
-        lastOpenedScreen = MinecraftClient.getInstance().currentScreen;
-
-        MinecraftClient.getInstance().setScreen(builderGui);
-        if (!builderGuiPreviouslyOpened) {
-            builderGui.postInit();
-            builderGuiPreviouslyOpened = true;
-        }
-        else builderGui.updateGuiPositions();
+        MinecraftClient.getInstance().setScreen(screen);
+        if (screen instanceof LazyScreen ls) ls.postInit();
     }
 
     private String readStringData(String path) {
@@ -872,18 +799,16 @@ public class DictionaryController {
         hasItemNameFilter = false;
         itemGui.clearSearchBar();
         itemFilterGui.clearFilters();
-        setItemDictionaryScreen();
+        open(itemGui);
     }
 
     public void getCharmFromDictionary() {
         charmGui.postInit();
         charmGui.isGettingBuildCharm = true;
-        if (charmGuiPreviouslyOpened) {
-            hasCharmNameFilter = false;
-            charmGui.clearSearchBar();
-            charmFilterGui.clearFilters();
-        }
-        setCharmDictionaryScreen();
+        hasCharmNameFilter = false;
+        charmGui.clearSearchBar();
+        charmFilterGui.clearFilters();
+        open(charmGui);
     }
 
     public void toggleJsonBuildFavorite(int id) {

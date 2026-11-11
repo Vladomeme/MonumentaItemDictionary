@@ -124,8 +124,10 @@ public class ItemButtonWidget extends ClickableWidget {
             }
 
             ClientPlayerEntity player = MinecraftClient.getInstance().player;
-            if (player != null && Screen.hasAltDown() && player.getAbilities().creativeMode)
-                Mid.controller.setGeneratorScreen().setItem(item);
+            if (player != null && Screen.hasAltDown() && player.getAbilities().creativeMode) {
+                Mid.controller.open(Mid.controller.generatorGui);
+                Mid.controller.generatorGui.setItem(item);
+            }
         }
         else if (button == 1) {
             NbtCompound nbt = item.getNbt();
