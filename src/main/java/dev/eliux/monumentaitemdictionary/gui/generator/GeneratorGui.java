@@ -28,11 +28,9 @@ import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.Formatting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
 
 public class GeneratorGui extends Screen implements LazyScreen {
 
@@ -96,21 +94,6 @@ public class GeneratorGui extends Screen implements LazyScreen {
             updateGeneratedItem();
         }).dimensions(40, labelMenuHeight + 60, 20, 20).tooltip(Tooltip.of(Text.empty())).build();
 
-        ArrayList<String> possibleColors = new ArrayList<>(Arrays.asList("Default", "Undyed", "Custom"));
-        for (DyeColor color : DyeColor.values()) possibleColors.add(color.asString());
-
-        colorSelectDropdown = new DropdownWidget(textRenderer, 10, 134, 90, Text.empty(), "Default", possibleColors, (e) -> {
-            customColorTextField.visible = e.equals("Custom");
-            colorPicker.visible = e.equals("Custom");
-
-            if (e.equals("Default")) dyeColor = -1;
-            else if (e.equals("Undyed")) dyeColor = DyedColorComponent.DEFAULT_COLOR;
-            else if (!e.equals("Custom")) //noinspection DataFlowIssue
-                dyeColor = Objects.requireNonNullElse(Formatting.byName(e), Formatting.WHITE).getColorValue();
-
-            updateGeneratedItem();
-        });
-
         customColorTextField = new TextFieldWidget(textRenderer, 10, 154, 70, 14, Text.empty());
         customColorTextField.setText("FF0000");
         customColorTextField.setChangedListener((t) -> {
@@ -121,19 +104,35 @@ public class GeneratorGui extends Screen implements LazyScreen {
             catch (NumberFormatException e) {
                 parsed = 0;
             }
-            dyeColor = Math.min((int) parsed, Colors.WHITE);
+            dyeColor = Math.min((int) parsed, 0xFFFFFF);
 
             updateGeneratedItem();
         });
 
         customColorTextField.visible = false;
+
         colorPicker = new ColorPickerWidget(86, 154, 14, 14, 120, 80, (i) -> {
-            dyeColor = i;
-            customColorTextField.setText(Integer.toHexString(i & Colors.WHITE));
+            dyeColor = i & 0xFFFFFF;
+            customColorTextField.setText(Integer.toHexString(dyeColor));
 
             updateGeneratedItem();
         });
         colorPicker.visible = false;
+
+        ArrayList<String> possibleColors = new ArrayList<>(Arrays.asList("Default", "Undyed", "Custom"));
+        for (DyeColor color : DyeColor.values()) possibleColors.add(color.asString());
+
+        colorSelectDropdown = new DropdownWidget(textRenderer, 10, 134, 90, Text.empty(), "Default", possibleColors, (value) -> {
+            customColorTextField.visible = value.equals("Custom");
+            colorPicker.visible = value.equals("Custom");
+
+            if (value.equals("Default")) dyeColor = -1;
+            else if (value.equals("Undyed")) dyeColor = DyedColorComponent.DEFAULT_COLOR;
+            else if (!value.equals("Custom"))
+                dyeColor = DyeColor.byName(value, DyeColor.WHITE).getSignColor();
+
+            updateGeneratedItem();
+        });
     }
 
     private void updateMasterworkDisabled() {
@@ -162,6 +161,8 @@ public class GeneratorGui extends Screen implements LazyScreen {
     }
 
     private void updateGeneratedItem() {
+        if (lastFocused == null) return;
+
         if (lastFocused == DictionaryItem.class) {
             String nbt = focusedItem.hasMasterwork() ? focusedItem.getNbtFromMasterwork(masterworkLevel) : focusedItem.getNbtNoMasterwork();
             generatedItem = ItemFactory.fromBaseWithStringNbt(focusedItem.baseItem(), nbt);

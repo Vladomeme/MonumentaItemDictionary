@@ -437,7 +437,7 @@ public class ItemDictionaryGui extends Screen implements LazyScreen {
                 lines.add(Text.literal("[SHIFT] + Click to delete item").setStyle(Styles.TEXT));
                 lines.add(Text.literal("[CTRL] + Click to set the item as Build Icon").setStyle(Styles.TEXT));
             }
-            lines.add(Text.literal(item.type() + " - " + item.baseItem().getName().getString()).setStyle(Styles.TEXT));
+            lines.add(Text.literal(item.type().name + " - " + item.baseItem().getName().getString()).setStyle(Styles.TEXT));
         }
         return lines;
     }

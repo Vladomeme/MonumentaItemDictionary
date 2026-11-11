@@ -22,6 +22,7 @@ public enum ItemTier {
     TIER_2          ("Tier 2",          0x555555, false, false),
     TIER_1          ("Tier 1",          0x555555, false, false),
     TIER_0          ("Tier 0",          0x555555, false, false),
+    COMMON          ("Common",          0xC0C0C0, false, false),
     BASE            ("Base",            0xFFFA75, false, false),
     OBFUSCATED      ("Obfuscated",      0x5D2D87, false, false),
     CURRENCY        ("Currency",        0xDCAE32, true,  false),
@@ -66,6 +67,7 @@ public enum ItemTier {
             case "Tier 3" -> TIER_3;
             case "Tier 4" -> TIER_4;
             case "Tier 5" -> TIER_5;
+            case "Common" -> COMMON;
             case "Uncommon" -> UNCOMMON;
             case "Unique" -> UNIQUE;
             case "Rare" -> RARE;

@@ -28,8 +28,11 @@ public class Filter {
     }
 
     public void setValue(String value) {
-        this.value = type.parseValue(value);
-        if (this.value instanceof String s && s.isEmpty()) this.value = null;
+        if (value.isEmpty()) this.value = null;
+        else {
+            this.value = type.parseValue(value);
+            if (this.value instanceof String s && s.isEmpty()) this.value = null;
+        }
     }
 
     public void setConstant(String input) {

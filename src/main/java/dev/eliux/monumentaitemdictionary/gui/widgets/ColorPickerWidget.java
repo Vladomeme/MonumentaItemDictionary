@@ -36,7 +36,7 @@ public class ColorPickerWidget extends ButtonWidget {
         int borderColor = isOpen ? Colors.WHITE : Colors.LIGHT_GRAY;
 
         context.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), displayColor);
-        context.drawBorder(getX() - 1, getY() - 1, width, height, borderColor);
+        context.drawBorder(getX() - 1, getY() - 1, width + 1, height + 1, borderColor);
     }
 
     public void renderPopup(DrawContext context) {
@@ -50,7 +50,7 @@ public class ColorPickerWidget extends ButtonWidget {
             }
         }
 
-        context.drawBorder(getX() - 1, getY() - 1, popupWidth, popupHeight, Colors.WHITE);
+        context.drawBorder(getX() - 1, getY() + getHeight() - 1, popupWidth + 1, popupHeight + 1, Colors.WHITE);
 
         // hue box
         for (int x = 0; x < popupWidth; x++) {
@@ -58,7 +58,7 @@ public class ColorPickerWidget extends ButtonWidget {
             context.fill(getX() + x, getY() + getHeight() + popupHeight + 4, getX() + x + 1, getY() + getHeight() + popupHeight + 10, color);
         }
 
-        context.drawBorder(getX() - 1, getY() + height + popupHeight + 4, popupWidth, 6, Colors.WHITE);
+        context.drawBorder(getX() - 1, getY() + getHeight() + popupHeight + 4, popupWidth + 1, 7, Colors.WHITE);
     }
 
     public boolean willClick(double mouseX, double mouseY) {
@@ -77,13 +77,13 @@ public class ColorPickerWidget extends ButtonWidget {
 
                 playDownSound(MinecraftClient.getInstance().getSoundManager());
 
-                int newColor = Colors.BLACK + Color.HSBtoRGB(hue, saturation, brightness);
+                int newColor = Color.HSBtoRGB(hue, saturation, brightness);
                 onSelect.accept(newColor);
                 displayColor = newColor;
             }
             else if (mouseX >= getX() && mouseX <= getX() + popupWidth && mouseY >= getY() + getHeight() + popupHeight + 4 && mouseY <= getY() + getHeight() + popupHeight + 11) {
                 hue = (float) (mouseX - getX()) / popupWidth;
-                int newColor = Colors.BLACK + Color.HSBtoRGB(hue, saturation, brightness);
+                int newColor = Color.HSBtoRGB(hue, saturation, brightness);
                 onSelect.accept(newColor);
                 displayColor = newColor;
 

@@ -37,13 +37,16 @@ public class ItemFormatter {
     public static String buildStatString(String name, float value) {
         StringBuilder builder = new StringBuilder();
         if (stats.contains(name)) {
-            if (value >= 0 && baseStats.contains(name)) builder.append("+");
+            if (value >= 0) {
+                if (baseStats.contains(name)) builder.append(" ");
+                else builder.append("+");
+            }
 
             if (name.equals("knockback_resistance_flat")) value *= 10;
             else if (name.equals("potion_recharge_rate_percent")) value /= 100;
             builder.append(value);
 
-            if (isPercentStat(name)) builder.append(" ");
+            if (!isPercentStat(name)) builder.append(" ");
             builder.append(fromSnakeCase(name));
 
             return builder.toString();

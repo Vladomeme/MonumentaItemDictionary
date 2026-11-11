@@ -30,6 +30,7 @@ public class FilterGui extends Screen implements LazyScreen {
     private final List<ItemIconButtonWidget> filterListDelete;
 
     public final List<Filter> filters = new ArrayList<>();
+    public int removeIndex = -1;
 
     public final List<FilterType> filterTypes;
     public final Runnable returnFunction;
@@ -92,7 +93,7 @@ public class FilterGui extends Screen implements LazyScreen {
                 filterOutput.accept(filters);
             });
             ItemIconButtonWidget deleteWidget = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25,
-                    button -> remove(filterListOption.indexOf(optionsWidget)),
+                    button -> removeIndex = filterListOption.indexOf(optionsWidget),
                     Text.literal("Delete").setStyle(Styles.RED), Items.ORANGE_STAINED_GLASS_PANE, "Cancel");
 
             filterListOption.add(optionsWidget);
@@ -224,6 +225,11 @@ public class FilterGui extends Screen implements LazyScreen {
                 constant.setFocused(constant.mouseClicked(mouseX, mouseY, button));
         }
         addFilterButton.mouseClicked(mouseX, mouseY, button);
+
+        if (removeIndex != -1) {
+            remove(removeIndex);
+            removeIndex = -1;
+        }
 
         return true;
     }

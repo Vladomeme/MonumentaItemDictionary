@@ -133,7 +133,6 @@ public class DictionaryController {
     public void open(Screen screen) {
         if (screen instanceof ItemDictionaryGui || screen instanceof CharmDictionaryGui)
             lastOpenedScreen = screen;
-        else lastOpenedScreen = null;
 
         MinecraftClient.getInstance().setScreen(screen);
         if (screen instanceof LazyScreen ls) ls.postInit();
