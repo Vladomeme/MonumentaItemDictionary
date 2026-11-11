@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class BuildFilterGui extends Screen {
 
     public void postInit() {
         backButton = new ItemIconButtonWidget(5, 5, button -> controller.setBuildDictionaryScreen(),
-                Text.literal("Go back"), "arrow", "");
+                Text.literal("Go back"), Items.ARROW, "");
 
         addFilterButton = ButtonWidget.builder(Text.literal("Add New Filter"), button -> {
             int index = filterListOption.size();
@@ -78,7 +79,7 @@ public class BuildFilterGui extends Screen {
             ItemIconButtonWidget delete = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25,
                     b -> removeIndex = filterListOption.indexOf(options),
                     Text.literal("Delete").setStyle(Styles.RED),
-                    "orange_stained_glass_pane", "Cancel");
+                    Items.ORANGE_STAINED_GLASS_PANE, "Cancel");
 
             filterListOption.add(options);
             filterListValue.add(value);

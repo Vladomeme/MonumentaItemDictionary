@@ -14,6 +14,7 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -74,36 +75,33 @@ public class CharmDictionaryGui extends Screen {
 
         reloadCharmsButton = new ItemIconButtonWidget(5, 5,
                 (button) -> controller.requestAndUpdate(),
-                Text.literal("Reload All Data"),
-                "globe_banner_pattern", "");
+                Text.literal("Reload All Data"), Items.GLOBE_BANNER_PATTERN, "");
 
         showItemsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10,
                 (button) -> controller.setItemDictionaryScreen(),
-                Text.literal("Item Data").setStyle(Styles.BLUE),
-                "iron_chestplate", "");
+                Text.literal("Item Data").setStyle(Styles.BLUE), Items.IRON_CHESTPLATE, "");
 
         buildDictionaryButton = new ItemIconButtonWidget(55, 5,
                 (button) -> controller.setBuildDictionaryScreen(),
-                Text.literal("Open Builder GUI"),
-                "iron_chestplate", "");
+                Text.literal("Open Builder GUI"), Items.IRON_CHESTPLATE, "");
 
         builderButton = new ItemIconButtonWidget(55, 5,
                 (button) -> {
                     isGettingBuildCharm = false;
                     controller.setBuilderScreen();
                 },
-                Text.literal("Go Back To Builder"), "arrow", "");
+                Text.literal("Go Back To Builder"), Items.ARROW, "");
         
         filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30,
                 (button) -> controller.setCharmFilterScreen(),
-                Text.literal("Filter"), "chest", "");
+                Text.literal("Filter"), Items.CHEST, "");
 
         resetFilterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 60,
                 (button) -> {
                     controller.charmFilterGui.clearFilters();
                     searchBar.setText("");
                     buildCharmList();
-                }, Text.literal("Reset Filters").setStyle(Styles.RED), "barrier", "");
+                }, Text.literal("Reset Filters").setStyle(Styles.RED), Items.BARRIER, "");
 
         tipsMasterworkButton = new ItemIconButtonWidget(30, 5,
                 (button) -> Util.getOperatingSystem().open("https://github.com/Vladomeme/MonumentaItemDictionary"),
@@ -120,7 +118,7 @@ public class CharmDictionaryGui extends Screen {
                                 .append(Text.literal(" to open an item in the wiki").setStyle(Styles.RESET_BOLD_TEXT)),
                         Text.empty(),
                         Text.literal("Click to go to the MID Github page!").setStyle(Styles.GITHUB_LINK)
-                ),"oak_sign", "");
+                ), Items.OAK_SIGN, "");
     }
 
     @Override
@@ -332,7 +330,7 @@ public class CharmDictionaryGui extends Screen {
             lines.add(Text.literal("[SHIFT] + Click to delete item").setStyle(Styles.TEXT));
         }
 
-        lines.add(Text.literal(charm.baseItem()).setStyle(Styles.TEXT));
+        lines.add(Text.literal(charm.baseItem().getName().getString()).setStyle(Styles.TEXT));
 
         return lines;
     }

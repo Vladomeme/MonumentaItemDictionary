@@ -17,6 +17,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
@@ -62,7 +63,7 @@ public abstract class ScreenMixin {
                 close();
                 controller.setBuilderScreen();
                 controller.builderGui.loadItems(buildFromInventory);
-            }, Text.literal("Add build from current inventory"), "name_tag", "");
+            }, Text.literal("Add build from current inventory"), Items.NAME_TAG, "");
 
             addSelectableChild(buildFromInventoryButton);
             addDrawableChild(buildFromInventoryButton);

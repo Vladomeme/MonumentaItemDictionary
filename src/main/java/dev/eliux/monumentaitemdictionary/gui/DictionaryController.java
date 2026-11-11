@@ -22,7 +22,10 @@ import java.util.*;
 import dev.eliux.monumentaitemdictionary.web.WebRequest;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import oshi.util.tuples.Pair;
@@ -463,8 +466,9 @@ public class DictionaryController {
                 itemTypeSet.add(itemType.name);
 
                 // BASE ITEM (must be present)
-                String itemBaseItem = itemData.get("base_item").getAsString();
-                itemBaseSet.add(itemBaseItem);
+                String baseItem = itemData.get("base_item").getAsString();
+                Item itemBaseItem = Registries.ITEM.get(Identifier.of(baseItem.toLowerCase().replace(" ", "_")));
+                itemBaseSet.add(baseItem);
 
                 // NAME (must be present; exception - written books)
                 String itemName;
@@ -660,8 +664,9 @@ public class DictionaryController {
                 charmClassSet.add(charmClass.name);
 
                 // BASE ITEM (must be present)
-                String charmBaseItem = charmData.get("base_item").getAsString();
-                charmBaseSet.add(charmBaseItem);
+                String baseItem = charmData.get("base_item").getAsString();
+                Item charmBaseItem = Registries.ITEM.get(Identifier.of(baseItem.toLowerCase().replace(" ", "_")));
+                charmBaseSet.add(baseItem);
 
                 // LORE
                 String charmLore = "";

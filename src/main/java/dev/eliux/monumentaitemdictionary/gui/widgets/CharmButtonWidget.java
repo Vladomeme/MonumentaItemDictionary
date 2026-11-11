@@ -36,7 +36,7 @@ public class CharmButtonWidget extends ClickableWidget {
 
         this.gui = gui;
 
-        builtItem = ItemFactory.fromId(charm.baseItem());
+        builtItem = ItemFactory.fromBase(charm.baseItem());
 
         NbtCompound monumenta = new NbtCompound();
         monumenta.putInt("CharmPower", charm.power());

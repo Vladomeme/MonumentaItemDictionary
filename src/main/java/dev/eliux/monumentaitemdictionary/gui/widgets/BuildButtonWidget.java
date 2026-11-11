@@ -11,6 +11,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -42,7 +43,7 @@ public class BuildButtonWidget extends ButtonWidget {
             builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
                     component -> component.apply(nbt -> nbt.put("plain", plain)));
         }
-        else builtItem = ItemFactory.fromId("barrier");
+        else builtItem = ItemFactory.fromBase(Items.BARRIER);
     }
 
     @Override

@@ -11,6 +11,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 
@@ -35,7 +36,7 @@ public class BuildItemButtonWidget extends ButtonWidget {
         this.gui = gui;
         this.scale = (float) width / 18;
 
-        if (item == null) builtItem = ItemFactory.fromId("barrier");
+        if (item == null) builtItem = ItemFactory.fromBase(Items.BARRIER);
         else builtItem = ItemFactory.fromItem(item);
 
         NbtCompound plain = new NbtCompound();

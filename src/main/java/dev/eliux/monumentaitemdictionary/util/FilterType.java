@@ -12,6 +12,7 @@ import java.util.List;
 
 import static dev.eliux.monumentaitemdictionary.util.FilterComparator.Range.*;
 
+//todo optimize for enum type comparisons instead of strings
 public enum FilterType {
 
     UNSET ("", PRESENCE, false) {
@@ -93,7 +94,7 @@ public enum FilterType {
         }
 
         boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryItem item) return comparator.test(item.baseItem().equals(fValue));
+            if (object instanceof DictionaryItem item) return comparator.test(item.baseItem().getName().getString().equals(fValue));
             return unexpectedType(this, object);
         }
     },
@@ -181,7 +182,7 @@ public enum FilterType {
         }
 
         boolean test(Object object, FilterComparator comparator, String fValue, double fConstant) {
-            if (object instanceof DictionaryCharm charm) return comparator.test(charm.baseItem().equals(fValue));
+            if (object instanceof DictionaryCharm charm) return comparator.test(charm.baseItem().getName().getString().equals(fValue));
             return unexpectedType(this, object);
         }
     },

@@ -6,6 +6,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
@@ -17,15 +18,15 @@ public class ItemIconButtonWidget extends ButtonWidget {
     private final ItemStack iconItem;
     private final List<Text> tooltipText;
 
-    public ItemIconButtonWidget(int x, int y, PressAction onPress, Text tooltipText, String itemEncoding, String displayInfo) {
-        this(x, y, onPress, List.of(tooltipText), itemEncoding, displayInfo);
+    public ItemIconButtonWidget(int x, int y, PressAction onPress, Text tooltipText, Item item, String displayInfo) {
+        this(x, y, onPress, List.of(tooltipText), item, displayInfo);
     }
 
-    public ItemIconButtonWidget(int x, int y, PressAction onPress, List<Text> tooltipText, String itemEncoding, String displayInfo) {
+    public ItemIconButtonWidget(int x, int y, PressAction onPress, List<Text> tooltipText, Item item, String displayInfo) {
         super(x, y, 20, 20, Text.empty(), onPress, DEFAULT_NARRATION_SUPPLIER);
         this.tooltipText = tooltipText;
 
-        iconItem = ItemFactory.fromId(itemEncoding);
+        iconItem = ItemFactory.fromBase(item);
         if (!displayInfo.isEmpty()) {
             NbtCompound plain = new NbtCompound();
             NbtCompound display = new NbtCompound();

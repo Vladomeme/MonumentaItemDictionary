@@ -16,7 +16,7 @@ import net.minecraft.nbt.StringNbtReader;
 import org.jetbrains.annotations.NotNull;
 
 public record DictionaryItem(String name, ItemType type, ItemRegion region, List<ItemTier> tier, String locationId,
-                             int fishTier, boolean isFish, String baseItem, String lore, List<String> nbt,
+                             int fishTier, boolean isFish, Item baseItem, String lore, List<String> nbt,
                              List<List<ItemStat>> stats, List<String> effects, boolean hasMasterwork) implements Comparable<DictionaryItem> {
 
     public boolean hasRegion() {
@@ -143,7 +143,7 @@ public record DictionaryItem(String name, ItemType type, ItemRegion region, List
     }
 
     public void openBook() {
-        ItemStack stack = ItemFactory.fromIdWithStringNbt(baseItem().toLowerCase().replace(" ", "_"), nbt.getFirst());
+        ItemStack stack = ItemFactory.fromBaseWithStringNbt(baseItem, nbt.getFirst());
         BookScreen.Contents contents = BookScreen.Contents.create(stack);
         if (contents != null) {
             MinecraftClient.getInstance().setScreen(new BookScreen(contents));

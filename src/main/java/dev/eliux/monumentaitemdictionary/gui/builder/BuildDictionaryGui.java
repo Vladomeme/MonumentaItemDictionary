@@ -13,6 +13,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 
 import java.util.*;
@@ -54,21 +55,19 @@ public class BuildDictionaryGui extends Screen {
                 (button) -> {
                     controller.setBuilderScreen();
                     controller.builderGui.resetBuild();
-                }, Text.literal("Add Build"), "paper", "");
+                }, Text.literal("Add Build"), Items.PAPER, "");
 
         showItemsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10,
                 (button) -> controller.setItemDictionaryScreen(),
-                Text.literal("Item Data").setStyle(Styles.BLUE),
-                "iron_chestplate", "");
+                Text.literal("Item Data").setStyle(Styles.BLUE), Items.IRON_CHESTPLATE, "");
 
         showCharmsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 38,
                 (button) -> controller.setCharmDictionaryScreen(),
-                Text.literal("Charm Data").setStyle(Styles.YELLOW),
-                "glowstone_dust", "");
+                Text.literal("Charm Data").setStyle(Styles.YELLOW), Items.GLOWSTONE_DUST, "");
 
         filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30,
                 button -> controller.setBuildFilterScreen(),
-                Text.literal("Filter"), "chest", "");
+                Text.literal("Filter"), Items.CHEST, "");
 
         buildBuildsList();
     }

@@ -5,12 +5,13 @@ import dev.eliux.monumentaitemdictionary.util.CharmStat;
 import dev.eliux.monumentaitemdictionary.util.PlayerClass;
 import dev.eliux.monumentaitemdictionary.util.ItemRegion;
 import dev.eliux.monumentaitemdictionary.util.ItemTier;
+import net.minecraft.item.Item;
 
 import java.util.List;
 import java.util.Objects;
 
 public record DictionaryCharm(String name, String locationId, ItemTier tier, int power, PlayerClass itemClass,
-                              String baseItem, String lore, String nbt, List<CharmStat> stats) {
+                              Item baseItem, String lore, String nbt, List<CharmStat> stats) {
 
     @SuppressWarnings("SameReturnValue")
     public ItemRegion region() {

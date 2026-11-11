@@ -11,6 +11,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
@@ -44,7 +45,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
 
     private ItemStack getItemStack(@Nullable DictionaryCharm charm) {
         if (charm == null) {
-            ItemStack builtItem = ItemFactory.fromId("barrier");
+            ItemStack builtItem = ItemFactory.fromBase(Items.BARRIER);
             NbtCompound plain = new NbtCompound();
             NbtCompound display = new NbtCompound();
             display.putString("Name", "No Item");
@@ -54,7 +55,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
 
             return builtItem;
         }
-        ItemStack builtItem = ItemFactory.fromId(charm.baseItem().toLowerCase().replace(" ", "_"));
+        ItemStack builtItem = ItemFactory.fromBase(charm.baseItem());
 
         NbtCompound monumenta = new NbtCompound();
         monumenta.putInt("CharmPower", charm.power());

@@ -17,6 +17,7 @@ import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.Clipboard;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -130,11 +131,11 @@ public class BuilderGui extends Screen {
                         Text.empty(),
                         Text.literal("SHIFT + Click").setStyle(Styles.BOLD_TEXT)
                                 .append(Text.literal(" to copy the build url of the current build").setStyle(Styles.RESET_BOLD_TEXT))
-                ), "name_tag", "");
+                ), Items.NAME_TAG, "");
 
         showBuildDictionaryButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10,
                 (button) -> controller.setBuildDictionaryScreen(),
-                Text.literal("Builds Data"), "diamond_chestplate", "");
+                Text.literal("Builds Data"), Items.DIAMOND_CHESTPLATE, "");
 
         addBuildButton = new ItemIconButtonWidget(5, 5,
                 (button) -> {
@@ -145,7 +146,7 @@ public class BuilderGui extends Screen {
                                 itemOnBuildButton, region, buildClass, specialization);
                         controller.setBuildDictionaryScreen();
                     }
-                }, Text.literal("Add Build To Dictionary"), "writable_book", "");
+                }, Text.literal("Add Build To Dictionary"), Items.WRITABLE_BOOK, "");
 
         regionButton = CyclingButtonWidget.builder(ItemRegion::text)
                 .values(ItemRegion.regions())

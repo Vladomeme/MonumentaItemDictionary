@@ -33,27 +33,25 @@ import java.util.*;
 
 public class ItemFactory {
 
-    private static final ItemStack ERROR_ITEM = fromId("minecraft:red_concrete");
+    private static final ItemStack ERROR_ITEM = fromBase(Items.RED_CONCRETE);
     private static final Item[] LEATHER_ARMOR = new Item[] {Items.LEATHER_HELMET, Items.LEATHER_CHESTPLATE, Items.LEATHER_LEGGINGS, Items.LEATHER_BOOTS};
     public static final Item[] POTIONS = new Item[] {Items.POTION, Items.SPLASH_POTION, Items.LINGERING_POTION, Items.TIPPED_ARROW};
 
-    public static ItemStack fromId(String baseItem) {
-        Item item = Registries.ITEM.get(Identifier.of(baseItem.toLowerCase().replace(" ", "_")));
+    public static ItemStack fromBase(Item item) {
         return item != Items.AIR ? new ItemStack(item, 1) : ERROR_ITEM;
     }
 
     public static ItemStack fromItem(DictionaryItem item) {
-        ItemStack stack = fromId(item.baseItem());
+        ItemStack stack = fromBase(item.baseItem());
 
         if (item.hasNbt()) {
             NbtCompound nbt = item.getNbt();
             if (nbt == null) return stack; //parsing error
-            Item baseItem = stack.getItem();
 
-            if (baseItem == Items.PLAYER_HEAD) applyProfileComponent(stack, nbt);
-            if (arrayContains(LEATHER_ARMOR, baseItem)) applyColorComponent(stack, nbt);
-            if (arrayContains(POTIONS, baseItem)) applyPotionContentsComponent(stack, nbt);
-            if (baseItem == Items.SHIELD) applyPatternComponents(stack, nbt);
+            if (item.baseItem() == Items.PLAYER_HEAD) applyProfileComponent(stack, nbt);
+            if (arrayContains(LEATHER_ARMOR, item.baseItem())) applyColorComponent(stack, nbt);
+            if (arrayContains(POTIONS, item.baseItem())) applyPotionContentsComponent(stack, nbt);
+            if (item.baseItem() == Items.SHIELD) applyPatternComponents(stack, nbt);
             if (stack.isIn(ItemTags.BANNERS)) applyPatternComponents(stack, nbt);
         }
         return stack;
@@ -127,7 +125,7 @@ public class ItemFactory {
         }
     }
 
-    public static ItemStack fromIdWithStringNbt(String baseItem, String nbt) {
+    public static ItemStack fromBaseWithStringNbt(Item baseItem, String nbt) {
         ClientPlayNetworkHandler nh = MinecraftClient.getInstance().getNetworkHandler();
         if (nh == null) return ERROR_ITEM;
 
@@ -136,9 +134,8 @@ public class ItemFactory {
         try {
             NbtCompound itemNbt = new NbtCompound();
             itemNbt.put("tag", StringNbtReader.parse(nbt));
-
             ItemStackComponentizationFix.StackData stackData = new ItemStackComponentizationFix.StackData(
-                    "minecraft:" + baseItem, 1, new Dynamic<>(nh.getRegistryManager().getOps(NbtOps.INSTANCE), itemNbt));
+                    Registries.ITEM.getId(baseItem).toString(), 1, new Dynamic<>(nh.getRegistryManager().getOps(NbtOps.INSTANCE), itemNbt));
             ItemStackComponentizationFix.fixStack(stackData, stackData.nbt);
 
             DataResult<? extends Pair<ItemStack, ?>> dataResult = ItemStack.CODEC.decode(stackData.finalize());

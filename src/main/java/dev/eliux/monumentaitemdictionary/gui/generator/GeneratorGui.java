@@ -22,6 +22,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
@@ -67,7 +68,7 @@ public class GeneratorGui extends Screen {
                         controller.setItemDictionaryScreen();
                     else if (controller.lastOpenedScreen instanceof CharmDictionaryGui)
                         controller.setCharmDictionaryScreen();
-                }, Text.literal("Go Back"), "arrow", "");
+                }, Text.literal("Go Back"), Items.ARROW, "");
 
         giveButton = ButtonWidget.builder(Text.literal("Generate Item"), (button) -> {
             boolean generateFullStack = hasShiftDown();
@@ -158,9 +159,9 @@ public class GeneratorGui extends Screen {
     private void updateGeneratedItem() {
         if (lastFocused == DictionaryItem.class) {
             String nbt = focusedItem.hasMasterwork() ? focusedItem.getNbtFromMasterwork(masterworkLevel) : focusedItem.getNbtNoMasterwork();
-            generatedItem = ItemFactory.fromIdWithStringNbt(focusedItem.baseItem().toLowerCase().replace(" ", "_"), nbt);
+            generatedItem = ItemFactory.fromBaseWithStringNbt(focusedItem.baseItem(), nbt);
         }
-        else generatedItem = ItemFactory.fromIdWithStringNbt(focusedCharm.baseItem().toLowerCase().replace(" ", "_"), focusedCharm.nbt());
+        else generatedItem = ItemFactory.fromBaseWithStringNbt(focusedCharm.baseItem(), focusedCharm.nbt());
 
         if (generatedItem.contains(DataComponentTypes.DYED_COLOR) && dyeColor != -1)
             generatedItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(dyeColor, true));

@@ -16,6 +16,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
@@ -128,7 +129,7 @@ public class ItemButtonWidget extends ClickableWidget {
         }
         else if (button == 1) {
             NbtCompound nbt = item.getNbt();
-            if (nbt != null && item.baseItem().equals("Written Book") && nbt.contains("pages")) {
+            if (nbt != null && item.baseItem() == Items.WRITTEN_BOOK && nbt.contains("pages")) {
                 item.openBook();
             }
         }

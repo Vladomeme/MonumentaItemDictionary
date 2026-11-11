@@ -17,6 +17,7 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -77,46 +78,39 @@ public class ItemDictionaryGui extends Screen {
 
         reloadItemsButton = new ItemIconButtonWidget(5, 5,
                 (button) -> controller.requestAndUpdate(),
-                Text.literal("Reload All Data"),
-                "globe_banner_pattern", "");
+                Text.literal("Reload All Data"), Items.GLOBE_BANNER_PATTERN, "");
 
         builderGuiButton = new ItemIconButtonWidget(55, 5,
                 (button) -> controller.setBuildDictionaryScreen(),
-                Text.literal("Open Builder GUI"),
-                "iron_chestplate", "");
+                Text.literal("Open Builder GUI"), Items.IRON_CHESTPLATE, "");
 
         builderButton = new ItemIconButtonWidget(55, 5,
                 (button) -> {
                     isGettingBuildItem = false;
                     controller.setBuilderScreen();
-                }, Text.literal("Go Back To Builder"),
-                "arrow", "");
+                }, Text.literal("Go Back To Builder"), Items.ARROW, "");
 
         showCharmsButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, labelMenuHeight + 10,
                 (button) -> controller.setCharmDictionaryScreen(),
-                Text.literal("Charm Data").setStyle(Styles.YELLOW),
-                "glowstone_dust", "");
+                Text.literal("Charm Data").setStyle(Styles.YELLOW), Items.GLOWSTONE_DUST, "");
 
         filterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 30,
                 (button) -> controller.setItemFilterScreen(),
-                Text.literal("Filter"),
-                "chest", "");
+                Text.literal("Filter"), Items.CHEST, "");
 
         resetFilterButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 60,
                 (button) -> {
                     controller.itemFilterGui.clearFilters();
                     searchBar.setText("");
                     buildItemList();
-                }, Text.literal("Reset Filters").setStyle(Styles.RED),
-                "barrier", "");
+                }, Text.literal("Reset Filters").setStyle(Styles.RED), Items.BARRIER, "");
 
         minMasterworkButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 120,
                 (button) -> {
                     for (List<ItemButtonWidget> row : itemButtons.values()) {
                         row.forEach(ItemButtonWidget::setMinimumMasterwork);
                     }
-                }, Text.literal("Show Minimum Masterwork").setStyle(Styles.PURPLE),
-                "netherite_scrap", "");
+                }, Text.literal("Show Minimum Masterwork").setStyle(Styles.PURPLE), Items.NETHERITE_SCRAP, "");
 
         maxMasterworkButton = new ItemIconButtonWidget(width - sideMenuWidth + 10, height - 90,
                 (button) -> {
@@ -127,7 +121,7 @@ public class ItemDictionaryGui extends Screen {
                 List.of(
                         Text.literal("Show Maximum Masterwork").setStyle(Styles.PURPLE),
                         Text.literal("(Only counts tiers with data)").setStyle(Styles.LIGHT_GRAY)
-                ), "netherite_ingot", "");
+                ), Items.NETHERITE_INGOT, "");
 
         tipsMasterworkButton = new ItemIconButtonWidget(30, 5,
                 (button) -> Util.getOperatingSystem().open("https://github.com/Vladomeme/MonumentaItemDictionary"),
@@ -147,7 +141,7 @@ public class ItemDictionaryGui extends Screen {
                                 .append(Text.literal(" to open an item in the wiki").setStyle(Styles.RESET_BOLD_TEXT)),
                         Text.empty(),
                         Text.literal("Click to go to the MID Github page!").setStyle(Styles.GITHUB_LINK)
-                ), "oak_sign", "");
+                ), Items.OAK_SIGN, "");
     }
 
     @Override
@@ -435,14 +429,14 @@ public class ItemDictionaryGui extends Screen {
         if (client.currentScreen instanceof ItemDictionaryGui || client.currentScreen instanceof CharmDictionaryGui || client.currentScreen instanceof BuilderGui) {
             lines.add(Text.literal("[CTRL] [SHIFT] + Click to open in the wiki").setStyle(Styles.TEXT));
 
-            if (nbt != null && item.baseItem().equals("Written Book") && nbt.contains("pages"))
+            if (nbt != null && item.baseItem() == Items.WRITTEN_BOOK && nbt.contains("pages"))
                 lines.add(Text.literal("Right Click to open the book").setStyle(Styles.TEXT));
 
             if (client.currentScreen instanceof BuilderGui) {
                 lines.add(Text.literal("[SHIFT] + Click to delete item").setStyle(Styles.TEXT));
                 lines.add(Text.literal("[CTRL] + Click to set the item as Build Icon").setStyle(Styles.TEXT));
             }
-            lines.add(Text.literal(item.type() + " - " + item.baseItem()).setStyle(Styles.TEXT));
+            lines.add(Text.literal(item.type() + " - " + item.baseItem().getName().getString()).setStyle(Styles.TEXT));
         }
         return lines;
     }
@@ -465,7 +459,7 @@ public class ItemDictionaryGui extends Screen {
     }
 
     private void addBookAuthorLoreText(List<Text> lines, DictionaryItem item, NbtCompound nbt) {
-        if (nbt != null && item.baseItem().equals("Written Book") && nbt.contains("author"))
+        if (nbt != null && item.baseItem() == Items.WRITTEN_BOOK && nbt.contains("author"))
             lines.add(Text.literal("by " + nbt.getString("author")).setStyle(Styles.LIGHT_GRAY));
     }
 
