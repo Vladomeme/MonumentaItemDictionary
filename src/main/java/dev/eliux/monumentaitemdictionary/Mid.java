@@ -10,20 +10,10 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.HashMap;
-
 public class Mid implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger("Monumenta Item Dictionary");
 	private static KeyBinding openMenuKey;
-
-	private HashMap<String, Object> data = new HashMap<>();
 
 	public static DictionaryController controller = null;
 
@@ -38,39 +28,5 @@ public class Mid implements ModInitializer {
 
 			if (openMenuKey.wasPressed()) controller.open();
 		});
-
-		Runtime.getRuntime().addShutdownHook(new Thread(this::saveData));
-
-		loadData();
-	}
-
-	@SuppressWarnings("ResultOfMethodCallIgnored") //mkdirs(), createNewFile()
-	private void saveData() {
-		try {
-			File target = new File("config/mid/data.txt");
-			FileOutputStream fileOutputStream = new FileOutputStream(target);
-
-			target.getParentFile().mkdirs();
-			target.createNewFile();
-
-			ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-			objectOutputStream.writeObject(data);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-    private void loadData() {
-		try {
-			FileInputStream fileInputStream = new FileInputStream("config/mid/data.txt");
-			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-
-			data = (HashMap<String, Object>) objectInputStream.readObject();
-		}
-		catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
-		}
 	}
 }

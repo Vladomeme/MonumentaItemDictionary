@@ -54,7 +54,7 @@ public class ItemFormatter {
         else {
             builder.append(fromSnakeCase(name));
             builder.append(" ");
-            if (singleEnchants.contains(name)) builder.append((int) value);
+            if (!singleEnchants.contains(name)) builder.append((int) value);
         }
         return builder.toString();
     }
