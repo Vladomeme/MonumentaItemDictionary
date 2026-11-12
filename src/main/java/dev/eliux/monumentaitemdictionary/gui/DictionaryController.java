@@ -36,16 +36,6 @@ import java.nio.file.Path;
 @SuppressWarnings("CallToPrintStackTrace")
 public class DictionaryController {
 
-    private String itemNameFilter;
-    public boolean hasItemNameFilter = false;
-    private String charmNameFilter;
-    public boolean hasCharmNameFilter = false;
-    private String buildNameFilter;
-    public boolean hasBuildNameFilter = false;
-    public List<Filter> itemFilters = new ArrayList<>();
-    public List<Filter> charmFilters = new ArrayList<>();
-    public List<Filter> buildFilters = new ArrayList<>();
-
     public List<String> allItemTypes;
     public List<String> allItemTiers;
     public Map<String, String> allItemLocations;
@@ -108,12 +98,11 @@ public class DictionaryController {
         List<FilterType> buildFilterTypes = List.of(FilterType.REGION, FilterType.BUILD_CLASS, FilterType.SPECIALIZATION);
 
         itemFilterGui = new FilterGui("Item Filter Menu", "Item Filters", 150,
-                itemFilterTypes, () -> open(itemGui), filters -> itemFilters = filters);
+                itemFilterTypes, () -> open(itemGui));
         charmFilterGui = new FilterGui("Charm Filter Menu", "Charm Filters", 180,
-                charmFilterTypes, () -> open(charmGui), filters -> charmFilters = filters);
+                charmFilterTypes, () -> open(charmGui));
         buildFilterGui = new FilterGui("Build Filter Menu", "Build Filters", 150,
-                buildFilterTypes, () -> open(buildDictionaryGui), filters -> buildFilters = filters);
-
+                buildFilterTypes, () -> open(buildDictionaryGui));
 
         generatorGui = new GeneratorGui(Text.literal("Item Generator Options"), this);
     }
@@ -658,31 +647,19 @@ public class DictionaryController {
         allCharmBaseItems.sort(null);
     }
 
-    public void setItemNameFilter(String nameFilter) {
-        this.itemNameFilter = nameFilter;
-        hasItemNameFilter = true;
-    }
-
-    public void setBuildNameFilter(String nameFilter) {
-        this.buildNameFilter = nameFilter;
-        hasBuildNameFilter = true;
-    }
-
-    public void setCharmNameFilter(String nameFilter) {
-        this.charmNameFilter = nameFilter;
-        hasCharmNameFilter = true;
-    }
-
     public void refreshItems() {
         validItems = new ArrayList<>();
 
+        String nameFilter = itemGui.searchBar != null ? itemGui.searchBar.getText() : "";
+        boolean hasNameFilter = !nameFilter.isEmpty();
+
         itemLoop:
         for (DictionaryItem item : items) {
-            for (Filter filter : itemFilters) {
+            for (Filter filter : itemFilterGui.filters) {
                 if (filter == null || filter.isEmpty()) continue;
                 if (filter.blocks(item)) continue itemLoop;
             }
-            if (hasItemNameFilter && !StringUtils.containsIgnoreCase(item.name(), itemNameFilter)) continue;
+            if (hasNameFilter && !StringUtils.containsIgnoreCase(item.name(), nameFilter)) continue;
 
             if (itemGui.isGettingBuildItem) {
                 if (itemGui.itemTypeLookingFor == ItemType.MAINHAND) {
@@ -698,7 +675,7 @@ public class DictionaryController {
         }
 
         validItems.sort((o1, o2) -> {
-            for (Filter filter : itemFilters) {
+            for (Filter filter : itemFilterGui.filters) {
                 if (filter.getType() == FilterType.ITEM_STAT) {
                     double val = o2.getStat((String) filter.getValue()) - o1.getStat((String) filter.getValue());
 
@@ -714,19 +691,22 @@ public class DictionaryController {
     public void refreshCharms() {
         validCharms = new ArrayList<>();
 
+        String nameFilter = charmGui.searchBar != null ? charmGui.searchBar.getText() : "";
+        boolean hasNameFilter = !nameFilter.isEmpty();
+
         charmLoop:
         for (DictionaryCharm charm : charms) {
-            for (Filter filter : charmFilters) {
+            for (Filter filter : charmFilterGui.filters) {
                 if (filter == null || filter.isEmpty()) continue;
                 if (filter.blocks(charm)) continue charmLoop;
             }
-            if (hasCharmNameFilter && !StringUtils.containsIgnoreCase(charm.name(), charmNameFilter)) continue;
+            if (hasNameFilter && !StringUtils.containsIgnoreCase(charm.name(), nameFilter)) continue;
 
             validCharms.add(charm);
         }
 
         validCharms.sort((o1, o2) -> {
-            for (Filter filter : charmFilters) {
+            for (Filter filter : charmFilterGui.filters) {
                 if (filter.getType() == FilterType.CHARM_STAT) {
                     float val = o2.getStat((String) filter.getValue()) - o1.getStat((String) filter.getValue());
 
@@ -742,13 +722,16 @@ public class DictionaryController {
     public void refreshBuilds() {
         validBuilds = new ArrayList<>();
 
+        String nameFilter = buildDictionaryGui.searchBar != null ? buildDictionaryGui.searchBar.getText() : "";
+        boolean hasNameFilter = !nameFilter.isEmpty();
+
         buildLoop:
         for (DictionaryBuild build : builds) {
-            for (Filter filter : buildFilters) {
+            for (Filter filter : buildFilterGui.filters) {
                 if (filter == null || filter.isEmpty()) continue;
                 if (filter.blocks(build)) continue buildLoop;
             }
-            if (hasBuildNameFilter && !StringUtils.containsIgnoreCase(build.name, buildNameFilter)) continue;
+            if (hasNameFilter && !StringUtils.containsIgnoreCase(build.name, nameFilter)) continue;
 
             validBuilds.add(build);
         }
@@ -795,8 +778,7 @@ public class DictionaryController {
         itemGui.postInit();
         itemGui.isGettingBuildItem = true;
         itemGui.itemTypeLookingFor = itemType;
-        hasItemNameFilter = false;
-        itemGui.clearSearchBar();
+        itemGui.searchBar.setText("");
         itemFilterGui.clearFilters();
         open(itemGui);
     }
@@ -804,8 +786,7 @@ public class DictionaryController {
     public void getCharmFromDictionary() {
         charmGui.postInit();
         charmGui.isGettingBuildCharm = true;
-        hasCharmNameFilter = false;
-        charmGui.clearSearchBar();
+        charmGui.searchBar.setText("");
         charmFilterGui.clearFilters();
         open(charmGui);
     }

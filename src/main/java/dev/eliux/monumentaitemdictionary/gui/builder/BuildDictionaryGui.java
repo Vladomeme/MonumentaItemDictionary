@@ -33,7 +33,7 @@ public class BuildDictionaryGui extends Screen implements LazyScreen {
     public final DictionaryController controller;
     public List<DictionaryBuild> buildsList;
     public final Map<DictionaryBuild, BuildButtonWidget> buildsButtons = new HashMap<>();
-    private TextFieldWidget searchBar;
+    public TextFieldWidget searchBar;
     private ItemIconButtonWidget filterButton;
 
     private boolean initialized = false;
@@ -51,11 +51,7 @@ public class BuildDictionaryGui extends Screen implements LazyScreen {
         initialized = true;
 
         searchBar = new TextFieldWidget(textRenderer, width / 2 + 90, 7, width / 2 - 100, 15, Text.literal("Search"));
-        searchBar.setChangedListener(t -> {
-            controller.setBuildNameFilter(searchBar.getText());
-            if (searchBar.getText().isEmpty()) controller.hasBuildNameFilter = false;
-            buildBuildsList();
-        });
+        searchBar.setChangedListener(t -> buildBuildsList());
         searchBar.setFocused(true);
 
         buildsList = new ArrayList<>();

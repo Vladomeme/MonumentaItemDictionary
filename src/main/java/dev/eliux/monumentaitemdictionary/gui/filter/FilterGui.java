@@ -15,7 +15,6 @@ import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class FilterGui extends Screen implements LazyScreen {
 
@@ -23,37 +22,29 @@ public class FilterGui extends Screen implements LazyScreen {
 
     private ItemIconButtonWidget backButton;
     private ButtonWidget addFilterButton;
-    private final List<DropdownWidget> filterListOption;
-    private final List<DropdownWidget> filterListValue;
-    private final List<ButtonWidget> filterListComparator;
-    private final List<TextFieldWidget> filterListConstant;
-    private final List<ItemIconButtonWidget> filterListDelete;
+    private final List<DropdownWidget> filterListOption = new ArrayList<>();
+    private final List<DropdownWidget> filterListValue = new ArrayList<>();
+    private final List<ButtonWidget> filterListComparator = new ArrayList<>();
+    private final List<TextFieldWidget> filterListConstant = new ArrayList<>();
+    private final List<ItemIconButtonWidget> filterListDelete = new ArrayList<>();
 
     public final List<Filter> filters = new ArrayList<>();
     public int removeIndex = -1;
 
     public final List<FilterType> filterTypes;
     public final Runnable returnFunction;
-    public final Consumer<List<Filter>> filterOutput;
     public final int valueFieldWidth;
     public final String label;
 
     private boolean initialized = false;
 
-    public FilterGui(String title, String label, int valueFieldWidth, List<FilterType> filterTypes,
-                     Runnable returnFunction, Consumer<List<Filter>> filterOutput) {
+    public FilterGui(String title, String label, int valueFieldWidth, List<FilterType> filterTypes, Runnable returnFunction) {
         super(Text.of(title));
+
         this.filterTypes = filterTypes;
         this.valueFieldWidth = valueFieldWidth;
         this.label = label;
         this.returnFunction = returnFunction;
-        this.filterOutput = filterOutput;
-
-        filterListOption = new ArrayList<>();
-        filterListValue = new ArrayList<>();
-        filterListComparator = new ArrayList<>();
-        filterListConstant = new ArrayList<>();
-        filterListDelete = new ArrayList<>();
     }
 
     public void postInit() {
@@ -72,26 +63,20 @@ public class FilterGui extends Screen implements LazyScreen {
             ButtonWidget comparatorWidget = ButtonWidget.builder(FilterComparator.EXISTS.text, button -> {
                 filter.nextComparator();
                 button.setMessage(filter.getComparatorText());
-                filterOutput.accept(filters);
             }).position(130 + valueFieldWidth, labelMenuHeight + 5 + index * 25).size(60, 20)
                     .tooltip(Tooltip.of(Text.literal("Click to cycle"))).build();
 
             DropdownWidget valueWidget = new DropdownWidget(textRenderer, 125, labelMenuHeight + 7 + index * 25, valueFieldWidth,
-                    Text.empty(), "", List.of(), value -> {
-                filter.setValue(value);
-                filterOutput.accept(filters);
-            });
+                    Text.empty(), "", List.of(), filter::setValue);
+
             TextFieldWidget constantWidget = new TextFieldWidget(textRenderer, 195 + valueFieldWidth, labelMenuHeight + 8 + index * 25, 30, 14, Text.empty());
             constantWidget.setText("0");
-            constantWidget.setChangedListener(constant -> {
-                filter.setConstant(constant);
-                filterOutput.accept(filters);
-            });
+            constantWidget.setChangedListener(filter::setConstant);
+
             DropdownWidget optionsWidget = new DropdownWidget(textRenderer, 30, labelMenuHeight + 7 + index * 25, 90,
-                    Text.empty(), "Select Sort Type", FilterType.namesOf(filterTypes), value -> {
-                filter.update(FilterType.of(value), valueWidget, comparatorWidget);
-                filterOutput.accept(filters);
-            });
+                    Text.empty(), "Select Sort Type", FilterType.namesOf(filterTypes),
+                    value -> filter.update(FilterType.of(value), valueWidget, comparatorWidget));
+
             ItemIconButtonWidget deleteWidget = new ItemIconButtonWidget(5, labelMenuHeight + 5 + index * 25,
                     button -> removeIndex = filterListOption.indexOf(optionsWidget),
                     Text.literal("Delete").setStyle(Styles.RED), Items.ORANGE_STAINED_GLASS_PANE, "Cancel");
@@ -178,7 +163,6 @@ public class FilterGui extends Screen implements LazyScreen {
         filterListDelete.clear();
         filters.clear();
 
-        filterOutput.accept(filters);
         updateFilterListPositions();
     }
 
@@ -190,7 +174,6 @@ public class FilterGui extends Screen implements LazyScreen {
         filterListDelete.remove(i);
         filters.remove(i);
 
-        filterOutput.accept(filters);
         updateFilterListPositions();
     }
 

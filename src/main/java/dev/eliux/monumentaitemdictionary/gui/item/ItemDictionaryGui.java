@@ -40,7 +40,7 @@ public class ItemDictionaryGui extends Screen implements LazyScreen {
     private final TreeMap<Integer, List<ItemButtonWidget>> itemButtons = new TreeMap<>();
     private final Map<DictionaryItem, ItemButtonWidget> widgetByItem = new HashMap<>();
 
-    private TextFieldWidget searchBar;
+    public TextFieldWidget searchBar;
     private ItemIconButtonWidget reloadItemsButton;
     private ItemIconButtonWidget builderGuiButton;
     private ItemIconButtonWidget showCharmsButton;
@@ -73,10 +73,6 @@ public class ItemDictionaryGui extends Screen implements LazyScreen {
         searchBar = new TextFieldWidget(textRenderer, width / 2 + 90, 7, width / 2 - 100, 15, Text.literal("Search"));
         searchBar.setChangedListener(t -> {
             scrollPixels = 0;
-            controller.setItemNameFilter(searchBar.getText());
-            if (searchBar.getText().isEmpty())
-                controller.hasItemNameFilter = false;
-
             buildItemList();
             updateScrollLimits();
         });
@@ -553,7 +549,4 @@ public class ItemDictionaryGui extends Screen implements LazyScreen {
         return scrollPixels;
     }
 
-    public void clearSearchBar() {
-        searchBar.setText("");
-    }
 }

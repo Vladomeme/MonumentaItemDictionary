@@ -40,7 +40,7 @@ public class CharmDictionaryGui extends Screen implements LazyScreen {
 
     private final List<CharmButtonWidget> charmButtons = new ArrayList<>();
 
-    private TextFieldWidget searchBar;
+    public TextFieldWidget searchBar;
     private ItemIconButtonWidget reloadCharmsButton;
     private ItemIconButtonWidget showItemsButton;
     private ItemIconButtonWidget filterButton;
@@ -71,10 +71,6 @@ public class CharmDictionaryGui extends Screen implements LazyScreen {
         searchBar = new TextFieldWidget(textRenderer, width / 2 + 90, 7, width / 2 - 100, 15, Text.literal("Search"));
         searchBar.setChangedListener(t -> {
             scrollPixels = 0;
-            controller.setCharmNameFilter(searchBar.getText());
-            if (searchBar.getText().isEmpty())
-                controller.hasCharmNameFilter = false;
-
             buildCharmList();
             updateScrollLimits();
         });
@@ -434,9 +430,5 @@ public class CharmDictionaryGui extends Screen implements LazyScreen {
 
     public int getScrollPixels() {
         return scrollPixels;
-    }
-
-    public void clearSearchBar() {
-        searchBar.setText("");
     }
 }
