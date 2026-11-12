@@ -95,7 +95,7 @@ public class BuildButtonWidget extends ButtonWidget {
 
         NbtCompound nbt = item.getNbt();
 
-        if (nbt == null || !nbt.getCompound("display").contains("Name")) {
+        if (nbt.isEmpty() || !nbt.getCompound("display").contains("Name")) {
             //old method
             ItemTier itemTier = item.getTierAtMaxMasterwork();
             lines.add(Text.literal(item.name()).setStyle(Style.EMPTY

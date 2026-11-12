@@ -131,7 +131,7 @@ public class ItemButtonWidget extends ClickableWidget {
         }
         else if (button == 1) {
             NbtCompound nbt = item.getNbt();
-            if (nbt != null && item.baseItem() == Items.WRITTEN_BOOK && nbt.contains("pages")) {
+            if (!nbt.isEmpty() && item.baseItem() == Items.WRITTEN_BOOK && nbt.contains("pages")) {
                 item.openBook();
             }
         }

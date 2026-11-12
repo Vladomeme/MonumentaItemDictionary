@@ -614,7 +614,7 @@ public class BuilderGui extends Screen implements LazyScreen {
 
         NbtCompound nbt = item.getNbt();
 
-        if (nbt == null || !nbt.getCompound("display").contains("Name"))
+        if (nbt.isEmpty() || !nbt.getCompound("display").contains("Name"))
             return item.location().color();
 
         String nameJson = nbt.getCompound("display").getString("Name");

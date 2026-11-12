@@ -3,11 +3,9 @@ package dev.eliux.monumentaitemdictionary.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.StringNbtReader;
 
 import java.util.HashSet;
 import java.util.List;
@@ -199,18 +197,13 @@ public class ItemFormatter {
         return builder.toString();
     }
 
-    public static void extractEnchantInfo(Map<String, String> statMap) {
+    public static void extractEnchantInfo(Map<String, NbtCompound> statMap) {
         singleEnchants.clear();
         curseEnchants.clear();
 
-        for (Map.Entry<String, String> entry : statMap.entrySet()) {
-            NbtCompound nbt;
-            try {
-                nbt = StringNbtReader.parse(entry.getValue());
-            }
-            catch (CommandSyntaxException ignored) {
-                continue;
-            }
+        for (Map.Entry<String, NbtCompound> entry : statMap.entrySet()) {
+            NbtCompound nbt = entry.getValue();
+
             NbtList lore = nbt.getCompound("display").getList("Lore", 8);
             if (lore.isEmpty()) return;
 

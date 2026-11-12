@@ -1,6 +1,5 @@
 package dev.eliux.monumentaitemdictionary.gui.charm;
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
 import dev.eliux.monumentaitemdictionary.gui.LazyScreen;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
@@ -18,7 +17,6 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.text.*;
 import net.minecraft.util.Util;
 
@@ -289,13 +287,7 @@ public class CharmDictionaryGui extends Screen implements LazyScreen {
     public List<Text> generateCharmLoreText(DictionaryCharm charm) {
         List<Text> lines = new ArrayList<>();
 
-        NbtCompound nbt;
-        try {
-            nbt = StringNbtReader.parse(charm.nbt());
-        }
-        catch (CommandSyntaxException ignored) {
-            nbt = null;
-        }
+        NbtCompound nbt = charm.getNbt();
 
         addNameLoreText(lines, charm, nbt);
 

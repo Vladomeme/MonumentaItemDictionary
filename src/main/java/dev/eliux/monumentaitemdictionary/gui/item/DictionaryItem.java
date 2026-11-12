@@ -1,6 +1,5 @@
 package dev.eliux.monumentaitemdictionary.gui.item;
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.eliux.monumentaitemdictionary.util.*;
 
 import java.util.List;
@@ -11,12 +10,11 @@ import net.minecraft.client.gui.screen.ingame.BookScreen;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
 public record DictionaryItem(String name, ItemType type, ItemRegion region, List<ItemTier> tier, Location location,
-                             int fishTier, boolean isFish, Item baseItem, List<Text> lore, List<String> nbt,
+                             int fishTier, boolean isFish, Item baseItem, List<Text> lore, List<NbtCompound> nbt,
                              List<List<ItemStat>> stats, List<String> effects, boolean hasMasterwork) implements Comparable<DictionaryItem> {
 
     public boolean hasTier(ItemTier tier) {
@@ -33,13 +31,13 @@ public record DictionaryItem(String name, ItemType type, ItemRegion region, List
     }
 
     public boolean hasNbt() {
-        for (String nbt : nbt()) {
+        for (NbtCompound nbt : nbt()) {
             if (nbt != null && !nbt.isEmpty()) return true;
         }
         return false;
     }
 
-    public void addMasterworkTier(ItemTier newTier, List<ItemStat> newStats, String newNbt, int level) {
+    public void addMasterworkTier(ItemTier newTier, List<ItemStat> newStats, NbtCompound newNbt, int level) {
         tier.set(level, newTier);
         stats.set(level, newStats);
         nbt.set(level, newNbt);
@@ -53,12 +51,12 @@ public record DictionaryItem(String name, ItemType type, ItemRegion region, List
         return stats.get(level);
     }
 
-    public String getNbtNoMasterwork() {
-        return nbt.isEmpty() ? "{}" : nbt.getFirst();
+    public NbtCompound getNbtNoMasterwork() {
+        return (nbt == null || nbt.isEmpty()) ? new NbtCompound() : nbt.getFirst();
     }
 
-    public String getNbtFromMasterwork(int level) {
-        return nbt.get(level);
+    public NbtCompound getNbtFromMasterwork(int level) {
+        return (nbt == null || nbt.isEmpty()) ? new NbtCompound() : nbt.get(level);
     }
 
     public ItemTier getTier() {
@@ -114,19 +112,14 @@ public record DictionaryItem(String name, ItemType type, ItemRegion region, List
     }
 
     public NbtCompound getNbt() {
-        for (String nbt : nbt()) {
-            if (nbt != null && !nbt.isEmpty()) {
-                try {
-                    return StringNbtReader.parse(nbt);
-                }
-                catch (CommandSyntaxException ignored) {}
-            }
+        for (NbtCompound nbt : nbt()) {
+            if (nbt != null && !nbt.isEmpty()) return nbt;
         }
-        return null;
+        return new NbtCompound();
     }
 
     public void openBook() {
-        ItemStack stack = ItemFactory.fromBaseWithStringNbt(baseItem, nbt.getFirst());
+        ItemStack stack = ItemFactory.fromBaseWithNbt(baseItem, getNbt());
         BookScreen.Contents contents = BookScreen.Contents.create(stack);
         if (contents != null) {
             MinecraftClient.getInstance().setScreen(new BookScreen(contents));

@@ -46,7 +46,7 @@ public class ItemFactory {
 
         if (item.hasNbt()) {
             NbtCompound nbt = item.getNbt();
-            if (nbt == null) return stack; //parsing error
+            if (nbt.isEmpty()) return stack;
 
             if (item.baseItem() == Items.PLAYER_HEAD) applyProfileComponent(stack, nbt);
             if (arrayContains(LEATHER_ARMOR, item.baseItem())) applyColorComponent(stack, nbt);
@@ -125,15 +125,16 @@ public class ItemFactory {
         }
     }
 
-    public static ItemStack fromBaseWithStringNbt(Item baseItem, String nbt) {
+    public static ItemStack fromBaseWithNbt(Item baseItem, NbtCompound nbt) {
         ClientPlayNetworkHandler nh = MinecraftClient.getInstance().getNetworkHandler();
         if (nh == null) return ERROR_ITEM;
 
-        nbt = nbt.replace("minecraft:sweeping", "minecraft:sweeping_edge");
+        String stringNbt = nbt.asString();
+        stringNbt = stringNbt.replace("minecraft:sweeping", "minecraft:sweeping_edge");
 
         try {
             NbtCompound itemNbt = new NbtCompound();
-            itemNbt.put("tag", StringNbtReader.parse(nbt));
+            itemNbt.put("tag", StringNbtReader.parse(stringNbt));
             ItemStackComponentizationFix.StackData stackData = new ItemStackComponentizationFix.StackData(
                     Registries.ITEM.getId(baseItem).toString(), 1, new Dynamic<>(nh.getRegistryManager().getOps(NbtOps.INSTANCE), itemNbt));
             ItemStackComponentizationFix.fixStack(stackData, stackData.nbt);

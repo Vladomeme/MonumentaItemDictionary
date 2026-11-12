@@ -25,6 +25,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
@@ -164,10 +165,10 @@ public class GeneratorGui extends Screen implements LazyScreen {
         if (lastFocused == null) return;
 
         if (lastFocused == DictionaryItem.class) {
-            String nbt = focusedItem.hasMasterwork() ? focusedItem.getNbtFromMasterwork(masterworkLevel) : focusedItem.getNbtNoMasterwork();
-            generatedItem = ItemFactory.fromBaseWithStringNbt(focusedItem.baseItem(), nbt);
+            NbtCompound nbt = focusedItem.hasMasterwork() ? focusedItem.getNbtFromMasterwork(masterworkLevel) : focusedItem.getNbtNoMasterwork();
+            generatedItem = ItemFactory.fromBaseWithNbt(focusedItem.baseItem(), nbt);
         }
-        else generatedItem = ItemFactory.fromBaseWithStringNbt(focusedCharm.baseItem(), focusedCharm.nbt());
+        else generatedItem = ItemFactory.fromBaseWithNbt(focusedCharm.baseItem(), focusedCharm.getNbt());
 
         if (generatedItem.contains(DataComponentTypes.DYED_COLOR) && dyeColor != -1)
             generatedItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(dyeColor, true));

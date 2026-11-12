@@ -426,7 +426,7 @@ public class ItemDictionaryGui extends Screen implements LazyScreen {
         if (client.currentScreen instanceof ItemDictionaryGui || client.currentScreen instanceof CharmDictionaryGui || client.currentScreen instanceof BuilderGui) {
             lines.add(Text.literal("[CTRL] [SHIFT] + Click to open in the wiki").setStyle(Styles.TEXT));
 
-            if (nbt != null && item.baseItem() == Items.WRITTEN_BOOK && nbt.contains("pages"))
+            if (!nbt.isEmpty() && item.baseItem() == Items.WRITTEN_BOOK && nbt.contains("pages"))
                 lines.add(Text.literal("Right Click to open the book").setStyle(Styles.TEXT));
 
             if (client.currentScreen instanceof BuilderGui) {
@@ -441,7 +441,7 @@ public class ItemDictionaryGui extends Screen implements LazyScreen {
     private void addNameLoreText(List<Text> lines, DictionaryItem item, NbtCompound nbt, ItemTier itemTier) {
         if (client.world == null) return;
 
-        if (nbt == null || !nbt.getCompound("display").contains("Name")) {
+        if (nbt.isEmpty() || !nbt.getCompound("display").contains("Name")) {
             //old method
             lines.add(Text.literal(item.name()).setStyle(Style.EMPTY
                     .withColor(Colors.BLACK + item.location().color())
@@ -456,12 +456,12 @@ public class ItemDictionaryGui extends Screen implements LazyScreen {
     }
 
     private void addBookAuthorLoreText(List<Text> lines, DictionaryItem item, NbtCompound nbt) {
-        if (nbt != null && item.baseItem() == Items.WRITTEN_BOOK && nbt.contains("author"))
+        if (!nbt.isEmpty() && item.baseItem() == Items.WRITTEN_BOOK && nbt.contains("author"))
             lines.add(Text.literal("by " + nbt.getString("author")).setStyle(Styles.LIGHT_GRAY));
     }
 
     private void addPotionEffectLoreText(List<Text> lines, NbtCompound nbt) {
-        if (client.world == null || nbt == null
+        if (client.world == null || nbt.isEmpty()
                 || !nbt.getCompound("Monumenta").getCompound("Stock").contains("Effects")) return;
 
         NbtList lore = nbt.getCompound("display").getList("Lore", 8);

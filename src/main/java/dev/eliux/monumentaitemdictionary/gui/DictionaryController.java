@@ -1,6 +1,7 @@
 package dev.eliux.monumentaitemdictionary.gui;
 
 import com.google.gson.*;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuildDictionaryGui;
 import dev.eliux.monumentaitemdictionary.gui.builder.BuilderGui;
@@ -21,6 +22,8 @@ import dev.eliux.monumentaitemdictionary.web.WebRequest;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -363,7 +366,7 @@ public class DictionaryController {
         List<Pair<String, String>> itemLocations = new ArrayList<>();
 
         Map<String, DictionaryItem> masterworkItems = new HashMap<>();
-        Map<String, String> statMap = new HashMap<>();
+        Map<String, NbtCompound> statMap = new HashMap<>();
 
         try {
             String rawData = readStringData("config/mid/items.json");
@@ -439,9 +442,18 @@ public class DictionaryController {
                 if (itemLore.isEmpty()) itemLore = List.of();
 
                 // NBT
-                String itemNbt = "";
+                NbtCompound itemNbt = null;
                 JsonPrimitive nbtPrimitive = itemData.getAsJsonPrimitive("nbt");
-                if (nbtPrimitive != null) itemNbt = nbtPrimitive.getAsString();
+                if (nbtPrimitive != null) {
+                    try {
+                        itemNbt = StringNbtReader.parse(nbtPrimitive.getAsString());
+                    }
+                    catch (CommandSyntaxException e) {
+                        Mid.LOGGER.error("[Mid] Failed to parse nbt for item {} ({})", itemName, itemRegion.apiName);
+                        Mid.LOGGER.error(e.getMessage());
+                    }
+                }
+                if (itemNbt != null && itemNbt.isEmpty()) itemNbt = null;
 
                 // STATS
                 List<ItemStat> itemStats = new ArrayList<>();
@@ -450,7 +462,7 @@ public class DictionaryController {
                     String statName = statEntry.getKey();
                     if (ItemFormatter.hiddenStats.contains(statName)) continue;
 
-                    if (!statMap.containsKey(statName) && !itemNbt.isEmpty()) statMap.put(statName, itemNbt);
+                    if (!statMap.containsKey(statName) && itemNbt != null && !itemNbt.isEmpty()) statMap.put(statName, itemNbt);
                     itemStats.add(new ItemStat(statName, statEntry.getValue().getAsFloat()));
                     itemStatSet.add(statName);
                 }
@@ -484,14 +496,13 @@ public class DictionaryController {
                     // Item doesn't have masterwork
                     List<ItemTier> totalTierList = itemTier == ItemTier.DEFAULT ? List.of() : List.of(itemTier);
                     List<List<ItemStat>> totalStatsList = itemStats.isEmpty() ? List.of() : List.of(itemStats);
-                    List<String> totalNbtList = itemNbt.isEmpty() ? List.of() : List.of(itemNbt);
+                    List<NbtCompound> totalNbtList = ((itemNbt == null) || itemNbt.isEmpty()) ? List.of() : List.of(itemNbt);
 
                     items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocation,
                             fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, itemEffects, false));
                 }
                 else {
                     // Item has masterwork
-                    if (itemNbt.isEmpty()) itemNbt = "{}";
                     int maxLevel = itemTier.getMasterwork();
                     int level = masterworkPrimitive.getAsInt();
 
@@ -507,7 +518,7 @@ public class DictionaryController {
                         List<ItemTier> totalTierList = Arrays.asList(new ItemTier[maxLevel + 1]);
                         @SuppressWarnings("unchecked")
                         List<List<ItemStat>> totalStatsList = Arrays.asList(new List[maxLevel + 1]);
-                        List<String> totalNbtList = Arrays.asList(new String[maxLevel + 1]);
+                        List<NbtCompound> totalNbtList = Arrays.asList(new NbtCompound[maxLevel + 1]);
 
                         totalTierList.set(level, itemTier);
                         totalStatsList.set(level, itemStats);
@@ -603,9 +614,18 @@ public class DictionaryController {
                 }
                 if (charmLore.isEmpty()) charmLore = List.of();
 
-                // NBT
-                String charmNbt = "{}";
-                if (charmData.has("nbt")) charmNbt = charmData.get("nbt").getAsString();
+                NbtCompound charmNbt = null;
+                JsonPrimitive nbtPrimitive = charmData.getAsJsonPrimitive("nbt");
+                if (nbtPrimitive != null) {
+                    try {
+                        charmNbt = StringNbtReader.parse(nbtPrimitive.getAsString());
+                    }
+                    catch (CommandSyntaxException e) {
+                        Mid.LOGGER.error("[Mid] Failed to parse nbt for charm {}", charmName);
+                        Mid.LOGGER.error(e.getMessage());
+                    }
+                }
+                if (charmNbt != null && charmNbt.isEmpty()) charmNbt = null;
 
                 List<CharmStat> charmStats = new ArrayList<>();
                 JsonObject statsObject = charmData.get("stats").getAsJsonObject();
