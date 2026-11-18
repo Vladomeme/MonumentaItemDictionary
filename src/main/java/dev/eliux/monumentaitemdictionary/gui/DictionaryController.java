@@ -653,7 +653,7 @@ public class DictionaryController {
             e.printStackTrace();
         }
 
-        charms.sort(Comparator.comparingInt(o -> o.tier().ordinal()));
+        charms.sort(DictionaryCharm::compareTo);
 
         allCharmTiers = new ArrayList<>(charmTierSet);
         allCharmSkillMods = new ArrayList<>(charmSkillModSet);

@@ -139,7 +139,7 @@ public record DictionaryItem(String name, ItemType type, ItemRegion region, List
             if (value != 0) return value;
         }
 
-        value = o.type.ordinal() - type.ordinal();
+        value = type.ordinal() - o.type.ordinal();
         if (value != 0) return value;
 
         return name.compareTo(o.name);

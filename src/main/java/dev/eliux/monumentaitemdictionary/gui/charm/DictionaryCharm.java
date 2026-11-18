@@ -4,12 +4,13 @@ import dev.eliux.monumentaitemdictionary.util.*;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
 
 public record DictionaryCharm(String name, Location location, ItemTier tier, int power, PlayerClass itemClass,
-                              Item baseItem, List<Text> lore, NbtCompound nbt, List<CharmStat> stats) {
+                              Item baseItem, List<Text> lore, NbtCompound nbt, List<CharmStat> stats) implements Comparable<DictionaryCharm> {
 
     @SuppressWarnings("SameReturnValue")
     public ItemRegion region() {
@@ -39,6 +40,17 @@ public record DictionaryCharm(String name, Location location, ItemTier tier, int
 
     public NbtCompound getNbt() {
         return (nbt == null || nbt.isEmpty()) ? new NbtCompound() : nbt;
+    }
+
+    @Override
+    public int compareTo(@NotNull DictionaryCharm o) {
+        int value = tier.ordinal() - o.tier.ordinal();
+        if (value != 0) return value;
+
+        value = itemClass.ordinal() - o.itemClass.ordinal();
+        if (value != 0) return value;
+
+        return name.compareTo(o.name);
     }
 
     @Override
