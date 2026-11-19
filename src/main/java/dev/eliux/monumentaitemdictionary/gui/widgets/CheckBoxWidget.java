@@ -15,15 +15,15 @@ import net.minecraft.util.math.MathHelper;
 public class CheckBoxWidget extends CheckboxWidget {
 
     private final BuilderGui gui;
-    private static final Identifier SELECTED_HIGHLIGHTED_TEXTURE = Identifier.of("widget/checkbox_selected_highlighted");
-    private static final Identifier SELECTED_TEXTURE = Identifier.of("widget/checkbox_selected");
-    private static final Identifier HIGHLIGHTED_TEXTURE = Identifier.of("widget/checkbox_highlighted");
-    private static final Identifier TEXTURE = Identifier.of("widget/checkbox");
+    private static final Identifier SELECTED_HIGHLIGHTED_TEXTURE = Identifier.of("minecraft", "widget/checkbox_selected_highlighted");
+    private static final Identifier SELECTED_TEXTURE = Identifier.of("minecraft", "widget/checkbox_selected");
+    private static final Identifier HIGHLIGHTED_TEXTURE = Identifier.of("minecraft", "widget/checkbox_highlighted");
+    private static final Identifier TEXTURE = Identifier.of("minecraft", "widget/checkbox");
     private boolean checked;
     private final boolean showMessage;
 
     public CheckBoxWidget(int x, int y, Text message, boolean checked, boolean showMessage, BuilderGui gui) {
-        super(x, y, 20, message, MinecraftClient.getInstance().textRenderer, checked, Callback.EMPTY);
+        super(x, y, message, MinecraftClient.getInstance().textRenderer, checked, Callback.EMPTY);
         this.checked = checked;
         this.showMessage = showMessage;
         this.gui = gui;

@@ -44,7 +44,7 @@ public record DictionaryItem(String name, ItemType type, ItemRegion region, List
     }
 
     public List<ItemStat> getStatsNoMasterwork() {
-        return stats.isEmpty() ? List.of() : stats.getFirst();
+        return stats.isEmpty() ? List.of() : stats.get(0);
     }
 
     public List<ItemStat> getStatsFromMasterwork(int level) {
@@ -52,7 +52,7 @@ public record DictionaryItem(String name, ItemType type, ItemRegion region, List
     }
 
     public NbtCompound getNbtNoMasterwork() {
-        return (nbt == null || nbt.isEmpty()) ? new NbtCompound() : nbt.getFirst();
+        return (nbt == null || nbt.isEmpty()) ? new NbtCompound() : nbt.get(0);
     }
 
     public NbtCompound getNbtFromMasterwork(int level) {
@@ -61,17 +61,17 @@ public record DictionaryItem(String name, ItemType type, ItemRegion region, List
 
     public ItemTier getTier() {
         if (hasMasterwork) return tier.get(getMinMasterwork());
-        return tier.isEmpty() ? ItemTier.DEFAULT : tier.getFirst();
+        return tier.isEmpty() ? ItemTier.DEFAULT : tier.get(0);
     }
 
     public ItemTier getTierAtMasterwork(int level) {
         if (hasMasterwork) return tier.get(Math.max(level, getMinMasterwork()));
-        return tier.isEmpty() ? ItemTier.DEFAULT : tier.getFirst();
+        return tier.isEmpty() ? ItemTier.DEFAULT : tier.get(0);
     }
 
     public ItemTier getTierAtMaxMasterwork() {
         if (hasMasterwork) return tier.get(getMaxMasterwork() - 1);
-        return tier.isEmpty() ? ItemTier.DEFAULT : tier.getFirst();
+        return tier.isEmpty() ? ItemTier.DEFAULT : tier.get(0);
     }
 
     public int getMinMasterwork() {

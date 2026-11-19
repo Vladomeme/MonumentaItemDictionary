@@ -618,7 +618,7 @@ public class BuilderGui extends Screen implements LazyScreen {
             return item.location().color();
 
         String nameJson = nbt.getCompound("display").getString("Name");
-        Text text = Text.Serialization.fromJson(nameJson, MinecraftClient.getInstance().world.getRegistryManager());
+        Text text = Text.Serialization.fromJson(nameJson);
         if (text != null) {
             Style style = text.getStyle();
             if (style != null) {

@@ -115,7 +115,7 @@ public enum FilterType {
         }
 
         Object parseValue(String value) {
-            return Registries.ITEM.get(Identifier.of(value.toLowerCase().replace(" ", "_")));
+            return Registries.ITEM.get(Identifier.of("minecraft", value.toLowerCase().replace(" ", "_")));
         }
 
         boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {
@@ -223,7 +223,7 @@ public enum FilterType {
         }
 
         Object parseValue(String value) {
-            return Registries.ITEM.get(Identifier.of(value.toLowerCase().replace(" ", "_")));
+            return Registries.ITEM.get(Identifier.of("minecraft", value.toLowerCase().replace(" ", "_")));
         }
 
         boolean test(Object object, FilterComparator comparator, Object fValue, double fConstant) {

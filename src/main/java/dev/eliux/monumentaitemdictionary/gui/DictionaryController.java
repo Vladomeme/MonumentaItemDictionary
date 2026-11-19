@@ -386,7 +386,7 @@ public class DictionaryController {
 
                 // BASE ITEM (must be present)
                 String baseItem = itemData.get("base_item").getAsString();
-                Item itemBaseItem = Registries.ITEM.get(Identifier.of(baseItem.toLowerCase().replace(" ", "_")));
+                Item itemBaseItem = Registries.ITEM.get(Identifier.of("minecraft", baseItem.toLowerCase().replace(" ", "_")));
                 itemBaseSet.add(baseItem);
 
                 // NAME (must be present; exception - written books)
@@ -526,7 +526,7 @@ public class DictionaryController {
 
                         items.add(new DictionaryItem(itemName, itemType, itemRegion, totalTierList, itemLocation,
                                 fishTier, isFish, itemBaseItem, itemLore, totalNbtList, totalStatsList, itemEffects, true));
-                        masterworkItems.put(itemName, items.getLast());
+                        masterworkItems.put(itemName, items.get(items.size() - 1));
                     }
                 }
             }
@@ -600,7 +600,7 @@ public class DictionaryController {
 
                 // BASE ITEM (must be present)
                 String baseItem = charmData.get("base_item").getAsString();
-                Item charmBaseItem = Registries.ITEM.get(Identifier.of(baseItem.toLowerCase().replace(" ", "_")));
+                Item charmBaseItem = Registries.ITEM.get(Identifier.of("minecraft", baseItem.toLowerCase().replace(" ", "_")));
                 charmBaseSet.add(baseItem);
 
                 // LORE

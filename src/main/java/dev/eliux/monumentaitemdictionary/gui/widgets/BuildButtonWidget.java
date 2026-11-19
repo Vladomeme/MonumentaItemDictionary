@@ -8,8 +8,6 @@ import dev.eliux.monumentaitemdictionary.util.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -40,8 +38,7 @@ public class BuildButtonWidget extends ButtonWidget {
             NbtCompound display = new NbtCompound();
             display.putString("Name", displayingItem.name().split("\\(")[0].trim());
             plain.put("display", display);
-            builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
-                    component -> component.apply(nbt -> nbt.put("plain", plain)));
+            builtItem.getOrCreateNbt().put("plain", plain);
         }
         else builtItem = ItemFactory.fromBase(Items.BARRIER);
     }
@@ -106,7 +103,7 @@ public class BuildButtonWidget extends ButtonWidget {
         }
 
         String nameJson = nbt.getCompound("display").getString("Name");
-        Text text = Text.Serialization.fromJson(nameJson, MinecraftClient.getInstance().world.getRegistryManager());
+        Text text = Text.Serialization.fromJson(nameJson);
         lines.add(text);
     }
 

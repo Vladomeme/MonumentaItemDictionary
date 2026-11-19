@@ -19,12 +19,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.DyedColorComponent;
-import net.minecraft.item.Item;
+import net.minecraft.client.item.TooltipContext;
+import net.minecraft.item.DyeableItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
@@ -128,7 +126,7 @@ public class GeneratorGui extends Screen implements LazyScreen {
             colorPicker.visible = value.equals("Custom");
 
             if (value.equals("Default")) dyeColor = -1;
-            else if (value.equals("Undyed")) dyeColor = DyedColorComponent.DEFAULT_COLOR;
+            else if (value.equals("Undyed")) dyeColor = DyeableItem.DEFAULT_COLOR;
             else if (!value.equals("Custom"))
                 dyeColor = DyeColor.byName(value, DyeColor.WHITE).getSignColor();
 
@@ -166,12 +164,14 @@ public class GeneratorGui extends Screen implements LazyScreen {
 
         if (lastFocused == DictionaryItem.class) {
             NbtCompound nbt = focusedItem.hasMasterwork() ? focusedItem.getNbtFromMasterwork(masterworkLevel) : focusedItem.getNbtNoMasterwork();
-            generatedItem = ItemFactory.fromBaseWithNbt(focusedItem.baseItem(), nbt);
+            generatedItem = ItemFactory.fromBaseWithNbt(focusedItem.baseItem(), nbt.copy());
         }
-        else generatedItem = ItemFactory.fromBaseWithNbt(focusedCharm.baseItem(), focusedCharm.getNbt());
+        else generatedItem = ItemFactory.fromBaseWithNbt(focusedCharm.baseItem(), focusedCharm.getNbt().copy());
 
-        if (generatedItem.contains(DataComponentTypes.DYED_COLOR) && dyeColor != -1)
-            generatedItem.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(dyeColor, true));
+
+        if (generatedItem.getItem() instanceof DyeableItem && dyeColor != -1) {
+            generatedItem.getOrCreateSubNbt("display").putInt("color", dyeColor);
+        }
     }
 
     @Override
@@ -192,8 +192,7 @@ public class GeneratorGui extends Screen implements LazyScreen {
 
             context.drawItem(generatedItem, 180, labelMenuHeight + 18);
 
-            context.drawTooltip(textRenderer, generatedItem.getTooltip(Item.TooltipContext.DEFAULT, MinecraftClient.getInstance().player,
-                    MinecraftClient.getInstance().options.advancedItemTooltips ? TooltipType.ADVANCED : TooltipType.BASIC), 118, labelMenuHeight + 61);
+            context.drawTooltip(textRenderer, generatedItem.getTooltip(MinecraftClient.getInstance().player, TooltipContext.BASIC), 118, labelMenuHeight + 61);
         }
 
         // draw vertical line
@@ -213,7 +212,7 @@ public class GeneratorGui extends Screen implements LazyScreen {
             context.getMatrices().pop();
         }
 
-        if (generatedItem.contains(DataComponentTypes.DYED_COLOR)) {
+        if (generatedItem.getItem() instanceof DyeableItem) {
             context.getMatrices().push();
             context.getMatrices().translate(0, 0, 500);
             context.drawTextWrapped(textRenderer, StringVisitable.plain("Set Dye Color"), 10, labelMenuHeight + 92, 100, Colors.WHITE);

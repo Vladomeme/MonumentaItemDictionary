@@ -8,8 +8,6 @@ import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -43,9 +41,7 @@ public class BuildItemButtonWidget extends ButtonWidget {
         NbtCompound display = new NbtCompound();
         display.putString("Name", item != null ? (item.name().split("\\(")[0].trim()) : "No Item");
         plain.put("display", display);
-
-        builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
-                component -> component.apply(nbt -> nbt.put("plain", plain)));
+        builtItem.getOrCreateNbt().put("plain", plain);
     }
 
     @Override

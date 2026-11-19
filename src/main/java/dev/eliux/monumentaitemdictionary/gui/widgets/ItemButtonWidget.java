@@ -13,8 +13,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -42,8 +40,7 @@ public class ItemButtonWidget extends ClickableWidget {
         NbtCompound display = new NbtCompound();
         display.putString("Name", item.name().split("\\(")[0].trim());
         plain.put("display", display);
-        builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
-                component -> component.apply(nbt -> nbt.put("plain", plain)));
+        builtItem.getOrCreateNbt().put("plain", plain);
     }
 
     public void setMinimumMasterwork() {

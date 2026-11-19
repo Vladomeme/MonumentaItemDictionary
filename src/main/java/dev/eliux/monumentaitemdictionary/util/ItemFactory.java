@@ -1,35 +1,12 @@
 package dev.eliux.monumentaitemdictionary.util;
 
-import com.mojang.authlib.properties.Property;
-import com.mojang.authlib.properties.PropertyMap;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.Dynamic;
-import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.item.DictionaryItem;
-import net.minecraft.block.entity.BannerPattern;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BannerPatternsComponent;
-import net.minecraft.component.type.DyedColorComponent;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.component.type.ProfileComponent;
-import net.minecraft.datafixer.fix.BannerPatternFormatFix;
-import net.minecraft.datafixer.fix.ItemStackComponentizationFix;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.*;
-import net.minecraft.potion.Potion;
-import net.minecraft.registry.*;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
-
-import java.util.*;
 
 public class ItemFactory {
 
@@ -48,11 +25,11 @@ public class ItemFactory {
             NbtCompound nbt = item.getNbt();
             if (nbt.isEmpty()) return stack;
 
-            if (item.baseItem() == Items.PLAYER_HEAD) applyProfileComponent(stack, nbt);
-            if (arrayContains(LEATHER_ARMOR, item.baseItem())) applyColorComponent(stack, nbt);
-            if (arrayContains(POTIONS, item.baseItem())) applyPotionContentsComponent(stack, nbt);
-            if (item.baseItem() == Items.SHIELD) applyPatternComponents(stack, nbt);
-            if (stack.isIn(ItemTags.BANNERS)) applyPatternComponents(stack, nbt);
+            if (item.baseItem() == Items.PLAYER_HEAD) applySkullOwner(stack, nbt);
+            if (arrayContains(LEATHER_ARMOR, item.baseItem())) applyColor(stack, nbt);
+            if (arrayContains(POTIONS, item.baseItem())) applyPotionData(stack, nbt);
+            if (item.baseItem() == Items.SHIELD) applyBlockEntityTag(stack, nbt);
+            if (stack.isIn(ItemTags.BANNERS)) applyBlockEntityTag(stack, nbt);
         }
         return stack;
     }
@@ -64,88 +41,37 @@ public class ItemFactory {
         return false;
     }
 
-    private static void applyProfileComponent(ItemStack stack, NbtCompound nbt) {
-        nbt = nbt.getCompound("SkullOwner");
-
-        Optional<String> name = nbt.contains("Name") ? Optional.of(nbt.getString("Name")) : Optional.empty();
-        Optional<UUID> id = nbt.containsUuid("Id") ? Optional.of(nbt.getUuid("Id")) : Optional.empty();
-        PropertyMap properties = new PropertyMap();
-        properties.put("textures", new Property("textures", nbt.getCompound("Properties")
-                .getList("textures", 10).getCompound(0).getString("Value")));
-
-        stack.set(DataComponentTypes.PROFILE, new ProfileComponent(name, id, properties));
+    private static void applySkullOwner(ItemStack stack, NbtCompound source) {
+        if (source.contains("SkullOwner"))
+            stack.getOrCreateNbt().put("SkullOwner", source.getCompound("SkullOwner").copy());
     }
 
-    private static void applyColorComponent(ItemStack stack, NbtCompound nbt) {
-        nbt = nbt.getCompound("display");
-        if (nbt.contains("color"))
-            stack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(nbt.getInt("color"), false));
+    private static void applyColor(ItemStack stack, NbtCompound source) {
+        if (source.getCompound("display").contains("color"))
+            stack.getOrCreateSubNbt("display").putInt("color", source.getCompound("display").getInt("color"));
     }
 
-    private static void applyPotionContentsComponent(ItemStack stack, NbtCompound nbt) {
-        Optional<RegistryEntry<Potion>> potion;
-        if (nbt.contains("Potion"))
-            potion = Optional.ofNullable(Registries.POTION.getEntry(Identifier.of(nbt.getString("Potion"))).orElse(null));
-        else
-            potion = Optional.empty();
-
-        Optional<Integer> color = nbt.contains("CustomPotionColor") ? Optional.of(nbt.getInt("CustomPotionColor")) : Optional.empty();
-        stack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(potion, color, List.of()));
+    private static void applyPotionData(ItemStack stack, NbtCompound source) {
+        if (source.contains("Potion"))
+            stack.getOrCreateNbt().put("Potion", source.getCompound("Potion").copy());
+        if (source.contains("CustomPotionColor"))
+            stack.getOrCreateNbt().putInt("CustomPotionColor", source.getInt("CustomPotionColor"));
     }
 
-    private static void applyPatternComponents(ItemStack stack, NbtCompound nbt) {
-        ClientWorld world = MinecraftClient.getInstance().world;
-        if (world == null || !nbt.contains("BlockEntityTag")) return;
-
-        nbt = nbt.getCompound("BlockEntityTag");
-
-        if (nbt.contains("Base"))
-            stack.set(DataComponentTypes.BASE_COLOR, DyeColor.byId(nbt.getInt("Base")));
-
-        if (nbt.contains("Patterns")) {
-            Optional<RegistryWrapper.Impl<BannerPattern>> registryLookup = world.getRegistryManager().getOptionalWrapper(RegistryKeys.BANNER_PATTERN);
-
-            if (registryLookup.isPresent()) {
-                List<BannerPatternsComponent.Layer> layers = new ArrayList<>();
-
-                for (NbtElement nbtElement : nbt.getList("Patterns", 10)) {
-                    NbtCompound layer = (NbtCompound) nbtElement;
-                    RegistryKey<BannerPattern> patternKey = RegistryKey.of(RegistryKeys.BANNER_PATTERN,
-                            Identifier.of(BannerPatternFormatFix.OLD_TO_NEW_PATTERNS.get(layer.getString("Pattern"))));
-
-                    Optional<RegistryEntry.Reference<BannerPattern>> layerPattern = registryLookup.get().getOptional(patternKey);
-
-                    if (layerPattern.isPresent()) {
-                        DyeColor layerColor = DyeColor.byId(layer.getInt("Color"));
-                        layers.add(new BannerPatternsComponent.Layer(layerPattern.get(), layerColor));
-                    }
-                }
-                stack.set(DataComponentTypes.BANNER_PATTERNS, new BannerPatternsComponent(layers));
-            }
-        }
+    private static void applyBlockEntityTag(ItemStack stack, NbtCompound source) {
+        if (source.contains("BlockEntityTag"))
+            stack.getOrCreateNbt().put("BlockEntityTag", source.getCompound("BlockEntityTag").copy());
     }
 
     public static ItemStack fromBaseWithNbt(Item baseItem, NbtCompound nbt) {
-        ClientPlayNetworkHandler nh = MinecraftClient.getInstance().getNetworkHandler();
-        if (nh == null) return ERROR_ITEM;
-
-        String stringNbt = nbt.asString();
-        stringNbt = stringNbt.replace("minecraft:sweeping", "minecraft:sweeping_edge");
-
         try {
-            NbtCompound itemNbt = new NbtCompound();
-            itemNbt.put("tag", StringNbtReader.parse(stringNbt));
-            ItemStackComponentizationFix.StackData stackData = new ItemStackComponentizationFix.StackData(
-                    Registries.ITEM.getId(baseItem).toString(), 1, new Dynamic<>(nh.getRegistryManager().getOps(NbtOps.INSTANCE), itemNbt));
-            ItemStackComponentizationFix.fixStack(stackData, stackData.nbt);
+            ItemStack stack = new ItemStack(baseItem, 1);
+            stack.getOrCreateNbt();
+            stack.setNbt(nbt);
 
-            DataResult<? extends Pair<ItemStack, ?>> dataResult = ItemStack.CODEC.decode(stackData.finalize());
-            dataResult.ifError(error -> Mid.LOGGER.error("[MID] {}", error.message()));
-
-            return dataResult.result().isPresent() ? dataResult.result().get().getFirst() : ERROR_ITEM;
+            return stack;
         }
         catch (Exception e) {
-            Mid.LOGGER.error(e.getMessage());
             e.printStackTrace();
         }
 

@@ -23,7 +23,8 @@ public class WebManager {
         ChatHud chat = MinecraftClient.getInstance().inGameHud.getChatHud();
 
         new Thread(() -> {
-            try (HttpClient client = HttpClient.newHttpClient()) {
+            HttpClient client = HttpClient.newHttpClient();
+            try {
                 List<CompletableFuture<HttpResponse<String>>> futures = new ArrayList<>(requests.length);
 
                 for (WebRequest request : requests) {

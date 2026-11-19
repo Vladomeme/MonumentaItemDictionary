@@ -8,8 +8,6 @@ import dev.eliux.monumentaitemdictionary.util.ItemFactory;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
@@ -50,8 +48,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
             NbtCompound display = new NbtCompound();
             display.putString("Name", "No Item");
             plain.put("display", display);
-            builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
-                    component -> component.apply(nbt -> nbt.put("plain", plain)));
+            builtItem.getOrCreateNbt().put("plain", plain);
 
             return builtItem;
         }
@@ -65,8 +62,7 @@ public class BuildCharmButtonWidget extends ButtonWidget {
             case EPIC -> "epiccharm";
             default -> "";
         });
-        builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
-                component -> component.apply(nbt -> nbt.put("Monumenta", monumenta)));
+        builtItem.getOrCreateNbt().put("Monumenta", monumenta);
 
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();
@@ -75,9 +71,8 @@ public class BuildCharmButtonWidget extends ButtonWidget {
         display.putString("Name", charm.name().split("\\(")[0].trim());
         display.put("Lore", lore);
         plain.put("display", display);
+        builtItem.getOrCreateNbt().put("plain", plain);
 
-        builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
-                component -> component.apply(nbt -> nbt.put("plain", plain)));
         return builtItem;
     }
 

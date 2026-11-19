@@ -14,8 +14,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -46,8 +44,7 @@ public class CharmButtonWidget extends ClickableWidget {
             case EPIC -> "epiccharm";
             default -> "";
         });
-        builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
-                component -> component.apply(nbt -> nbt.put("Monumenta", monumenta)));
+        builtItem.getOrCreateNbt().put("Monumenta", monumenta);
 
         NbtCompound plain = new NbtCompound();
         NbtCompound display = new NbtCompound();
@@ -56,8 +53,7 @@ public class CharmButtonWidget extends ClickableWidget {
         display.putString("Name", charm.name().split("\\(")[0].trim());
         display.put("Lore", lore);
         plain.put("display", display);
-        builtItem.apply(DataComponentTypes.CUSTOM_DATA, NbtComponent.DEFAULT,
-                component -> component.apply(nbt -> nbt.put("plain", plain)));
+        builtItem.getOrCreateNbt().put("plain", plain);
     }
 
     @Override

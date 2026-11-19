@@ -339,7 +339,7 @@ public class CharmDictionaryGui extends Screen implements LazyScreen {
         }
 
         String nameJson = nbt.getCompound("display").getString("Name");
-        Text text = Text.Serialization.fromJson(nameJson, client.world.getRegistryManager());
+        Text text = Text.Serialization.fromJson(nameJson);
         lines.add(text);
     }
 
@@ -352,7 +352,7 @@ public class CharmDictionaryGui extends Screen implements LazyScreen {
         boolean addedNewline = false;
         boolean adding = false;
         for (NbtElement nbtElement : lore) {
-            MutableText text = Text.Serialization.fromJson(nbtElement.asString(), client.world.getRegistryManager());
+            MutableText text = Text.Serialization.fromJson(nbtElement.asString());
             if (text == null) continue;
 
             String line = text.getString();
