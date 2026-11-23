@@ -78,12 +78,11 @@ public class Stats {
     public Percentage spellCooldownPercent;
     public double potionDamage;
 
+    private final ItemRegion currentRegion;
     private final Percentage currentHealthPercent;
-
     private final List<Situational> situationals;
     private final List<Infusion> infusions;
-    private final Map<ItemType, List<ItemStat>> allItemStats = new HashMap<>();
-    private final ItemRegion currentRegion;
+    private final Map<String, Double> allItemStats = new HashMap<>();
 
     public Stats(List<DictionaryItem> items, List<Situational> situationals, List<Infusion> infusions,
                  double currentHealthPercent, ItemRegion currentRegion) {
@@ -96,7 +95,9 @@ public class Stats {
             if (items.get(i) != null) {
                 DictionaryItem item = items.get(i);
                 List<ItemStat> itemStats = item.hasMasterwork() ? item.getStatsFromMasterwork(item.getMaxMasterwork() - 1) : item.getStatsNoMasterwork();
-                allItemStats.put(ItemType.equipmentList.get(i), itemStats);
+                for (ItemStat stat : itemStats) {
+                    allItemStats.merge(stat.statName(), (double) stat.statValue(), Double::sum);
+                }
             }
         }
 
@@ -305,47 +306,30 @@ public class Stats {
     }
 
     private double statValue(String s) {
-        double value = 0;
-        for (List<ItemStat> stats : allItemStats.values()) {
-            for (ItemStat stat : stats) {
-                if (stat.statName().equals(s)) value += stat.statValue();
-            }
-        }
-        return value;
+        if (allItemStats.containsKey(s)) return allItemStats.get(s);
+        return 0;
     }
 
     private double statValue(String s, double defaultValue) {
-        double value = statValue(s);
-        return value != 0 ? value : defaultValue;
+        if (allItemStats.containsKey(s)) return allItemStats.get(s);
+        return defaultValue;
     }
 
     private Percentage statValue(String s, double initialValue, boolean percent) {
         Percentage percentage = new Percentage(initialValue, percent);
-        for (List<ItemStat> stats : allItemStats.values()) {
-            for (ItemStat stat : stats) {
-                if (stat.statName().equals(s)) percentage.add(stat.statValue(), percent);
-            }
-        }
+        if (allItemStats.containsKey(s)) percentage.add(allItemStats.get(s), percent);
         return percentage;
     }
 
     @SuppressWarnings("SameParameterValue")
     private Percentage statValue(String s, double initialValue, double multiplier, boolean percent) {
         Percentage percentage = new Percentage(initialValue, percent);
-        for (List<ItemStat> stats : allItemStats.values()) {
-            for (ItemStat stat : stats) {
-                if (stat.statName().equals(s)) percentage.add(stat.statValue() * multiplier, percent);
-            }
-        }
+        if (allItemStats.containsKey(s)) percentage.add(allItemStats.get(s) * multiplier, percent);
         return percentage;
     }
 
     @SuppressWarnings("SameParameterValue")
     private void statValue(String s, Percentage percentage, double multiplier, boolean percent) {
-        for (List<ItemStat> stats : allItemStats.values()) {
-            for (ItemStat stat : stats) {
-                if (stat.statName().equals(s)) percentage.add(stat.statValue() * multiplier, percent);
-            }
-        }
+        if (allItemStats.containsKey(s)) percentage.add(allItemStats.get(s) * multiplier, percent);
     }
 }
