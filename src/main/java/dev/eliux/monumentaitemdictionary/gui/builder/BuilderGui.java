@@ -39,9 +39,6 @@ public class BuilderGui extends Screen implements LazyScreen {
     public static final int MAX_CHARM_POWER = 12;
 
     private final DictionaryController controller;
-    public final List<String> situationals = Arrays.asList("Shielding", "Poise", "Inure", "Steadfast", "Guard", "Second Wind",
-            "Ethereal", "Reflexes", "Evasion", "Tempo", "Cloaked", "Adaptability");
-    public final List<String> infusions = Arrays.asList("Vigor", "Focus", "Tenacity", "Vitality", "Perspicacity");
     private final List<BuildItemButtonWidget> buildItemButtons = new ArrayList<>();
     private final List<BuildCharmButtonWidget> buildCharmButtons = new ArrayList<>();
     public List<DictionaryCharm> charms = new ArrayList<>();
@@ -75,8 +72,8 @@ public class BuilderGui extends Screen implements LazyScreen {
     private ItemIconButtonWidget buildClipboard;
     private ItemIconButtonWidget addBuildButton;
     private CyclingButtonWidget<ItemRegion> regionButton;
-    private Map<String, Boolean> enabledSituationals;
-    private Map<String, Boolean> enabledInfusions;
+    private List<Situational> enabledSituationals;
+    private List<Infusion> enabledInfusions;
     private final List<CheckBoxWidget> situationalCheckBoxList = new ArrayList<>();
     private final List<CheckBoxWidget> infusionsCheckBoxList = new ArrayList<>();
     private double currentHealthPercent = 100;
@@ -177,28 +174,8 @@ public class BuilderGui extends Screen implements LazyScreen {
                 });
 
         updateSpecializations();
-        enabledSituationals = new HashMap<>() {{
-            put("shielding", false);
-            put("poise", false);
-            put("inure", false);
-            put("steadfast", false);
-            put("guard", false);
-            put("ethereal", false);
-            put("reflexes", false);
-            put("evasion", false);
-            put("tempo", false);
-            put("cloaked", false);
-            put("adaptability", false);
-            put("second_wind", false);
-            put("versatile", false);
-        }};
-        enabledInfusions = new HashMap<>() {{
-            put("vigor", false);
-            put("focus", false);
-            put("tenacity", false);
-            put("vitality", false);
-            put("perspicacity", false);
-        }};
+        enabledSituationals = new ArrayList<>();
+        enabledInfusions = new ArrayList<>();
 
         buildStats = new Stats(buildItems, enabledSituationals, enabledInfusions, currentHealthPercent, region);
         updateButtons();
@@ -398,7 +375,7 @@ public class BuilderGui extends Screen implements LazyScreen {
         buttonSize = width / 18;
         itemPadding = buttonSize / 10;
 
-        charmsY = labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 2 + (checkBoxSize + itemPadding) * 5 + 85;
+        charmsY = labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 2 + (checkBoxSize + itemPadding) * 6 + 85;
         charmsButtonY = (int) ((getCharmsListWithPower().size()) / floor((double) (width - sideMenuWidth - charmsX) / (buttonSize + itemPadding))) *
                 (buttonSize + itemPadding) - scrollPixels + buttonSize + 2 * itemPadding;
         statsY = max(labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 4, labelMenuHeight + itemPadding + (checkBoxSize + itemPadding) * 6) + 20;
@@ -422,28 +399,28 @@ public class BuilderGui extends Screen implements LazyScreen {
 
     public void updateButtons() {
         situationalCheckBoxList.clear();
-        for (int i = 0; i < situationals.size(); i++) {
-            String situational = situationals.get(i);
+        for (int i = 0; i < Situational.values().length; i++) {
+            Situational situational = Situational.values()[i];
 
             CheckBoxWidget situationalCheckBox = new CheckBoxWidget(
                     width / 3 + (i / 6) * 90,
                     labelMenuHeight + itemPadding + (checkBoxSize + itemPadding) * (i % 6) - scrollPixels,
-                    Text.literal(situational),
-                    enabledSituationals.get(situational.replace(" ", "_").toLowerCase()),
+                    situational.display,
+                    enabledSituationals.contains(situational),
                     true,
                     this);
             situationalCheckBoxList.add(situationalCheckBox);
         }
 
         infusionsCheckBoxList.clear();
-        for (int i = 0; i < infusions.size() ; i++) {
-            String infusion = getSlidingText(infusions.get(i), halfWidth + halfWidthPadding + (i / 6) * 90 + checkBoxSize, width - sideMenuWidth, false);
+        for (int i = 0; i < Infusion.values().length ; i++) {
+            Infusion infusion = Infusion.values()[i];
 
             CheckBoxWidget infusionCheckBox = new CheckBoxWidget(
                     halfWidth + halfWidthPadding + (i / 6) * 90,
                     labelMenuHeight + itemPadding + 2 * (buttonSize + itemPadding) + (checkBoxSize + itemPadding) * (i % 6) - scrollPixels + 55,
-                    Text.literal(infusion),
-                    enabledInfusions.get(infusions.get(i).toLowerCase()),
+                    Text.of(getSlidingText(infusion.display, halfWidth + halfWidthPadding + (i / 6) * 90 + checkBoxSize, width - sideMenuWidth, false)),
+                    enabledInfusions.contains(infusion),
                     true,
                     this);
             infusionsCheckBoxList.add(infusionCheckBox);
@@ -481,16 +458,14 @@ public class BuilderGui extends Screen implements LazyScreen {
     }
 
     public void updateCheckBoxes() {
-        Iterator<CheckBoxWidget> checkBox = situationalCheckBoxList.iterator();
-        Iterator<String> text = situationals.iterator();
-        while (checkBox.hasNext() && text.hasNext()) {
-            enabledSituationals.put(text.next().replace(" ", "_").toLowerCase(), checkBox.next().isChecked());
+        enabledSituationals = new ArrayList<>();
+        for (int i = 0; i != Situational.values().length; i++) {
+            if (situationalCheckBoxList.get(i).isChecked()) enabledSituationals.add(Situational.values()[i]);
         }
 
-        checkBox = infusionsCheckBoxList.iterator();
-        text = infusions.iterator();
-        while (checkBox.hasNext() && text.hasNext()) {
-            enabledInfusions.put(text.next().toLowerCase(), checkBox.next().isChecked());
+        enabledInfusions = new ArrayList<>();
+        for (int i = 0; i != Infusion.values().length; i++) {
+            if (infusionsCheckBoxList.get(i).isChecked()) enabledInfusions.add(Infusion.values()[i]);
         }
     }
 
@@ -541,6 +516,9 @@ public class BuilderGui extends Screen implements LazyScreen {
     public void loadItems(DictionaryBuild build) {
         buildItems = build.allItems;
         charms = build.charms.isEmpty() ? new ArrayList<>() : build.charms;
+        region = build.region;
+        buildClass = build.className;
+        specialization = build.specialization;
 
         regionButton.setValue(build.region);
         classButton.setValue(build.className);
@@ -647,14 +625,14 @@ public class BuilderGui extends Screen implements LazyScreen {
         List<String> statsTypes = new ArrayList<>(Arrays.asList("Misc Stats", "Health Stats", "DR Stats", "HP Normalized DR Stats", "EHP Stats", "Melee Stats", "Projectile Stats", "Magic Stats"));
         List<List<String>> statsByType = new ArrayList<>();
 
-        statsByType.add(statsToRender.subList(0,   7)); // Misc Stats
-        statsByType.add(statsToRender.subList(7,  15)); // Health Stats
-        statsByType.add(statsToRender.subList(15, 22)); // Damage Reduction Stats
-        statsByType.add(statsToRender.subList(22, 29)); // Health Normalized Damage Reduction Stats
-        statsByType.add(statsToRender.subList(29, 36)); // EHP Stats
-        statsByType.add(statsToRender.subList(36, 43)); // Melee Stats
-        statsByType.add(statsToRender.subList(43, 49)); // Projectile Stats
-        statsByType.add(statsToRender.subList(49, 53)); // Magic Stats
+        statsByType.add(statsToRender.subList(0,   6)); // Misc Stats
+        statsByType.add(statsToRender.subList(6,  14)); // Health Stats
+        statsByType.add(statsToRender.subList(14, 21)); // Damage Reduction Stats
+        statsByType.add(statsToRender.subList(21, 28)); // Health Normalized Damage Reduction Stats
+        statsByType.add(statsToRender.subList(28, 35)); // EHP Stats
+        statsByType.add(statsToRender.subList(35, 42)); // Melee Stats
+        statsByType.add(statsToRender.subList(42, 48)); // Projectile Stats
+        statsByType.add(statsToRender.subList(48, 53)); // Magic Stats
 
         int i = 0;
         int j = 0;

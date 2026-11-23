@@ -28,7 +28,7 @@ public class Percentage {
             this.val += value / 100;
         }
         else {
-            this.perc += value*100;
+            this.perc += value * 100;
             this.val += value;
         }
         return this;
@@ -36,8 +36,8 @@ public class Percentage {
 
     public Percentage mul(double value, boolean percent) {
         if (percent) {
-            this.perc *= value/100;
-            this.val *= value/100;
+            this.perc *= value / 100;
+            this.val *= value / 100;
         }
         else {
             this.perc *= value;
