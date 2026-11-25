@@ -16,6 +16,7 @@ public class Styles {
     public static final Style YELLOW = Style.EMPTY.withColor(0xFFFF00);
     public static final Style LIGHT_GRAY = Style.EMPTY.withColor(0xAAAAAA);
     public static final Style PURPLE = Style.EMPTY.withColor(0xAA00AA);
+    public static final Style BROWN = Style.EMPTY.withColor(0x96501E);
 
     public static final Style TEXT = Style.EMPTY.withColor(TEXT_COLOR);
     public static final Style BOLD_TEXT = Style.EMPTY.withColor(TEXT_COLOR).withBold(true);

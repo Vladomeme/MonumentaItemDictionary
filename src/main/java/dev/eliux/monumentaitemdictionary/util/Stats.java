@@ -121,12 +121,10 @@ public class Stats {
         healingRate = statValue("curse_of_anemia", 100, -10, true);
         statValue("sustenance", healingRate, 10, true);
         regenPerSec = 0.33 * sqrt(statValue("regeneration")) * healingRate.val;
-        lifeDrainOnCrit = sqrt(statValue("life_drain")) * healingRate.val;
         healthFinal = (20 + statValue("max_health_flat")) * healthPercent.val * (1 + 0.01 * infusionValue(VITALITY));
         currentHealth = healthFinal * currentHealthPercent.val;
         effHealingRate = new Percentage(((20 / healthFinal) * healingRate.val), false);
         regenPerSecPercent = new Percentage((regenPerSec / healthFinal), false);
-        lifeDrainOnCritPercent = new Percentage((lifeDrainOnCrit / healthFinal), false);
 
         attackDamagePercent = statValue("attack_damage_percent", 100, true)
                 .add(infusionValue(VIGOR) * currentRegion.damageBonus, false);
@@ -158,6 +156,9 @@ public class Stats {
         spellPowerPercent = statValue("spell_power_base", 100, true);
         spellDamage = spellPowerPercent.duplicate().mulP(magicDamagePercent);
         spellCooldownPercent = new Percentage(100, true).mul(pow(0.95, statValue("aptitude") - statValue("ineptitude")), false);
+
+        lifeDrainOnCrit = sqrt(statValue("life_drain")) * 1.5 / (pow(clamp(attackSpeed, 0.5, 1.6), 1.5)) * healingRate.val;
+        lifeDrainOnCritPercent = new Percentage((lifeDrainOnCrit / healthFinal), false);
     }
 
     private void calculateDefenseStats() {
@@ -302,7 +303,7 @@ public class Stats {
     }
 
     private double situationalValue(Situational situational) {
-        return statValue(situational.key);
+        return situationals.contains(situational) ? statValue(situational.key) : 0;
     }
 
     private double statValue(String s) {

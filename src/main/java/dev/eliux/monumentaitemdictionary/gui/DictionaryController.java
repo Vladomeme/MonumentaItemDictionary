@@ -74,6 +74,7 @@ public class DictionaryController {
     public final FilterGui buildFilterGui;
 
     public Screen lastOpenedScreen = null;
+    public Style lastTooltipSource = null;
 
     public DictionaryController() {
         items = new ArrayList<>();
@@ -764,9 +765,16 @@ public class DictionaryController {
     }
 
     public DictionaryItem getItemByName(String itemName, boolean isExalted) {
+        List<DictionaryItem> options = new ArrayList<>();
         for (DictionaryItem item : items) {
-            if (item.name().equals(itemName)
-                    && ((isExalted && (item.region() == ItemRegion.RING)) || (!isExalted && (item.region() != ItemRegion.RING)))) return item;
+            if (item.name().equals(itemName)) options.add(item);
+        }
+
+        if (options.isEmpty()) return null;
+        if (options.size() == 1) return options.getFirst();
+
+        for (DictionaryItem item : options) {
+            if ((isExalted && item.region() == ItemRegion.RING) || (!isExalted && item.region() != ItemRegion.RING)) return item;
         }
         return null;
     }

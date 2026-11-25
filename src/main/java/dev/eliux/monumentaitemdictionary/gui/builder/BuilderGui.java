@@ -28,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +41,7 @@ public class BuilderGui extends Screen implements LazyScreen {
     public static final int MAX_CHARM_POWER = 12;
 
     private final DictionaryController controller;
+    private final DecimalFormat formatter = new DecimalFormat("0.##") {{setRoundingMode(RoundingMode.DOWN);}};
     private final List<BuildItemButtonWidget> buildItemButtons = new ArrayList<>();
     private final List<BuildCharmButtonWidget> buildCharmButtons = new ArrayList<>();
     public List<DictionaryCharm> charms = new ArrayList<>();
@@ -375,7 +378,7 @@ public class BuilderGui extends Screen implements LazyScreen {
         buttonSize = width / 18;
         itemPadding = buttonSize / 10;
 
-        charmsY = labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 2 + (checkBoxSize + itemPadding) * 6 + 85;
+        charmsY = labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 2 + (checkBoxSize + itemPadding) * Infusion.values().length + 85;
         charmsButtonY = (int) ((getCharmsListWithPower().size()) / floor((double) (width - sideMenuWidth - charmsX) / (buttonSize + itemPadding))) *
                 (buttonSize + itemPadding) - scrollPixels + buttonSize + 2 * itemPadding;
         statsY = max(labelMenuHeight + itemPadding + (buttonSize + itemPadding) * 4, labelMenuHeight + itemPadding + (checkBoxSize + itemPadding) * 6) + 20;
@@ -417,9 +420,9 @@ public class BuilderGui extends Screen implements LazyScreen {
             Infusion infusion = Infusion.values()[i];
 
             CheckBoxWidget infusionCheckBox = new CheckBoxWidget(
-                    halfWidth + halfWidthPadding + (i / 6) * 90,
-                    labelMenuHeight + itemPadding + 2 * (buttonSize + itemPadding) + (checkBoxSize + itemPadding) * (i % 6) - scrollPixels + 55,
-                    Text.of(getSlidingText(infusion.display, halfWidth + halfWidthPadding + (i / 6) * 90 + checkBoxSize, width - sideMenuWidth, false)),
+                    halfWidth + halfWidthPadding,
+                    labelMenuHeight + itemPadding + 2 * (buttonSize + itemPadding) + (checkBoxSize + itemPadding) * i - scrollPixels + 55,
+                    Text.of(getSlidingText(infusion.display, halfWidth + halfWidthPadding + checkBoxSize, width - sideMenuWidth, false)),
                     enabledInfusions.contains(infusion),
                     true,
                     this);
@@ -499,7 +502,7 @@ public class BuilderGui extends Screen implements LazyScreen {
         String formattedStatValue;
         if (field.get(buildStats) instanceof Percentage) {
             doubleStatValue = (((Percentage) field.get(buildStats)).perc);
-            formattedStatValue = String.format("%.2f", doubleStatValue) + "%";
+            formattedStatValue = formatter.format(doubleStatValue) + "%";
         }
         else if (field.get(buildStats) instanceof Integer) {
             intStatValue = field.getInt(buildStats);
@@ -507,7 +510,7 @@ public class BuilderGui extends Screen implements LazyScreen {
         }
         else {
             doubleStatValue = field.getDouble(buildStats);
-            formattedStatValue = String.format("%.2f", doubleStatValue);
+            formattedStatValue = formatter.format(doubleStatValue);
         }
 
         return formattedStatName + formattedStatValue;
@@ -613,6 +616,8 @@ public class BuilderGui extends Screen implements LazyScreen {
         if (textWidth >= textRenderer.getWidth(Text.literal(text).setStyle(Style.EMPTY.withBold(bold))) + 20) return text;
         int charWidth = textRenderer.getWidth(Text.literal("M").setStyle(Style.EMPTY.withBold(bold)));
         int textLength = (int) floor((double) textWidth/charWidth);
+
+        if (textLength <= 0) return "";
 
         int start = textTimeOffset % textLength;
 

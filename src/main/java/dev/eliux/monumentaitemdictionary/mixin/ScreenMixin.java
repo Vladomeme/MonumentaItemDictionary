@@ -1,5 +1,6 @@
 package dev.eliux.monumentaitemdictionary.mixin;
 
+import dev.eliux.monumentaitemdictionary.Mid;
 import dev.eliux.monumentaitemdictionary.gui.DictionaryController;
 import dev.eliux.monumentaitemdictionary.gui.builder.DictionaryBuild;
 import dev.eliux.monumentaitemdictionary.gui.charm.DictionaryCharm;
@@ -16,10 +17,14 @@ import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,6 +33,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +61,7 @@ public abstract class ScreenMixin {
 
             buildFromInventoryButton = new ItemIconButtonWidget(x, y, button -> {
                 DefaultedList<Slot> slots = ((HandledScreenAccessor) client.currentScreen).mid$getHandler().slots;
-                DictionaryController controller = new DictionaryController();
+                DictionaryController controller = Mid.controller;
 
                 DictionaryBuild buildFromInventory =
                         (inventoryTitle.equals("Mechanical Armory")) ? getBuildFromMechanicalArmory(client,
@@ -136,8 +142,10 @@ public abstract class ScreenMixin {
 
         if (!slotItemNames.get(45).equals("Class Excluded")) {
             String classInfo = slotItemNames.get(47);
-            buildClass = PlayerClass.of(classInfo.substring(0, classInfo.indexOf(" ")));
-            specializationName = Specialization.of(classInfo.substring(classInfo.indexOf("(") + 1, classInfo.indexOf(")")));
+            if (classInfo != null && !classInfo.isEmpty()) {
+                buildClass = PlayerClass.of(classInfo.substring(0, classInfo.indexOf(" ")));
+                specializationName = Specialization.of(classInfo.substring(classInfo.indexOf("(") + 1, classInfo.indexOf(")")));
+            }
         }
 
         int id = controller.generateNewId();
@@ -155,8 +163,8 @@ public abstract class ScreenMixin {
 
         List<Integer> slotsInOrderOfBuildRightSide = Arrays.asList(52, 25, 26, 35, 44, 53);
         List<Integer> slotsInOrderOfBuildLeftSide = Arrays.asList(46, 19, 18, 27, 36, 45);
-        itemsFromBuild = getItemsFromOneSide(client, slots, controller, slotsInOrderOfBuildRightSide);
-        if (itemsFromBuild.stream().allMatch(Objects::isNull)) itemsFromBuild = getItemsFromOneSide(client, slots, controller, slotsInOrderOfBuildLeftSide);
+        itemsFromBuild = getItemsFromOneSide(client, slots, controller, slotsInOrderOfBuildLeftSide);
+        if (itemsFromBuild.stream().allMatch(Objects::isNull)) itemsFromBuild = getItemsFromOneSide(client, slots, controller, slotsInOrderOfBuildRightSide);
 
         int id = controller.generateNewId();
         return new DictionaryBuild("", itemsFromBuild, List.of(), null, region, PlayerClass.NO_CLASS, Specialization.NO_SPECIALIZATION, false, id);
@@ -175,5 +183,60 @@ public abstract class ScreenMixin {
         }
 
         return itemsFromBuild;
+    }
+
+    @Inject(method = "handleTextClick", at = @At("HEAD"))
+    private void mid$handleTextClick(Style style, CallbackInfoReturnable<Boolean> cir) {
+        if (!Screen.hasShiftDown() || style == null) return;
+
+        HoverEvent hoverEvent = style.getHoverEvent();
+        if (hoverEvent == null || hoverEvent.getAction() != HoverEvent.Action.SHOW_TEXT) return;
+
+        Text text = hoverEvent.getValue(HoverEvent.Action.SHOW_TEXT);
+        if (text == null) return;
+
+        String[] lines = text.getString().split("\n");
+        if (!lines[0].endsWith("'s Equipment")) return;
+
+        List<DictionaryItem> items = new ArrayList<>();
+        int[] itemOrder = new int[]{6, 5, 1, 2, 3, 4};
+        boolean hasRingItems = false;
+        for (int i : itemOrder) {
+            if (lines[i].startsWith("No")) {
+                items.add(null);
+                continue;
+            }
+
+            DictionaryItem item = Mid.controller.getItemByName(lines[i].substring(1, lines[i].length() - 1), false);
+            if (i != 6 && item.region() == ItemRegion.RING) hasRingItems = true;
+            items.add(item);
+        }
+
+        //trying to fix exalted items
+        if (hasRingItems) {
+            for (int i = 0; i != 6; i++) {
+                if (items.get(i) == null || items.get(i).region() == ItemRegion.RING) continue;
+
+                DictionaryItem item = Mid.controller.getItemByName(items.get(i).name(), true);
+                if (item != null) items.set(i, item);
+            }
+        }
+
+        ItemRegion region = ItemRegion.RING;
+        for (int i = 1; i != 6; i++) {
+            if (items.get(i) != null) {
+                region = items.get(i).region();
+                break;
+            }
+        }
+
+        int id = Mid.controller.generateNewId();
+        DictionaryBuild build = new DictionaryBuild(lines[0], items, List.of(), items.getFirst(), region,
+                PlayerClass.NO_CLASS,Specialization.NO_SPECIALIZATION, false, id);
+
+        MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        close();
+        Mid.controller.open(Mid.controller.builderGui);
+        Mid.controller.builderGui.loadItems(build);
     }
 }
